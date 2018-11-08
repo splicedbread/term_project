@@ -85,6 +85,11 @@ public:
 
 	Potion & operator = (const Potion & right);
 	bool operator == (const Potion & right) const;
+	bool operator != (const Potion & right) const;
+	bool operator > (const Potion & right) const;
+	bool operator >= (const Potion & right) const;
+	bool operator < (const Potion & right) const;
+	bool operator <= (const Potion & right) const;
 
 	const String GetName() const;
 	const String GetDesc() const;

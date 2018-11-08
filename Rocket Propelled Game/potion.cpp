@@ -11,6 +11,7 @@
 				10/5/18 (00.03am), documentation updated, 
 				10/9/18, documentation updated, string replaced by String
 				10/18/18, added operator == overload
+				11/07/18, added more conditional operator overloads
 
 	Assignment: Lab1
 
@@ -114,6 +115,85 @@ bool Potion::operator== (const Potion & right) const
 	}
 
 	return flag;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload checks the contents of the obj to test for
+			object equality
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if both objects are evauluated not the same
+*//////////////////////////////////////////////////////////////////////////////
+bool Potion::operator != (const Potion & right) const
+{
+	return !(this == &right);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of potions
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is greater than right
+*//////////////////////////////////////////////////////////////////////////////
+bool Potion::operator > (const Potion & right) const
+{
+	return (String::ToInt(this->m_cost) > String::ToInt(right.m_cost));
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of potions
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is greater than or equal to right
+*//////////////////////////////////////////////////////////////////////////////
+bool Potion::operator >= (const Potion & right) const
+{
+	return (String::ToInt(this->m_cost) >= String::ToInt(right.m_cost));
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of potions
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is less than right
+*//////////////////////////////////////////////////////////////////////////////
+bool Potion::operator < (const Potion & right) const
+{
+	return (String::ToInt(this->m_cost) < String::ToInt(right.m_cost));
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of potions
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is less than or equal to the right
+*//////////////////////////////////////////////////////////////////////////////
+bool Potion::operator <= (const Potion & right) const
+{
+	return (String::ToInt(this->m_cost) <= String::ToInt(right.m_cost));
 }
 
 /**********************************************************************
