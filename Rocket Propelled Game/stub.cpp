@@ -86,5 +86,37 @@ void PotionStub()
 		cout << endl;
 	}
 
+	cout << "///////////////Comparing Potions together///////////////" << endl;
+
+
+	if (pt1 > pt2)
+	{
+		cout << "pt1 is greater than pt2" << endl;
+	}
+	else
+	{
+		cout << "pt2 is greater than pt1" << endl;
+	}
+
+	if (pt1 < pt2)
+	{
+		cout << "pt1 is less than pt2" << endl;
+	}
+	else
+	{
+		cout << "pt2 is less than pt1" << endl;
+	}
+
+	if (pt1 != pt2)
+	{
+		cout << "pt1 does not equal pt2" << endl;
+	}
+
+	if (pt1 == pt1)
+	{
+		cout << "pt1 does in fact equal pt1" << endl;
+	}
+
+
 }
 
