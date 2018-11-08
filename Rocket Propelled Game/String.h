@@ -71,6 +71,11 @@ public:
 	String & operator + (const String & right); //not implemented yet
 	String & operator + (const char *); //not implemented yet
 	bool operator == (const String & right) const;
+	bool operator > (const String & right) const;
+	bool operator < (const String & right) const;
+	bool operator != (const String & right) const;
+	bool operator >= (const String & right) const;
+	bool operator <= (const String & right) const;
 	friend std::ostream& operator << (std::ostream& os, const String& str);
 	const char& operator [] (const int i) const;
 	//char& operator [] (int i);

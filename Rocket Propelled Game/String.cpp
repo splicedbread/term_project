@@ -20,6 +20,7 @@ using std::ostream;
 							and ToString, ToInt
 							Updated +operator overloads
 				  10/18/18: added a operator == overload
+				  11/07/18: added remaining conditional operator overloads
 */
 /////////////////////////////////////////////////////////////////////////////
 
@@ -354,6 +355,95 @@ bool String::operator == (const String & right) const
 	}
 	
 	return flag;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload checks the contents of the obj to test for
+			object inequality
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if both objects are evauluated not the same
+*//////////////////////////////////////////////////////////////////////////////
+bool String::operator != (const String & right) const
+{
+	bool flag = false;
+
+	if (this->m_length != right.m_length)
+	{
+		flag = true;
+	}
+
+	if (!flag)
+	{
+		for (int i = 0; i < (this->m_length + 1) && !flag; ++i)
+		{ 
+			if (this->m_str[i] != right.m_str[i])
+			{
+				flag = true;
+			}
+		}
+	}
+
+	return flag;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator checks the difference of m_length and returns a bool
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false if this is greater than right
+*//////////////////////////////////////////////////////////////////////////////
+bool String::operator > (const String & right) const
+{
+	return (this->m_length > right.m_length);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator checks the difference of m_length and returns a bool
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false if this is less than right
+*//////////////////////////////////////////////////////////////////////////////
+bool String::operator < (const String & right) const
+{
+	return (this->m_length < right.m_length);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator checks the difference of m_length and returns a bool
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false if this is greater than or equal to right
+*//////////////////////////////////////////////////////////////////////////////
+bool String::operator >= (const String & right) const
+{
+	return (this->m_length >= right.m_length);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator checks the difference of m_length and returns a bool
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false if this is less than or equal to right
+*//////////////////////////////////////////////////////////////////////////////
+bool String::operator <= (const String & right) const
+{
+	return (this->m_length <= right.m_length);
 }
 
 ////////////////////////////////////////////////////////////////////////
