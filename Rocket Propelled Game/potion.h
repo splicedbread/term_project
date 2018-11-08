@@ -69,6 +69,8 @@ private:
 	String m_potency;
 	String m_cost;
 
+	long int m_costSize;
+
 	bool ValidateCost(String& cst);
 	void FormatCost(String& cst);
 	
@@ -94,6 +96,7 @@ public:
 	const String GetDesc() const;
 	const String GetPoten() const;
 	const String GetCost() const;
+	const String GetCostSize() const;
 
 	void SetName(String nm);
 	void SetDesc(String dsc);

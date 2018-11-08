@@ -12,6 +12,13 @@
 				10/9/18, documentation updated, string replaced by String
 				10/18/18, added operator == overload
 				11/07/18, added more conditional operator overloads
+						, changed Display Cost, added a costSize for doing
+						 simpler things for money calculation
+						, added GetCostSize(), returns the cost size in
+							copper pieces, which ignores formatting
+							ie. cc or ccc or cccc ....
+						, subsequent changes to operator =; and copy ctor
+							to include new attribute
 
 	Assignment: Lab1
 
@@ -54,7 +61,7 @@ Potion::Potion(String name) : m_name(name), m_description(""), m_potency(""), m_
 
 };
 
-Potion::Potion(Potion & pt) : m_name(pt.m_name), m_description(pt.m_description), m_potency(pt.m_potency), m_cost(pt.m_cost)
+Potion::Potion(Potion & pt) : m_name(pt.m_name), m_description(pt.m_description), m_potency(pt.m_potency), m_cost(pt.m_cost), m_costSize(pt.m_costSize)
 {
 	//std::cout << "copy ctor called..." << std::endl;
 
@@ -81,6 +88,7 @@ Potion & Potion::operator = (const Potion & right)
 	this->m_description = right.m_description;
 	this->m_potency = right.m_potency;
 	this->m_cost = right.m_cost;
+	this->m_costSize = right.m_costSize;
 	return *this;
 }
 
@@ -251,6 +259,20 @@ const String Potion::GetPoten() const
 const String Potion::GetCost() const
 {
 	return this->m_cost;
+}
+
+/**********************************************************************
+* Purpose: This function Gets the Potion costSize as a String
+*
+* Precondition: This Potion object is initialized
+*
+* Postcondition: Returns this Potions costSize
+*
+*
+************************************************************************/
+const String Potion::GetCostSize() const
+{
+	return String::ToString(this->m_costSize);
 }
 
 /**********************************************************************
@@ -585,8 +607,8 @@ void Potion::FormatCost(String& cst)
 	
 	//test
 		//std::cout << cst << std::endl;
-
-		this->m_cost = cst;
+	this->m_costSize = (platnium * 1000000) + (gold * 10000) + (silver * 100) + (copper);
+	this->m_cost = cst;
 }
 
 
@@ -601,141 +623,41 @@ void Potion::FormatCost(String& cst)
 ************************************************************************/
 void Potion::DisplayCost() const
 {
-	int startE = 0;
-	int endE = 0;
-	int section = 0;
-	int elm = 0;
-	bool flag = true;
-	//String plat = "";
-	//String gold = "";
-	//String silver = "";
-	//String copper = "";
-	char * plat = nullptr;
-	char * gold = nullptr;
-	char * silver = nullptr;
-	char * copper = nullptr;
+	long int copper = 0;
+	int silver = 0;
+	int gold = 0;
+	int platnium = 0;
 
-	String temp = this->m_cost;
-	startE = elm;
-	//plat
-	while (section < 4)
+	copper = this->m_costSize;
+	while (copper > 99)
 	{
-		for (int i = startE; (i < temp.GetLen() + 1); ++i)
-		{
-			if (temp[i] == '.' || temp[i] == '\0')
-			{
-				endE = i;
-				//using a switch for whatever section we are on.
-				switch (section)
-				{
-				case 0:
-					//platnium
-					elm = 0;
-					try
-					{
-						plat = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						//A little complicated
-						//ex, if we have 123, then it will add 100 To plat, then 20, then 3
-						//because chars are just numbers that refrence the ascii table,
-						//if we subtract '0', then we will return an int that is our int we
-						//want To use
-
-						plat[elm] = temp[j];
-						elm++;
-					}
-					plat[endE - startE] = '\0';
-					break;
-				case 1:
-					//gold
-					elm = 0;
-					try
-					{
-						gold = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						gold[elm] = temp[j];
-						elm++;
-
-					}
-					gold[endE - startE] = '\0';
-					break;
-				case 2:
-					//silver
-					elm = 0;
-					try
-					{
-						silver = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						silver[elm] = temp[j];
-						elm++;
-
-					}
-					silver[endE - startE] = '\0';
-					break;
-				case 3:
-					//copper
-					elm = 0;
-					try
-					{
-						copper = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						copper[elm] = temp[j];
-						elm++;
-
-					}
-					copper[endE - startE] = '\0';
-					break;
-				}
-				startE = endE + 1; //will make startE be the next element after a '.'
-				section++;
-			}
-
-		}
+		silver++;
+		copper -= 100;
 	}
-	//std::cout << copper << std::endl;
+
+	while (silver > 99)
+	{
+		gold++;
+		silver -= 100;
+
+	}
+
+	while (gold > 99)
+	{
+		platnium++;
+		gold -= 100;
+
+	}
 
 	std::cout << "Potion Cost: [" 
-		<< String::ToInt(plat) << "] Platnium, [" 
-		<< String::ToInt(gold) << "] Gold, [" 
-		<< String::ToInt(silver) << "] Silver, ["
-		<< String::ToInt(copper) << "] Copper " 
-		<< std::endl;
-
-	//delete allocated memory
-	delete[] plat;
-	delete[] gold;
-	delete[] silver;
-	delete[] copper;
-	//Get rid of the dangling pointers
-	plat = nullptr;
-	gold = nullptr;
-	silver = nullptr;
-	copper = nullptr;
+	<< platnium << "] Platnium, [" 
+	<< gold << "] Gold, [" 
+	<< silver << "] Silver, ["
+	<< copper << "] Copper " 
+	<< std::endl;
 }
+
+
 
 /**********************************************************************
 * Purpose: This function Displays everything in the Potion obj
