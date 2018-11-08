@@ -71,7 +71,6 @@ private:
 
 	bool ValidateCost(String& cst);
 	void FormatCost(String& cst);
-	void SaveCost(String & cst);
 	
 public:
 	Potion();

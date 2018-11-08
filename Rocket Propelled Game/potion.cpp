@@ -589,20 +589,6 @@ void Potion::FormatCost(String& cst)
 		this->m_cost = cst;
 }
 
-/**********************************************************************
-* Purpose: This function saves the formated cost in m_cost
-*
-* Precondition: This Potion object is initialized and FormatCost has been
-				called
-*
-* Postcondition: Sets this Potions cost in the correct format
-*
-* Modifications:
-************************************************************************/
-void Potion::SaveCost(String & cst)
-{
-	this->m_cost = cst;
-}
 
 /**********************************************************************
 * Purpose: This function Displays just the cost of a Potion
