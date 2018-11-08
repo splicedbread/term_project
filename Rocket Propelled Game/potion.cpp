@@ -153,7 +153,7 @@ bool Potion::operator != (const Potion & right) const
 *//////////////////////////////////////////////////////////////////////////////
 bool Potion::operator > (const Potion & right) const
 {
-	return (String::ToInt(this->m_cost) > String::ToInt(right.m_cost));
+	return (this->m_costSize > right.m_costSize);
 }
 
 /*/////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ bool Potion::operator > (const Potion & right) const
 *//////////////////////////////////////////////////////////////////////////////
 bool Potion::operator >= (const Potion & right) const
 {
-	return (String::ToInt(this->m_cost) >= String::ToInt(right.m_cost));
+	return (this->m_costSize >= right.m_costSize);
 }
 
 /*/////////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ bool Potion::operator >= (const Potion & right) const
 *//////////////////////////////////////////////////////////////////////////////
 bool Potion::operator < (const Potion & right) const
 {
-	return (String::ToInt(this->m_cost) < String::ToInt(right.m_cost));
+	return (this->m_costSize < right.m_costSize);
 }
 
 /*/////////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ bool Potion::operator < (const Potion & right) const
 *//////////////////////////////////////////////////////////////////////////////
 bool Potion::operator <= (const Potion & right) const
 {
-	return (String::ToInt(this->m_cost) <= String::ToInt(right.m_cost));
+	return (this->m_costSize <= right.m_costSize);
 }
 
 /**********************************************************************
