@@ -1,2 +1,3 @@
-# term_project
-Purely for hosting a term project
+# cst136-term-project
+
+Repository specifically for the term project for Fall term 2018
