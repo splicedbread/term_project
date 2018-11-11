@@ -4,6 +4,7 @@
 #endif // !Potion_H
 #include <iostream>
 #include "string.h"
+#include "item.h"
 /////////////////////////////////////////////////////
 /*
 	Author: Jacob Vanderkarr
@@ -61,18 +62,18 @@
 
 */
 /////////////////////////////////////////////////////
-class Potion
+class Potion : public Item
 {
 private:
-	String m_name;
-	String m_description;
+	//String m_name;
+	//String m_description;
 	String m_potency;
-	String m_cost;
+	//String m_cost;
 
-	long int m_costSize;
+	//long int m_costSize;
 
-	bool ValidateCost(String& cst);
-	void FormatCost(String& cst);
+	//bool ValidateCost(String& cst);
+	//void FormatCost(String& cst);
 	
 public:
 	Potion();
@@ -92,18 +93,18 @@ public:
 	bool operator < (const Potion & right) const;
 	bool operator <= (const Potion & right) const;
 
-	const String GetName() const;
-	const String GetDesc() const;
-	const String GetPoten() const;
-	const String GetCost() const;
-	const String GetCostSize() const;
+	//const String GetName() const;
+	//const String GetDesc() const;
+	//const String GetPoten() const;
+	//const String GetCost() const;
+	//const String GetCostSize() const;
 
-	void SetName(String nm);
-	void SetDesc(String dsc);
-	void SetPoten(String pot);
-	void SetCost(String cst);
+	//void SetName(String nm);
+	//void SetDesc(String dsc);
+	//void SetPoten(String pot);
+	//void SetCost(String cst);
 
-	void DisplayCost() const;
+	//void DisplayCost() const;
 	void Display() const;
 };
 
