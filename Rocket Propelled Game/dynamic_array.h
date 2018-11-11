@@ -1,5 +1,5 @@
 #pragma once
-#include "potion.h"
+#include "item.h"
 ///////////////////////////////////////////////////////////////
 /*
 	dynamic_array.h
@@ -43,19 +43,19 @@
 class DynamicArray
 {
 private:
-	Potion * m_array;
+	Item * m_array;
 	int m_elements;
 
-	int Find(const Potion & target);
+	int Find(const Item & target);
 public:
 	DynamicArray();
 	~DynamicArray();
 	DynamicArray(const DynamicArray & copy);
 	DynamicArray & operator = (const DynamicArray & right);
-	const Potion& operator [] (const int i) const;
+	const Item& operator [] (const int i) const;
 
 	int GetElements();
-	void Insert(const Potion & to_add);
-	void Delete(const Potion & to_delete);
+	void Insert(const Item & to_add);
+	void Delete(const Item & to_delete);
 };
 

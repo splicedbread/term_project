@@ -33,30 +33,8 @@
 		+~Potion();
 
 	Methods:
-		+const string GetName();
-			returns the name of the Potion
-		+const string GetDesc();
-			returns the description of the Potion
 		+const string GetPoten();
 			returns the potency of the Potion
-		+const string GetCost();
-			returns the cost of the Potion
-		+void SetName(string nm);
-			takes a string parameter, Sets the name of the Potion
-		+void SetDesc(string dsc);
-			takes a string parameter, Sets the description of the Potion
-		+void SetPoten(string pot);
-			takes a string parameter, Sets the potency of the Potion
-		+void SetCost(string cst);
-			takes a string parameter, Sets the cost of the Potion
-		-bool ValidateCost(string& cst);
-			takes a string reference parameter, validates that the string uses integers and dots
-		-void FormatCost(string& cst);
-			takes a string reference parameter, formats the cost so that it matches specifications
-		-void SaveCost(string & cst);
-			takes a string reference parameter, saves a string To the member cost string
-		+void DisplayCost();
-			Displays the cost as a sentence
 		+void Display();
 			Displays the Potion object as text
 
@@ -65,16 +43,7 @@
 class Potion : public Item
 {
 private:
-	//String m_name;
-	//String m_description;
 	String m_potency;
-	//String m_cost;
-
-	//long int m_costSize;
-
-	//bool ValidateCost(String& cst);
-	//void FormatCost(String& cst);
-	
 public:
 	Potion();
 	Potion(Potion & pt);
@@ -87,24 +56,7 @@ public:
 
 	Potion & operator = (const Potion & right);
 	bool operator == (const Potion & right) const;
-	bool operator != (const Potion & right) const;
-	bool operator > (const Potion & right) const;
-	bool operator >= (const Potion & right) const;
-	bool operator < (const Potion & right) const;
-	bool operator <= (const Potion & right) const;
 
-	//const String GetName() const;
-	//const String GetDesc() const;
-	//const String GetPoten() const;
-	//const String GetCost() const;
-	//const String GetCostSize() const;
-
-	//void SetName(String nm);
-	//void SetDesc(String dsc);
-	//void SetPoten(String pot);
-	//void SetCost(String cst);
-
-	//void DisplayCost() const;
 	void Display() const;
 };
 

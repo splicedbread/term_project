@@ -1,5 +1,14 @@
 #include "coin_pouch.h"
 #include <iostream>
+/*////////////////////////////////////////////////////
+	Author: Jacob Vanderkarr
+	Date: 11/10/18
+	FileName: coin_pouch.cpp
+
+	Purpose: Implementation file for the CoinPouch class
+
+	Modifications:
+*//////////////////////////////////////////////////////
 
 //default ctor
 CoinPouch::CoinPouch() : m_money(0)

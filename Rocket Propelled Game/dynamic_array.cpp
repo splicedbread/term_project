@@ -5,7 +5,7 @@
 	String.cpp
 	Class implementation for the DynamicArray class
 			DynamicArray class is designed to dynamically create memory for 
-					potion objects
+					Item objects
 
 	Author: Jacob Vanderkarr
 	Date: 10/16/18
@@ -32,7 +32,7 @@ DynamicArray::DynamicArray() : m_array(nullptr), m_elements(0)
 */
 DynamicArray::~DynamicArray()
 {
-	//this should be okay, because it should call each potion destructor first
+	//this should be okay, because it should call each Item destructor first
 	//so we do not need to use delete to get rid of them first
 	delete[] this->m_array;
 	m_array = nullptr;
@@ -41,7 +41,7 @@ DynamicArray::~DynamicArray()
 /*
 	DyanmicArray(const DynamicArray & copy) is the copy constructor
 */
-DynamicArray::DynamicArray(const DynamicArray & copy) : m_elements(copy.m_elements), m_array(new Potion[copy.m_elements + 1])
+DynamicArray::DynamicArray(const DynamicArray & copy) : m_elements(copy.m_elements), m_array(new Item[copy.m_elements + 1])
 {
 	for (int i = 0; i < copy.m_elements; i++)
 	{
@@ -70,7 +70,7 @@ DynamicArray & DynamicArray::operator = (const DynamicArray & right)
 		this->m_elements = right.m_elements;
 		try
 		{
-			this->m_array = new Potion[right.m_elements];
+			this->m_array = new Item[right.m_elements];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -95,7 +95,7 @@ DynamicArray & DynamicArray::operator = (const DynamicArray & right)
 
 	Post condition: returns the index postion data in the array
 *//////////////////////////////////////////////////////////
-const Potion& DynamicArray::operator [] (const int i) const
+const Item& DynamicArray::operator [] (const int i) const
 {
 	return this->m_array[i];
 }
@@ -121,7 +121,7 @@ int DynamicArray::GetElements()
 
 	Post condition: arg obj is added into the dynamic array
 */////////////////////////////////////////////////////////////////////////
-void DynamicArray::Insert(const Potion & to_add)
+void DynamicArray::Insert(const Item & to_add)
 {
 	//When working with dynamic memory, when adding to that section
 	//There are multiple ways to handle it
@@ -129,10 +129,10 @@ void DynamicArray::Insert(const Potion & to_add)
 	{
 		//create a temporary buffer that is one larger than the current array
 		//same size for a temp buffer
-		Potion * buffer = nullptr;
+		Item * buffer = nullptr;
 		try
 		{
-			buffer = new Potion[this->m_elements];
+			buffer = new Item[this->m_elements];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -153,7 +153,7 @@ void DynamicArray::Insert(const Potion & to_add)
 		//allocate new memory for the array
 		try
 		{
-			m_array = new Potion[this->m_elements + 1];
+			m_array = new Item[this->m_elements + 1];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -180,7 +180,7 @@ void DynamicArray::Insert(const Potion & to_add)
 	{
 		try
 		{
-			this->m_array = new Potion[this->m_elements + 1];
+			this->m_array = new Item[this->m_elements + 1];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -200,7 +200,7 @@ void DynamicArray::Insert(const Potion & to_add)
 
 	Post condition: arg obj is removed from the dynamic array
 */////////////////////////////////////////////////////////////////////////
-void DynamicArray::Delete(const Potion & to_delete)
+void DynamicArray::Delete(const Item & to_delete)
 {
 	int t_element = Find(to_delete);
 	//check if nothing was found in the Find function
@@ -215,10 +215,10 @@ void DynamicArray::Delete(const Potion & to_delete)
 		//but we need to be able take out of the middle of the array, and bump
 		//everything into order
 		//dont need to add an extra space in m_elements because we are removing one
-		Potion * buffer = nullptr; 
+		Item * buffer = nullptr; 
 		try
 		{
-			buffer = new Potion[this->m_elements];
+			buffer = new Item[this->m_elements];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -245,7 +245,7 @@ void DynamicArray::Delete(const Potion & to_delete)
 		//allocate new memory for the array
 		try
 		{
-			m_array = new Potion[this->m_elements - 1];
+			m_array = new Item[this->m_elements - 1];
 		}
 		catch (std::bad_alloc except)
 		{
@@ -278,7 +278,7 @@ void DynamicArray::Delete(const Potion & to_delete)
 
 	Post condition: arg obj is found (or not) and the element position is returned
 *///////////////////////////////////////////////////////////////////////////////////
-int DynamicArray::Find(const Potion & target)
+int DynamicArray::Find(const Item & target)
 {
 	bool found = false;
 	int t_element = 0;

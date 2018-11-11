@@ -37,6 +37,7 @@ void PotionStub()
 	Potion pt2("Bone Healing Juice", "Oooo Ohhh, OWCH, this really hurts my bones!", "Super tier", "19.40.201.00");
 
 	Potion pt3("Ains", "I couldn't even think of that!", "Goat tier", "98.00.00.01");
+	cout << "Displaying a temp thing: " << endl;
 
 	PotionBelt.Insert(pt1);
 	PotionBelt.Insert(pt2);

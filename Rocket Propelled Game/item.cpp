@@ -1,5 +1,13 @@
 #include "item.h"
+/*////////////////////////////////////////////////////
+	Author: Jacob Vanderkarr
+	Date: 11/11/18
+	FileName: item.cpp
 
+	Purpose: Implementation file for the Item class
+
+	Modifications:
+*//////////////////////////////////////////////////////
 Item::Item() : m_name(""), m_description(""), m_cost("")
 {}
 
@@ -16,6 +24,136 @@ Item::Item(String nm) : m_name(nm), m_description(""), m_cost("")
 
 Item::~Item()
 {}
+
+/**********************************************************************
+* Purpose: This function utilizes the overloaded assignment operator
+*
+* Precondition:
+* right is already defined
+*
+*
+* Postcondition:
+* left (this) is returned, with copied data from right
+*
+************************************************************************/
+Item & Item::operator = (const Item & right)
+{
+	this->m_name = right.m_name;
+	this->m_description = right.m_description;
+	this->m_cost = right.m_cost;
+	this->m_costSize = right.m_costSize;
+	return *this;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload checks the contents of the obj to test for
+			object equality
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if both objects are evauluated the same
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator== (const Item & right) const
+{
+	bool flag = true;
+	if (!(this->m_name == right.m_name))
+	{
+		flag = false;
+	}
+	if (!(this->m_description == right.m_description))
+	{
+		flag = false;
+	}
+	if (!(this->m_cost == right.m_cost))
+	{
+		flag = false;
+	}
+
+	return flag;
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload checks the contents of the obj to test for
+			object equality
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if both objects are evauluated not the same
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator != (const Item & right) const
+{
+	return !(this == &right);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of Items
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is greater than right
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator > (const Item & right) const
+{
+	return (this->m_costSize > right.m_costSize);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of Items
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is greater than or equal to right
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator >= (const Item & right) const
+{
+	return (this->m_costSize >= right.m_costSize);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of Items
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is less than right
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator < (const Item & right) const
+{
+	return (this->m_costSize < right.m_costSize);
+}
+
+/*/////////////////////////////////////////////////////////////////////////////
+	Purpose: This operator overload evaluates the costs of Items
+
+	Plans: All conditional operators will also check for potency differences, TBA
+
+	Precondition:
+	right obj is initialized
+
+	Postcondition:
+	Returns true or false depending on if this is less than or equal to the right
+*//////////////////////////////////////////////////////////////////////////////
+bool Item::operator <= (const Item & right) const
+{
+	return (this->m_costSize <= right.m_costSize);
+}
+
+
 
 /**********************************************************************
 * Purpose: This function Gets the Item name
@@ -245,7 +383,7 @@ void Item::FormatCost(String& cst)
 					}
 					catch (std::bad_alloc except)
 					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
+						std::cout << "Exception in Item: " << except.what() << std::endl;
 					}
 					for (int j = startE; j < endE; j++)
 					{
@@ -272,7 +410,7 @@ void Item::FormatCost(String& cst)
 					}
 					catch (std::bad_alloc except)
 					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
+						std::cout << "Exception in Item: " << except.what() << std::endl;
 					}
 					for (int j = startE; j < endE; j++)
 					{
@@ -294,7 +432,7 @@ void Item::FormatCost(String& cst)
 					}
 					catch (std::bad_alloc except)
 					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
+						std::cout << "Exception in Item: " << except.what() << std::endl;
 					}
 					for (int j = startE; j < endE; j++)
 					{
@@ -316,7 +454,7 @@ void Item::FormatCost(String& cst)
 					}
 					catch (std::bad_alloc except)
 					{
-						std::cout << "Exception in Potion: " << except.what() << std::endl;
+						std::cout << "Exception in Item: " << except.what() << std::endl;
 					}
 					for (int j = startE; j < endE; j++)
 					{
