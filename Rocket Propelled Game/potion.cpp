@@ -125,6 +125,22 @@ bool Potion::operator== (const Potion & right) const
 	return flag;
 }
 
+/*///////////////////////////////////////////////////
+	Purpose: This function sets the potency string
+*////////////////////////////////////////////////////
+void Potion::SetPoten(String pot)
+{
+	this->m_potency = pot;
+}
+
+/*//////////////////////////////////////////////////////
+	Purpose: This function returns the potency string
+*///////////////////////////////////////////////////////
+const String Potion::GetPoten() const
+{
+	return this->m_potency;
+}
+
 /**********************************************************************
 * Purpose: This function Displays everything in the Potion obj
 *

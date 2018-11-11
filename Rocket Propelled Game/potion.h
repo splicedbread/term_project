@@ -33,7 +33,8 @@
 		+~Potion();
 
 	Methods:
-		+const string GetPoten();
+		+void SetPoten(String pot);
+		+const string GetPoten() const;
 			returns the potency of the Potion
 		+void Display();
 			Displays the Potion object as text
@@ -53,7 +54,8 @@ public:
 	Potion(String name);
 
 	~Potion();
-
+	void SetPoten(String pot);
+	const String GetPoten() const;
 	Potion & operator = (const Potion & right);
 	bool operator == (const Potion & right) const;
 
