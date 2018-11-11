@@ -116,7 +116,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="coin_pouch.cpp" />
-    <ClCompile Include="dynamic_array.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="potion.cpp" />
     <ClCompile Include="string.cpp" />

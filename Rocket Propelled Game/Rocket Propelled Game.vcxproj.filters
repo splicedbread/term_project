@@ -24,9 +24,6 @@
     <ClCompile Include="string.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dynamic_array.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="coin_pouch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -28,7 +28,7 @@ void PotionStub()
 
 	//Create a dynamic array obj
 
-	DynamicArray PotionBelt;
+	DynamicArray<Potion> PotionBelt;
 	
 	//create 3 potions
 
@@ -57,7 +57,7 @@ void PotionStub()
 
 	cout << "///////////////Testing Dynamic Array class copy///////////////" << endl;
 
-	DynamicArray PotionBelt2;
+	DynamicArray<Potion> PotionBelt2;
 
 	PotionBelt2 = PotionBelt;
 
