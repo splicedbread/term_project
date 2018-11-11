@@ -115,12 +115,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="coin_pouch.cpp" />
     <ClCompile Include="dynamic_array.cpp" />
     <ClCompile Include="potion.cpp" />
     <ClCompile Include="string.cpp" />
     <ClCompile Include="stub.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="coin_pouch.h" />
     <ClInclude Include="dynamic_array.h" />
     <ClInclude Include="potion.h" />
     <ClInclude Include="string.h" />
