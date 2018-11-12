@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="backpack.cpp" />
     <ClCompile Include="coin_pouch.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="potion.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="stub.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="backpack.h" />
     <ClInclude Include="coin_pouch.h" />
     <ClInclude Include="dynamic_array.h" />
     <ClInclude Include="item.h" />

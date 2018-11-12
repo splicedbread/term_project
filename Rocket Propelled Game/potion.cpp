@@ -84,11 +84,14 @@ Potion::~Potion()
 ************************************************************************/
 Potion & Potion::operator = (const Potion & right)
 {
-	this->m_name = right.m_name;
-	this->m_description = right.m_description;
-	this->m_potency = right.m_potency;
-	this->m_cost = right.m_cost;
-	this->m_costSize = right.m_costSize;
+	if (this != &right)
+	{
+		this->m_name = right.m_name;
+		this->m_description = right.m_description;
+		this->m_potency = right.m_potency;
+		this->m_cost = right.m_cost;
+		this->m_costSize = right.m_costSize;
+	}
 	return *this;
 }
 
