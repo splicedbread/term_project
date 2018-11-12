@@ -1,0 +1,13 @@
+ToDo:
+	Big:
+		Add openGL support, incorporating sprites
+		Add a linear generated micro dungeon for the players to navigate
+		Add a small lineup of items and gear that mildly changes stats
+			- doesnt need to be in-depth right now
+		Add a variety of simple enemies
+		Add the *required* turn-based combat interaction
+	Small:
+		Add documentation to character.h and character.cpp
+		Add in #include <filesystem> for creating initial file directory
+		Add a GameState class that handles the reading/writing of character data to a .bin file
+		
