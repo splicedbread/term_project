@@ -65,21 +65,9 @@ Item & Item::operator = (const Item & right)
 *//////////////////////////////////////////////////////////////////////////////
 bool Item::operator== (const Item & right) const
 {
-	bool flag = true;
-	if (!(this->m_name == right.m_name))
-	{
-		flag = false;
-	}
-	if (!(this->m_description == right.m_description))
-	{
-		flag = false;
-	}
-	if (!(this->m_cost == right.m_cost))
-	{
-		flag = false;
-	}
-
-	return flag;
+	return ((m_name == right.m_name)
+		&& (m_description == right.m_description)
+		&&  (m_cost == right.m_cost));
 }
 
 /*/////////////////////////////////////////////////////////////////////////////

@@ -107,25 +107,10 @@ Potion & Potion::operator = (const Potion & right)
 *//////////////////////////////////////////////////////////////////////////////
 bool Potion::operator== (const Potion & right) const
 {
-	bool flag = true;
-	if (this->m_name != right.m_name)
-	{
-		flag = false;
-	}
-	if (this->m_description != right.m_description)
-	{
-		flag = false;
-	}
-	if (this->m_potency != right.m_potency)
-	{
-		flag = false;
-	}
-	if (this->m_cost != right.m_cost)
-	{
-		flag = false;
-	}
-
-	return flag;
+	return ((m_name == right.m_name)
+		&& (m_description == right.m_description)
+		&& (m_potency == m_potency)
+		&& (m_cost == right.m_cost));
 }
 
 /*///////////////////////////////////////////////////

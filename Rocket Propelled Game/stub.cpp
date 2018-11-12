@@ -27,13 +27,26 @@ void Stub()
 
 	Potion pt3("Ains Oal Gown", "I couldn't even think of that!", "Demon Goat", "98.00.00.01");
 	
-	Potion pt4("Ains Oak Gown", "I couldn't even think of that!", "Demon Goat", "98.00.00.01");
+	Potion pt4("Ains Oal Gown", "I couldn't even think of that!", "Demon Goat", "98.00.00.01");
 
 	Potion pt5(pt3);
 
-	pt3.SetPoten("Baby");
-
 	BackPack bk1(10);
+
+	if (pt3 == pt4)
+	{
+		cout << "pt3 = pt4" << endl;
+	}
+
+	if (pt5 == pt3)
+	{
+		cout << "pt5 = pt3" << endl;
+	}
+
+	if (&pt5 == &pt3)
+	{
+		cout << "pt5 address matches pt3" << endl;
+	}
 
 	bk1.Add(pt1);
 	bk1.Add(pt2);
