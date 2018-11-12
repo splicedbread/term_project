@@ -22,6 +22,11 @@ Item::Item(String nm, String dsc) : m_name(nm), m_description(dsc), m_cost("")
 Item::Item(String nm) : m_name(nm), m_description(""), m_cost("")
 {}
 
+Item::Item(const Item & copy) : m_name(copy.m_name), m_description(copy.m_name)
+{
+	SetCost(copy.m_cost);
+}
+
 Item::~Item()
 {}
 

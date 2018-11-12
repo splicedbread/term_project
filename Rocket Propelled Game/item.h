@@ -47,6 +47,7 @@ class Item
 {
 public:
 	Item();
+	Item(const Item & copy);
 	Item(String nm, String dsc, String cst);
 	Item(String nm, String dsc);
 	Item(String nm);

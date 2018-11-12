@@ -61,7 +61,7 @@ Potion::Potion(String name) : Item(name, "", ""), m_potency("")
 
 };
 
-Potion::Potion(Potion & pt) : Item(pt.m_name, pt.m_description), m_potency(pt.m_potency) 
+Potion::Potion(const Potion & pt) : Item(pt.m_name, pt.m_description), m_potency(pt.m_potency) 
 {
 	//std::cout << "copy ctor called..." << std::endl;
 	SetCost(pt.m_cost);
@@ -108,19 +108,19 @@ Potion & Potion::operator = (const Potion & right)
 bool Potion::operator== (const Potion & right) const
 {
 	bool flag = true;
-	if (!(this->m_name == right.m_name))
+	if (this->m_name != right.m_name)
 	{
 		flag = false;
 	}
-	if (!(this->m_description == right.m_description))
+	if (this->m_description != right.m_description)
 	{
 		flag = false;
 	}
-	if (!(this->m_potency == right.m_potency))
+	if (this->m_potency != right.m_potency)
 	{
 		flag = false;
 	}
-	if (!(this->m_cost == right.m_cost))
+	if (this->m_cost != right.m_cost)
 	{
 		flag = false;
 	}
@@ -133,6 +133,7 @@ bool Potion::operator== (const Potion & right) const
 *////////////////////////////////////////////////////
 void Potion::SetPoten(String pot)
 {
+	String::ToUp(pot);
 	this->m_potency = pot;
 }
 

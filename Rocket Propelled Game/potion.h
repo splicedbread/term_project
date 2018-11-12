@@ -47,7 +47,7 @@ private:
 	String m_potency;
 public:
 	Potion();
-	Potion(Potion & pt);
+	Potion(const Potion & pt);
 	Potion(String name, String desc, String pot, String cost);
 	Potion(String name, String desc, String pot);
 	Potion(String name, String desc);
