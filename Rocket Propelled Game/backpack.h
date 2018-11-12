@@ -45,6 +45,7 @@ public:
 	bool Find(const Potion & pt);
 	bool Find(const Item & itm);
 	void Display();
+	int GetAvailable() const;
 private:
 	int m_itemAmount;
 	int m_itemLimit;

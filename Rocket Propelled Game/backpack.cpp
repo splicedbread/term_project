@@ -253,3 +253,15 @@ void BackPack::Display()
 
 	cout << endl << "End of detailed information\n~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 }
+
+/*///////////////////////////////////////////////////////////////////////
+	Purpose: let the consumer know how much room is left in the backpack
+
+	Pre-Con: this exists
+
+	Post-Con: int returned
+*////////////////////////////////////////////////////////////////////////
+int BackPack::GetAvailable() const
+{
+	return (this->m_itemLimit - this->m_itemAmount);
+}
