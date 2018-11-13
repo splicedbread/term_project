@@ -277,11 +277,27 @@ int BackPack::GetAvailable() const
 	return (this->m_itemLimit - this->m_itemAmount);
 }
 
+/*///////////////////////////////////////////////////////////////////////
+	Purpose: provide a way to access the DynamicArray directly, without
+		being able to change anything
+
+	Pre-Con: this exists
+
+	Post-Con: Potion array returned returned
+*////////////////////////////////////////////////////////////////////////
 const DynamicArray<Potion>& BackPack::GetPotions() const
 {
 	return this->m_ptbelt;
 }
 
+/*///////////////////////////////////////////////////////////////////////
+	Purpose: provide a way to access the DynamicArray directly, without
+		being able to change anything
+
+	Pre-Con: this exists
+
+	Post-Con: Item array returned returned
+*////////////////////////////////////////////////////////////////////////
 const DynamicArray<Item>& BackPack::GetItems() const
 {
 	return this->m_items;

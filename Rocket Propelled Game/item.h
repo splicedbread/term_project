@@ -1,7 +1,7 @@
 #ifndef ITEM_H
 #define ITEM_H
 #include "string.h"
-/*
+/*///////////////////////////////////////////////////////////////
 	Author: Jacob Vanderkarr
 	Date: 11/11/18
 	FileName: item.h
@@ -42,7 +42,7 @@
 	  Helper Methods
 		void FormatCost(String& cst);
 		bool ValidateCost(String& cst);
-*/
+*///////////////////////////////////////////////////////////
 class Item
 {
 public:

@@ -259,6 +259,17 @@ void Item::SetCost(String cst)
 	}
 }
 
+/**********************************************************************
+* Purpose: This function Sets the Item cost
+*
+* Precondition: This Item object is initialized
+*               and the format of cost is pp.gg.ss.cc (pp.gggg.sss.ccccc works),
+*               where it takes integers inside the String
+*
+* Postcondition: Sets this Items cost and then verifies and formats
+*
+* Modifications:
+************************************************************************/
 void Item::SetCostSize(int cst)
 {
 	long int copper = 0;
