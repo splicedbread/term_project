@@ -1,4 +1,5 @@
 #include "character.h"
+#include <iostream>
 
 Character::Character() : m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH), m_name("DudeGuy")
 {}
@@ -77,6 +78,29 @@ int Character::GetStrength() const
 	return this->m_strength;
 }
 
+const BackPack & Character::GetInv() const
+{
+	return this->m_inventory;
+}
+
+const CoinPouch & Character::GetWallet() const
+{
+	return this->m_wallet;
+}
+
+void Character::Info(bool mode) const
+{
+	std::cout << "Character Information:" << std::endl;
+	std::cout << "Name: " << this->m_name << std::endl;
+	std::cout << "Stats: Health [" << this->m_health << "], Armour [" << this->m_armour <<
+		"], Mana [" << this->m_mana << "], Strength [" << this->m_strength << "]" << std::endl;
+	std::cout << "Wallet ";
+	this->m_wallet.DisplayContent();
+	std::cout << "Inventory: " << std::endl;
+	this->m_inventory.Display(mode);
+	std::cout << std::endl;
+}
+
 bool Character::PickupObj(const Potion & pt)
 {
 	bool flag = false;
@@ -107,4 +131,28 @@ void Character::DropObj(const Potion & pt)
 void Character::DropObj(const Item & itm)
 {
 	m_inventory.Remove(itm);
+}
+
+void Character::AddMoney(int amount)
+{
+	if (amount > 0)
+	{
+		this->m_wallet.SetMoney(this->m_wallet.GetMoney() + amount);
+	}
+	else
+	{
+		RmvMoney(amount*-1);
+	}
+}
+
+void Character::RmvMoney(int amount)
+{
+	if (amount >= 0)
+	{
+		this->m_wallet.SetMoney(this->m_wallet.GetMoney() - amount);
+	}
+	else
+	{
+		AddMoney(amount*-1);
+	}
 }

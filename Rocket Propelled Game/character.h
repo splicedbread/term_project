@@ -24,17 +24,23 @@ public:
 	int GetArmour() const;
 	int GetMana() const;
 	int GetStrength() const;
+	const BackPack & GetInv() const;
+	const CoinPouch & GetWallet() const;
+
+	void Info(bool mode) const;
 
 	bool PickupObj(const Potion & pt);
 	bool PickupObj(const Item & itm);
 	void DropObj(const Potion & pt);
 	void DropObj(const Item & itm);
 
+	void AddMoney(int amount);
+	void RmvMoney(int amount);
+
 	static const int STRD_HEALTH = 50;
 	static const int STRD_ARMOUR = 0;
 	static const int STRD_MANA = 20;
 	static const int STRD_STRGTH = 5;
-
 private:
 	BackPack m_inventory;
 	CoinPouch m_wallet;
