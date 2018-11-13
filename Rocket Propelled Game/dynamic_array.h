@@ -56,7 +56,7 @@ public:
 	DynamicArray & operator = (const DynamicArray & right);
 	const T& operator [] (const int i) const;
 
-	int GetElements();
+	int GetElements() const;
 	void Insert(const T & to_add);
 	void Delete(const T & to_delete);
 };
@@ -175,7 +175,7 @@ const T& DynamicArray<T>::operator [] (const int i) const
 	Post conditions: m_elements is returned
 *//////////////////////////////////////////////
 template <class T>
-int DynamicArray<T>::GetElements()
+int DynamicArray<T>::GetElements() const
 {
 	return this->m_elements;
 }
