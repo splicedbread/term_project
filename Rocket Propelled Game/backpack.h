@@ -44,8 +44,12 @@ public:
 	void Remove(const Item & itm);
 	bool Find(const Potion & pt);
 	bool Find(const Item & itm);
-	void Display();
+	void Display(bool mode) const;
 	int GetAvailable() const;
+	const DynamicArray<Potion> & GetPotions() const;
+	const DynamicArray<Item> & GetItems() const;
+
+	static const int STRD_BKPK_SIZE = 5;
 private:
 	int m_itemAmount;
 	int m_itemLimit;

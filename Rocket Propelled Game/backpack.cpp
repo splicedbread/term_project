@@ -11,7 +11,7 @@ using std::endl;
 *///////////////////////////
 
 //default ctor
-BackPack::BackPack() : m_itemAmount(0), m_itemLimit(0)
+BackPack::BackPack() : m_itemAmount(0), m_itemLimit(STRD_BKPK_SIZE)
 {}
 
 //one arg ctor, controls the itemlimit
@@ -210,48 +210,59 @@ bool BackPack::Find(const Item & itm)
 
 	Post-Con: will output based on number of items/potions
 *//////////////////////////////////////////////////////////////////////////
-void BackPack::Display()
+void BackPack::Display(bool mode) const
 {
+	if (mode == 0)
+	{
+		cout << "~~~~~~~~~~~~~~~~~~~~~Minimal Description~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+	}
+	else
+	{
+		cout << "~~~~~~~~~~~~~~~~~~~~~Full Description~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+	}
+
 	cout << "Backpack status: (" << this->m_itemAmount << "/"
 		<< this->m_itemLimit << ") spaces used." << endl;
 	cout << "Number of Potions: [" << this->m_ptbelt.GetElements() << "]" << endl;
 	cout << "Number of Items: [" << this->m_items.GetElements() << "]" << endl;
-
-	cout << "\nDetailed information below:" << endl;
-	cout << "~~~~~~~~~~~~~~~~~~~~~~~~~\nAvailable Potions:";
-
-	if (this->m_ptbelt.GetElements() > 0)
+	if (mode == 1)
 	{
-		cout << endl << endl;
-		for (int i = 0; i < this->m_ptbelt.GetElements(); i++)
+		cout << "\nDetailed information below:" << endl;
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~\nAvailable Potions:";
+
+		if (this->m_ptbelt.GetElements() > 0)
 		{
-			cout << i + 1 << ". ";
-			this->m_ptbelt[i].Display();
-			cout << endl;
+			cout << endl << endl;
+			for (int i = 0; i < this->m_ptbelt.GetElements(); i++)
+			{
+				cout << i + 1 << ". ";
+				this->m_ptbelt[i].Display();
+				cout << endl;
+			}
 		}
-	}
-	else
-	{
-		cout << " N/A" << endl;
-	}
-
-	cout << "~~~~~~~~~~~~~~~~~~~~~~~~~\nAvailable Items:";
-	if (this->m_items.GetElements() > 0)
-	{
-		cout << endl << endl;
-		for (int i = 0; i < this->m_items.GetElements(); i++)
+		else
 		{
-			cout << i + 1 << ". ";
-			this->m_items[i].Display();
-			cout << endl;
+			cout << " N/A" << endl;
 		}
-	}
-	else
-	{
-		cout << " N/A" << endl;
-	}
 
-	cout << endl << "End of detailed information\n~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+		cout << "~~~~~~~~~~~~~~~~~~~~~~~~~\nAvailable Items:";
+		if (this->m_items.GetElements() > 0)
+		{
+			cout << endl << endl;
+			for (int i = 0; i < this->m_items.GetElements(); i++)
+			{
+				cout << i + 1 << ". ";
+				this->m_items[i].Display();
+				cout << endl;
+			}
+		}
+		else
+		{
+			cout << " N/A" << endl;
+		}
+
+		cout << endl << "End of detailed information\n~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+	}
 }
 
 /*///////////////////////////////////////////////////////////////////////
@@ -264,4 +275,14 @@ void BackPack::Display()
 int BackPack::GetAvailable() const
 {
 	return (this->m_itemLimit - this->m_itemAmount);
+}
+
+const DynamicArray<Potion>& BackPack::GetPotions() const
+{
+	return this->m_ptbelt;
+}
+
+const DynamicArray<Item>& BackPack::GetItems() const
+{
+	return this->m_items;
 }
