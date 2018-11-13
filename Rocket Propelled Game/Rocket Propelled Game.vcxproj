@@ -76,6 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,6 +119,7 @@
     <ClCompile Include="backpack.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="coin_pouch.cpp" />
+    <ClCompile Include="game_manager.cpp" />
     <ClCompile Include="item.cpp" />
     <ClCompile Include="potion.cpp" />
     <ClCompile Include="string.cpp" />
@@ -128,6 +130,7 @@
     <ClInclude Include="character.h" />
     <ClInclude Include="coin_pouch.h" />
     <ClInclude Include="dynamic_array.h" />
+    <ClInclude Include="game_manager.h" />
     <ClInclude Include="item.h" />
     <ClInclude Include="potion.h" />
     <ClInclude Include="string.h" />
