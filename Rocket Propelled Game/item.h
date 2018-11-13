@@ -60,6 +60,7 @@ public:
 	void SetName(String nm);
 	void SetDesc(String dsc);
 	void SetCost(String cst);
+	void SetCostSize(int cst);
 
 	virtual void Display() const;
 	virtual void DisplayCost() const;

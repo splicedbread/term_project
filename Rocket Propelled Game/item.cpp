@@ -259,6 +259,38 @@ void Item::SetCost(String cst)
 	}
 }
 
+void Item::SetCostSize(int cst)
+{
+	long int copper = 0;
+	int silver = 0;
+	int gold = 0;
+	int platnium = 0;
+
+	copper = cst;
+	while (copper > 99)
+	{
+		silver++;
+		copper -= 100;
+	}
+
+	while (silver > 99)
+	{
+		gold++;
+		silver -= 100;
+
+	}
+
+	while (gold > 99)
+	{
+		platnium++;
+		gold -= 100;
+
+	}
+
+	this->m_costSize = cst;
+	this->m_cost = String::ToString(platnium) + "." + String::ToString(gold) + "." + String::ToString(silver) + "." + String::ToString(copper);
+}
+
 /**********************************************************************
 * Purpose: This function validates the cost of a Item
 *
@@ -273,7 +305,7 @@ void Item::SetCost(String cst)
 bool Item::ValidateCost(String& cst)
 {
 	//cost format is To be pp.gg.ss.cc
-	//Using t for the prefix, as a test varibale that exists only in this scope
+		//Using t for the prefix, as a test varibale that exists only in this scope
 	bool badInput = false;
 	int t_sectionLength = 0;
 	int t_startE = 0;
@@ -283,47 +315,14 @@ bool Item::ValidateCost(String& cst)
 	//sanitize the input
 	for (int i = 0; i < cst.GetLen(); i++)
 	{
-		switch (cst[i])
+		if (cst[i] >= 48 && cst[i] <= 57 || cst[i] == 46)
 		{
-		case '0': badInput = false;
-			break;
-		case '1': badInput = false;
-			break;
-		case '2': badInput = false;
-			break;
-		case '3': badInput = false;
-			break;
-		case '4': badInput = false;
-			break;
-		case '5': badInput = false;
-			break;
-		case '6': badInput = false;
-			break;
-		case '7': badInput = false;
-			break;
-		case '8': badInput = false;
-			break;
-		case '9': badInput = false;
-			break;
-		case '.': t_endE = i;
-			if ((t_endE - t_startE) >= 1)
-			{
-				badInput = false;
-			}
-			t_dots += 1;
-			if (t_dots > 3)
-			{
-				std::cout << "dot" << std::endl;
-				badInput = true;
-			}
-			break;
-		case '\0': std::cout << "just let me know this happened..." << std::endl;
-			break;
-		default: badInput = true;
-			break;
+			badInput = false;
 		}
-
-		t_startE = t_endE + 1;
+		else
+		{
+			badInput = true;
+		}
 	}
 
 	return !badInput;
@@ -372,96 +371,96 @@ void Item::FormatCost(String& cst)
 				{
 				case 0:
 					//platnium
-					elm = 0;
-					try
-					{
-						temp = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Item: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						//A little complicated
-						//ex, if we have 123, then it will add 100 To plat, then 20, then 3
-						//because chars are just numbers that refrence the ascii table,
-						//if we subtract '0', then we will return an int that is our int we
-						//want To use
+						elm = 0;
+						try
+						{
+							temp = new char[(endE - startE) + 1];
+						}
+						catch (std::bad_alloc except)
+						{
+							std::cout << "Exception in Item: " << except.what() << std::endl;
+						}
+						for (int j = startE; j < endE; j++)
+						{
+							//A little complicated
+							//ex, if we have 123, then it will add 100 To plat, then 20, then 3
+							//because chars are just numbers that refrence the ascii table,
+							//if we subtract '0', then we will return an int that is our int we
+							//want To use
 
-						temp[elm] = cst[j];
-						elm++;
-					}
-					temp[endE - startE] = '\0';
-					platnium = String::ToInt(temp);
-					delete[] temp;
-					temp = nullptr;
+							temp[elm] = cst[j];
+							elm++;
+						}
+						temp[endE - startE] = '\0';
+						platnium = String::ToInt(temp);
+						delete[] temp;
+						temp = nullptr;
 					break;
 				case 1:
 					//gold
-					elm = 0;
-					try
-					{
-						temp = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Item: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						temp[elm] = cst[j];
-						elm++;
+						elm = 0;
+						try
+						{
+							temp = new char[(endE - startE) + 1];
+						}
+						catch (std::bad_alloc except)
+						{
+							std::cout << "Exception in Item: " << except.what() << std::endl;
+						}
+						for (int j = startE; j < endE; j++)
+						{
+							temp[elm] = cst[j];
+							elm++;
 
-					}
-					temp[endE - startE] = '\0';
-					gold = String::ToInt(temp);
-					delete[] temp;
-					temp = nullptr;
+						}
+						temp[endE - startE] = '\0';
+						gold = String::ToInt(temp);
+						delete[] temp;
+						temp = nullptr;
 					break;
 				case 2:
 					//silver
-					elm = 0;
-					try
-					{
-						temp = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Item: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						temp[elm] = cst[j];
-						elm++;
+						elm = 0;
+						try
+						{
+							temp = new char[(endE - startE) + 1];
+						}
+						catch (std::bad_alloc except)
+						{
+							std::cout << "Exception in Item: " << except.what() << std::endl;
+						}
+						for (int j = startE; j < endE; j++)
+						{
+							temp[elm] = cst[j];
+							elm++;
 
-					}
-					temp[endE - startE] = '\0';
-					silver = String::ToInt(temp);
-					delete[] temp;
-					temp = nullptr;
+						}
+						temp[endE - startE] = '\0';
+						silver = String::ToInt(temp);
+						delete[] temp;
+						temp = nullptr;
 					break;
 				case 3:
 					//copper
-					elm = 0;
-					try
-					{
-						temp = new char[(endE - startE) + 1];
-					}
-					catch (std::bad_alloc except)
-					{
-						std::cout << "Exception in Item: " << except.what() << std::endl;
-					}
-					for (int j = startE; j < endE; j++)
-					{
-						temp[elm] = cst[j];
-						elm++;
+						elm = 0;
+						try
+						{
+							temp = new char[(endE - startE) + 1];
+						}
+						catch (std::bad_alloc except)
+						{
+							std::cout << "Exception in Item: " << except.what() << std::endl;
+						}
+						for (int j = startE; j < endE; j++)
+						{
+							temp[elm] = cst[j];
+							elm++;
 
-					}
-					temp[endE - startE] = '\0';
-					copper = String::ToInt(temp);
-					delete[] temp;
-					temp = nullptr;
+						}
+						temp[endE - startE] = '\0';
+						copper = String::ToInt(temp);
+						delete[] temp;
+						temp = nullptr;
 					break;
 				}
 
@@ -472,17 +471,6 @@ void Item::FormatCost(String& cst)
 
 		}
 	}
-
-	//TEST BLOCK
-	/*
-	{
-		std::cout << "Testing what each value is before bumping them" << std::endl;
-		std::cout << "Platnium: " << platnium << std::endl;
-		std::cout << "Gold: " << gold << std::endl;
-		std::cout << "Silver: " << silver <<std::endl;
-		std::cout << "Copper: " << copper <<std::endl;
-	}
-	*/
 
 	//Round up things
 	while (copper > 99)
@@ -507,15 +495,6 @@ void Item::FormatCost(String& cst)
 		gold -= 100;
 
 	}
-	/*
-		std::cout << "Platnium now: " << platnium << std::endl;
-		//test
-		std::cout << "Gold now: " << gold << std::endl;
-		//test
-		std::cout << "Silver now: " << silver << std::endl;
-		//test
-		std::cout << "Copper now: " << copper << std::endl;
-	*/
 
 	//convert back into a String
 		//cst = String::ToString(platnium) + "." + String::ToString(gold) + "." + String::ToString(silver) + "." + String::ToString(copper);
