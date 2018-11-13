@@ -7,7 +7,7 @@ ToDo:
 		Add a variety of simple enemies
 		Add the *required* turn-based combat interaction
 	Small:
-		Add documentation to character.h and character.cpp
-		Add in #include <filesystem> for creating initial file directory
-		Add a GameState class that handles the reading/writing of character data to a .bin file
+		Working on it Add documentation to character.h and character.cpp
+		Not yet Add in #include <filesystem> for creating initial file directory
+		Sorta Add a GameState class that handles the reading/writing of character data to a .bin file
 		
