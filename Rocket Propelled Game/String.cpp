@@ -762,43 +762,49 @@ String String::ToString(int num)
 	int temp = num;
 	int sigCount = 0;
 	String buff = "";
-	
-	while (temp != 0)
+	if (num != 0)
 	{
-		temp /= 10;
-		sigCount++;
-	}
+		while (temp != 0)
+		{
+			temp /= 10;
+			sigCount++;
+		}
 
-	temp = num;
-	//allocate a temp thing
-	char * buffer = nullptr;
-	try
+		temp = num;
+		//allocate a temp thing
+		char * buffer = nullptr;
+		try
+		{
+			buffer = new char[sigCount + 1];
+		}
+		catch (std::bad_alloc except)
+		{
+			//Failed allocation
+			cout << "Exception in String: " << except.what();
+		}
+
+
+		//start i at sigCount - 1 so its not at the last element counting down
+		//because the last element is reserved for the null terminating character
+		for (int i = sigCount - 1; i >= 0; i--)
+		{
+			buffer[i] = (temp % 10) + '0';
+			temp /= 10;
+		}
+		//The above code just put the modulus results in backwards, because thats what it do
+		//place a null terminator at the end
+		buffer[sigCount] = '\0';
+		//put the char pointer in a String object that exists just here=
+		buff = buffer;
+		//deallocate memory
+		delete[] buffer;
+		buffer = nullptr;
+
+	}
+	else
 	{
-		buffer = new char[sigCount + 1];
+		buff = "0";
 	}
-	catch (std::bad_alloc except)
-	{
-		//Failed allocation
-		cout << "Exception in String: " << except.what();
-	}
-
-
-	//start i at sigCount - 1 so its not at the last element counting down
-	//because the last element is reserved for the null terminating character
-	for (int i = sigCount - 1; i >= 0; i--)
-	{
-		buffer[i] = (temp % 10) + '0';
-		temp /= 10;
-	}
-	//The above code just put the modulus results in backwards, because thats what it do
-	//place a null terminator at the end
-	buffer[sigCount] = '\0';
-	//put the char pointer in a String object that exists just here=
-	buff = buffer;
-	//deallocate memory
-	delete[] buffer;
-	buffer = nullptr;
-
 	return buff;
 }
 
@@ -817,14 +823,17 @@ int String::ToInt(const String& in)
 {
 	int temp = 0;
 	int sig = 0;
-	for (int i = 0; i < in.GetLen(); i++)
+	if (in == "0")
 	{
-		sig = in[i] - '0';
-		for (int j = in.GetLen() - i; j > 1; j--)
+		for (int i = 0; i < in.GetLen(); i++)
 		{
-			sig *= 10;
+			sig = in[i] - '0';
+			for (int j = in.GetLen() - i; j > 1; j--)
+			{
+				sig *= 10;
+			}
+			temp += sig;
 		}
-		temp += sig;
 	}
 	return temp;
 }
