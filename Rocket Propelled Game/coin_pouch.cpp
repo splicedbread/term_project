@@ -56,13 +56,13 @@ CoinPouch & CoinPouch::operator = (const CoinPouch & right)
 */////////////////////////////////////////////////////////
 void CoinPouch::SetMoney(int amount)
 {
-	if (amount > 0)
+	if (this->m_money >= 0 && (this->m_money + amount) >= 0)
 	{
 		this->m_money = amount;
 	}
 	else
 	{
-		std::cout << "Cannot enter a negitive amount" << std::endl;
+		std::cout << "character cannot go into debt" << std::endl;
 	}
 }
 
@@ -72,7 +72,7 @@ void CoinPouch::SetMoney(int amount)
 	Purpose: Taken directly from the federal reserve, this
 		getter function just returns the m_money variable
 *//////////////////////////////////////////////////////////
-int CoinPouch::GetMoney()
+const int CoinPouch::GetMoney() const
 {
 	return this->m_money;
 }
@@ -88,7 +88,7 @@ int CoinPouch::GetMoney()
 
 	Post-Cond: will either display in a formatted way, or empty
 *//////////////////////////////////////////////////////////////////
-void CoinPouch::DisplayContent()
+void CoinPouch::DisplayContent() const
 {
 	if (!this->IsBroke())
 	{
@@ -118,7 +118,7 @@ void CoinPouch::DisplayContent()
 
 		}
 
-		std::cout << "Money Pouch Contents: ["
+		std::cout << "Contents: ["
 			<< platnium << "] Platnium, ["
 			<< gold << "] Gold, ["
 			<< silver << "] Silver, ["
@@ -126,7 +126,7 @@ void CoinPouch::DisplayContent()
 	}
 	else
 	{
-		std::cout << "Money Pouch Contents: empty" << std::endl;
+		std::cout << "Contents: empty" << std::endl;
 	}
 }
 
@@ -140,7 +140,7 @@ void CoinPouch::DisplayContent()
 
 	Post-Con: returns true if m_money is equal to 0
 *////////////////////////////////////////////////////////////////////
-bool CoinPouch::IsBroke()
+bool CoinPouch::IsBroke() const
 {
 	return (m_money == 0);
 }

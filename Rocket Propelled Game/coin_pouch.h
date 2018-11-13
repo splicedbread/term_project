@@ -1,6 +1,6 @@
 #ifndef COIN_POUCH_H
 #define COIN_POUCH_H
-
+#include "string.h"
 /*////////////////////////////////////
 	Author: Jacob Vanderkarr
 	FileName: coin_pouch.h
@@ -32,12 +32,12 @@ public:
 
 	CoinPouch & operator = (const CoinPouch & right);
 	void SetMoney(int amount);
-	int GetMoney();
-	void DisplayContent();
-	bool IsBroke();
+	const int GetMoney() const;
+	void DisplayContent() const;
+	bool IsBroke() const;
 
 private:
-	unsigned int m_money;
+	int m_money;
 };
 
 #endif // !COIN_POUCH_H
