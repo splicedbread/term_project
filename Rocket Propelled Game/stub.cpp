@@ -6,6 +6,7 @@
 #include "string.h"
 #include "coin_pouch.h"
 #include <crtdbg.h>
+#include <SFML/Graphics.hpp>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -15,6 +16,7 @@ using std::ifstream;
 using std::ios;
 using std::fstream;
 
+void TestStub();
 void Stub();
 
 const int MAX_NUM_CHARACTERS = 4;
@@ -23,9 +25,10 @@ const char * FILENAME = "character.bin";
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
-	Stub();
-	cin.ignore();
+	cout << "launching openGL application...." << endl;
+	TestStub();
+	//Stub();
+	//cin.ignore();
 	return 0;
 }
 
@@ -416,3 +419,174 @@ void Stub()
 
 }
 
+void TestStub()
+{
+	const float SPEED = 2.0f;
+	sf::RenderWindow window(sf::VideoMode(800, 800), "TestStub GL", sf::Style::Titlebar | sf::Style::Close);
+	sf::CircleShape shape(50.f);
+	shape.setFillColor(sf::Color::Cyan);
+	shape.setOutlineColor(sf::Color::Blue);
+	shape.setOutlineThickness(3.f);
+
+	shape.setOrigin(-300, -300);
+	window.setPosition(sf::Vector2i(10, 50));
+	window.setVerticalSyncEnabled(true);
+
+	sf::Time accel_time = sf::milliseconds(200);
+	sf::Time drag_time = sf::seconds(1.5f);
+	sf::Event event;
+	sf::Clock a_clock;
+	sf::Clock d_clock;
+	bool activeElm = false;
+	bool x_drag = false;
+	bool y_drag = false;
+	float x_motion = 0.0f;
+	float y_motion = 0.0f;
+	float m_dragcoefficient = 0.04f;
+	float multiplier = 0.0f;
+
+	while (window.isOpen())
+	{
+		while (window.pollEvent(event))
+		{
+
+			if (event.type == sf::Event::Closed)
+			{
+				window.close();
+			}
+
+			if (event.type == sf::Event::KeyReleased && !activeElm)
+			{
+				multiplier = 0.0f;
+				x_drag = true;
+				y_drag = true;
+				d_clock.restart();
+			}
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+		{
+			x_motion = SPEED;
+			activeElm = true;
+
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			{
+				y_drag = true;
+			}
+
+			x_drag = false;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+		{
+			x_motion = -SPEED;
+			activeElm = true;
+
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			{
+				y_drag = true;
+			}
+
+			x_drag = false;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			y_motion = SPEED;
+			activeElm = true;
+
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			{
+				x_drag = true;
+			}
+
+			y_drag = false;
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			y_motion = -SPEED;
+			activeElm = true;
+
+			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			{
+				x_drag = true;
+			}
+
+			y_drag = false;
+		}
+
+
+
+
+		if (!activeElm)
+		{
+			a_clock.restart();
+		}
+
+		if (activeElm && a_clock.getElapsedTime() >= accel_time && multiplier <= 2.0f)
+		{
+			multiplier += 0.1f;
+		}
+
+		if (x_drag && !y_drag)
+		{
+			if (x_motion > 0.0f)
+			{
+				x_motion = x_motion - (x_motion * m_dragcoefficient);
+			}
+			else
+			{
+				x_motion = x_motion - (x_motion * m_dragcoefficient);
+			}
+		}
+		else
+		{
+			if (y_motion > 0.0f)
+			{
+				y_motion = y_motion - (y_motion * m_dragcoefficient);
+			}
+			else
+			{
+				y_motion = y_motion - (y_motion * m_dragcoefficient);
+			}
+		}
+
+		if (x_drag && y_drag)
+		{
+			if (d_clock.getElapsedTime() >= drag_time)
+			{
+				x_motion = 0.0f;
+				y_motion = 0.0f;
+				x_drag = false;
+				y_drag = false;
+			}
+
+			if (x_motion > 0.0f)
+			{
+				x_motion = x_motion - (x_motion * m_dragcoefficient);
+			}
+			else
+			{
+				x_motion = x_motion - (x_motion * m_dragcoefficient);
+			}
+
+			if (y_motion > 0.0f)
+			{
+				y_motion = y_motion - (y_motion * m_dragcoefficient);
+			}
+			else
+			{
+				y_motion = y_motion - (y_motion * m_dragcoefficient);
+			}
+
+
+		}
+
+		shape.move(x_motion + x_motion*multiplier, y_motion + y_motion*multiplier);
+		window.clear();
+		window.draw(shape);
+		window.display();
+		activeElm = false;
+	}
+};
