@@ -140,14 +140,14 @@ String& String::operator= (const String& right)
 			try
 			{
 				this->m_str = new char[right.m_length + 1];
+				//Have the data in the char array copied over To this instance
+				this->mCpy(right);
 			}
 			catch (std::bad_alloc except)
 			{
 				//Failed allocation
 				cout << "Exception in String: " << except.what();
 			}
-			//Have the data in the char array copied over To this instance
-			this->mCpy(right);
 		}
 	return *this;
 }
@@ -203,50 +203,42 @@ String & String::operator + (const String & right) //not used yet
 	try
 	{
 		buffer = new char[len + 1];
-	}
-	catch (std::bad_alloc except)
-	{
-		//Failed allocation
-		cout << "Exception in String: " << except.what();
-	}
-	//move everything from this To temp
-	for (int i = 0; i < this->m_length + 1; i++) {
-		buffer[i] = this->m_str[i];
-	}
+		//move everything from this To temp
+		for (int i = 0; i < this->m_length + 1; i++) {
+			buffer[i] = this->m_str[i];
+		}
 
-	//move everything from right To the end of temp
-	for (int i = this->m_length, j = 0; j < r_len + 1; i++, j++) {
-		buffer[i] = right[j];
-	}
-	//add a null termination character
-	buffer[len] = '\0';
+		//move everything from right To the end of temp
+		for (int i = this->m_length, j = 0; j < r_len + 1; i++, j++) {
+			buffer[i] = right[j];
+		}
+		//add a null termination character
+		buffer[len] = '\0';
 
-	//deallocate this memory To make room for the new allocation
-	delete [] this->m_str;
-	try 
-	{
+		//deallocate this memory To make room for the new allocation
+		delete[] this->m_str;
 		this->m_str = new char[len + 1];
+		//Set this length To equal the new Total
+		this->m_length = len;
+
+		//store everything from the temp storage back To this m_str
+		for (int i = 0; i < this->m_length + 1; i++) {
+			this->m_str[i] = buffer[i];
+		}
+
+		this->m_str[len] = '\0';
+
+
+		//deallocate the temp memory allocation
+		delete[] buffer;
+		buffer = nullptr;
+
 	}
 	catch (std::bad_alloc except)
 	{
 		//Failed allocation
 		cout << "Exception in String: " << except.what();
 	}
-	//Set this length To equal the new Total
-	this->m_length = len;
-
-	//store everything from the temp storage back To this m_str
-	for (int i = 0; i < this->m_length + 1; i++) {
-		this->m_str[i] = buffer[i];
-	}
-
-	this->m_str[len] = '\0';
-
-
-	//deallocate the temp memory allocation
-	delete[] buffer;
-	buffer = nullptr;
-
 	return *this;
 };
 
@@ -280,47 +272,39 @@ String & String::operator + (const char * right) //not used yet
 	try
 	{
 		buffer = new char[len + 1];
-	}
-	catch (std::bad_alloc except)
-	{
-		//Failed allocation
-		cout << "Exception in String: " << except.what();
-	}
-	//move everything from this To temp
-	for (int i = 0; i < this->m_length + 1; i++) {
-		buffer[i] = this->m_str[i];
-	}
+		//move everything from this To temp
+		for (int i = 0; i < this->m_length + 1; i++) {
+			buffer[i] = this->m_str[i];
+		}
 
-	//move everything from right To the end of temp
-	for (int i = this->m_length, j = 0; j < r_len; i++, j++) {
-		buffer[i] = right[j];
-	}
-	//add a null termination character
-	buffer[len] = '\0';
+		//move everything from right To the end of temp
+		for (int i = this->m_length, j = 0; j < r_len; i++, j++) {
+			buffer[i] = right[j];
+		}
+		//add a null termination character
+		buffer[len] = '\0';
 
-	//deallocate this memory To make room for the new allocation
-	delete[] this->m_str;
-	try
-	{
+		//deallocate this memory To make room for the new allocation
+		delete[] this->m_str;
 		this->m_str = new char[len + 1];
+		//Set this length To equal the new Total
+		this->m_length = len;
+
+		//store everything from the temp storage back To this m_str
+		for (int i = 0; i < this->m_length + 1; i++) {
+			this->m_str[i] = buffer[i];
+		}
+
+		//deallocate the temp memory allocation
+		delete[] buffer;
+		buffer = nullptr;
+
 	}
 	catch (std::bad_alloc except)
 	{
 		//Failed allocation
 		cout << "Exception in String: " << except.what();
 	}
-	//Set this length To equal the new Total
-	this->m_length = len;
-
-	//store everything from the temp storage back To this m_str
-	for (int i = 0; i < this->m_length + 1; i++) {
-		this->m_str[i] = buffer[i];
-	}
-
-	//deallocate the temp memory allocation
-	delete[] buffer;
-	buffer = nullptr;
-
 	return *this;
 };
 
@@ -465,7 +449,14 @@ ostream& operator << (ostream& os, const String& str)
 
 const char& String::operator [] (const int i) const
 {
-	return this->m_str[i];
+	if (i > this->m_length)
+	{
+		std::cout << "array out of bounds" << std::endl;
+	}
+	else
+	{
+		return this->m_str[i];
+	}
 };
 
 
@@ -557,23 +548,21 @@ void String::mCpy(const char * right)
 		try
 		{
 			this->m_str = new char[this->m_length + 1];
+			//copy data from the char ptr To this char array as such.
+
+			for (int i = 0; i < this->m_length + 1; i++)
+			{
+				this->m_str[i] = right[i];
+				//cout << i << m_str[i] << endl;
+			}
+
+			this->m_str[this->m_length] = '\0';
 		}
 		catch (std::bad_alloc except)
 		{
 			//Failed allocation
 			cout << "Exception in String: " << except.what();
 		}
-		//copy data from the char ptr To this char array as such.
-
-		for (int i = 0; i < this->m_length + 1; i++)
-		{
-			this->m_str[i] = right[i];
-			//cout << i << m_str[i] << endl;
-		}
-
-		this->m_str[this->m_length] = '\0';
-		//Checking To see if the null terminating character was copied, if not, then Display a message
-		//so I can fix this later
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -610,35 +599,29 @@ void String::ToUp(String& in)
 	try
 	{
 		buff = new char[in.GetLen() + 1];
+		//iterate through the argument looking for lowercase chars
+		for (int i = 0; i < in.GetLen() + 1; i++)
+		{
+			//copy input into buffer
+			buff[i] = in[i];
+			//if lowercase, -32 uses uppercase characters from the ascii table
+			if (in[i] >= 'a' && in[i] <= 'z')
+			{
+				buff[i] -= 32;
+			}
+		}
+		//save the buffer 
+		in = buff;
+		//deallocate memory borrowed
+		delete[] buff;
+		buff = nullptr;
 	}
 	catch (std::bad_alloc except)
 	{
 		//Failed allocation
 		cout << "Exception in String: " << except.what();
 	}
-	//iterate through the argument looking for lowercase chars
-	for (int i = 0; i < in.GetLen() + 1; i++)
-	{
-		//copy input into buffer
-		buff[i] = in[i];
-		//if lowercase, -32 uses uppercase characters from the ascii table
-		if (in[i] >= 'a' && in[i] <= 'z')
-		{
-			buff[i] -= 32;
-		}
-	}
-	//test
-	//cout << "test " << buff << endl;
-
-	//save the buffer 
-	in = buff;
-
-	//test
-	//cout << in << endl;
-
-	//deallocate memory borrowed
-	delete[] buff;
-	buff = nullptr;
+	
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -663,37 +646,29 @@ String String::ToUp(String in, bool flag)
 		try
 		{
 			buff = new char[in.GetLen() + 1];
+			//iterate through the argument looking for lowercase chars
+			for (int i = 0; i < in.GetLen() + 1; i++)
+			{
+				//copy input into buffer
+				buff[i] = in[i];
+				//if lowercase, -32 uses uppercase characters from the ascii table
+				if (in[i] >= 'a' && in[i] <= 'z')
+				{
+					buff[i] -= 32;
+				}
+			}
+			//save the buffer 
+			in = buff;
+			//deallocate memory borrowed
+			delete[] buff;
+			buff = nullptr;
 		}
 		catch (std::bad_alloc except)
 		{
 			//Failed allocation
 			cout << "Exception in String: " << except.what();
 		}
-		//iterate through the argument looking for lowercase chars
-		for (int i = 0; i < in.GetLen() + 1; i++)
-		{
-			//copy input into buffer
-			buff[i] = in[i];
-			//if lowercase, -32 uses uppercase characters from the ascii table
-			if (in[i] >= 'a' && in[i] <= 'z')
-			{
-				buff[i] -= 32;
-			}
-		}
-		//test
-		//cout << "test " << buff << endl;
-
-		//save the buffer 
-		in = buff;
-	
-		//test
-		//cout << in << endl;
-	
-		//deallocate memory borrowed
-		delete[] buff;
-		buff = nullptr;
 	}
-
 	return in;
 }
 
@@ -715,35 +690,28 @@ void String::ToLow(String& in)
 	try
 	{
 		buff = new char[in.GetLen() + 1];
+		//iterate through the argument looking for uppercase chars
+		for (int i = 0; i < in.GetLen() + 1; i++)
+		{
+			//copy input into buffer
+			buff[i] = in[i];
+			//if uppercase, +32 uses lowercase characters from the ascii table
+			if (in[i] >= 'A' && in[i] <= 'Z')
+			{
+				buff[i] += 32;
+			}
+		}
+		//save the buffer 
+		in = buff;
+		//deallocate memory borrowed
+		delete[] buff;
+		buff = nullptr;
 	}
 	catch (std::bad_alloc except)
 	{
 		//Failed allocation
 		cout << "Exception in String: " << except.what();
 	}
-	//iterate through the argument looking for uppercase chars
-	for (int i = 0; i < in.GetLen() + 1; i++)
-	{
-		//copy input into buffer
-		buff[i] = in[i];
-		//if uppercase, +32 uses lowercase characters from the ascii table
-		if (in[i] >= 'A' && in[i] <= 'Z')
-		{
-			buff[i] += 32;
-		}
-	}
-	//test
-	//cout << "test " << buff << endl;
-
-	//save the buffer 
-	in = buff;
-
-	//test
-	//cout << in << endl;
-
-	//deallocate memory borrowed
-	delete[] buff;
-	buff = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -776,30 +744,28 @@ String String::ToString(int num)
 		try
 		{
 			buffer = new char[sigCount + 1];
+			//start i at sigCount - 1 so its not at the last element counting down
+		//because the last element is reserved for the null terminating character
+			for (int i = sigCount - 1; i >= 0; i--)
+			{
+				buffer[i] = (temp % 10) + '0';
+				temp /= 10;
+			}
+			//The above code just put the modulus results in backwards, because thats what it do
+			//place a null terminator at the end
+			buffer[sigCount] = '\0';
+			//put the char pointer in a String object that exists just here=
+			buff = buffer;
+			//deallocate memory
+			delete[] buffer;
+			buffer = nullptr;
+
 		}
 		catch (std::bad_alloc except)
 		{
 			//Failed allocation
 			cout << "Exception in String: " << except.what();
 		}
-
-
-		//start i at sigCount - 1 so its not at the last element counting down
-		//because the last element is reserved for the null terminating character
-		for (int i = sigCount - 1; i >= 0; i--)
-		{
-			buffer[i] = (temp % 10) + '0';
-			temp /= 10;
-		}
-		//The above code just put the modulus results in backwards, because thats what it do
-		//place a null terminator at the end
-		buffer[sigCount] = '\0';
-		//put the char pointer in a String object that exists just here=
-		buff = buffer;
-		//deallocate memory
-		delete[] buffer;
-		buffer = nullptr;
-
 	}
 	else
 	{

@@ -5,8 +5,8 @@
 #include "character.h"
 #include "string.h"
 #include "coin_pouch.h"
-#include <crtdbg.h>
 #include <SFML/Graphics.hpp>
+#include <crtdbg.h>
 using std::cin;
 using std::cout;
 using std::endl;
@@ -26,9 +26,9 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	cout << "launching openGL application...." << endl;
-	TestStub();
-	//Stub();
-	//cin.ignore();
+	//TestStub();
+	Stub();
+	cin.ignore();
 	return 0;
 }
 
@@ -442,7 +442,7 @@ void TestStub()
 	bool y_drag = false;
 	float x_motion = 0.0f;
 	float y_motion = 0.0f;
-	float m_dragcoefficient = 0.04f;
+	float m_dragcoefficient = 0.08f;
 	float multiplier = 0.0f;
 
 	while (window.isOpen())
@@ -461,6 +461,14 @@ void TestStub()
 				x_drag = true;
 				y_drag = true;
 				d_clock.restart();
+			}
+
+			if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Escape)
+				{
+					window.close();
+				}
 			}
 		}
 
@@ -515,9 +523,6 @@ void TestStub()
 
 			y_drag = false;
 		}
-
-
-
 
 		if (!activeElm)
 		{

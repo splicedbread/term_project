@@ -386,26 +386,26 @@ void Item::FormatCost(String& cst)
 						try
 						{
 							temp = new char[(endE - startE) + 1];
+							for (int j = startE; j < endE; j++)
+							{
+								//A little complicated
+								//ex, if we have 123, then it will add 100 To plat, then 20, then 3
+								//because chars are just numbers that refrence the ascii table,
+								//if we subtract '0', then we will return an int that is our int we
+								//want To use
+
+								temp[elm] = cst[j];
+								elm++;
+							}
+							temp[endE - startE] = '\0';
+							platnium = String::ToInt(temp);
+							delete[] temp;
+							temp = nullptr;
 						}
 						catch (std::bad_alloc except)
 						{
 							std::cout << "Exception in Item: " << except.what() << std::endl;
 						}
-						for (int j = startE; j < endE; j++)
-						{
-							//A little complicated
-							//ex, if we have 123, then it will add 100 To plat, then 20, then 3
-							//because chars are just numbers that refrence the ascii table,
-							//if we subtract '0', then we will return an int that is our int we
-							//want To use
-
-							temp[elm] = cst[j];
-							elm++;
-						}
-						temp[endE - startE] = '\0';
-						platnium = String::ToInt(temp);
-						delete[] temp;
-						temp = nullptr;
 					break;
 				case 1:
 					//gold
@@ -413,21 +413,21 @@ void Item::FormatCost(String& cst)
 						try
 						{
 							temp = new char[(endE - startE) + 1];
+							for (int j = startE; j < endE; j++)
+							{
+								temp[elm] = cst[j];
+								elm++;
+
+							}
+							temp[endE - startE] = '\0';
+							gold = String::ToInt(temp);
+							delete[] temp;
+							temp = nullptr;
 						}
 						catch (std::bad_alloc except)
 						{
 							std::cout << "Exception in Item: " << except.what() << std::endl;
 						}
-						for (int j = startE; j < endE; j++)
-						{
-							temp[elm] = cst[j];
-							elm++;
-
-						}
-						temp[endE - startE] = '\0';
-						gold = String::ToInt(temp);
-						delete[] temp;
-						temp = nullptr;
 					break;
 				case 2:
 					//silver
@@ -435,21 +435,21 @@ void Item::FormatCost(String& cst)
 						try
 						{
 							temp = new char[(endE - startE) + 1];
+							for (int j = startE; j < endE; j++)
+							{
+								temp[elm] = cst[j];
+								elm++;
+
+							}
+							temp[endE - startE] = '\0';
+							silver = String::ToInt(temp);
+							delete[] temp;
+							temp = nullptr;
 						}
 						catch (std::bad_alloc except)
 						{
 							std::cout << "Exception in Item: " << except.what() << std::endl;
 						}
-						for (int j = startE; j < endE; j++)
-						{
-							temp[elm] = cst[j];
-							elm++;
-
-						}
-						temp[endE - startE] = '\0';
-						silver = String::ToInt(temp);
-						delete[] temp;
-						temp = nullptr;
 					break;
 				case 3:
 					//copper
@@ -457,21 +457,21 @@ void Item::FormatCost(String& cst)
 						try
 						{
 							temp = new char[(endE - startE) + 1];
+							for (int j = startE; j < endE; j++)
+							{
+								temp[elm] = cst[j];
+								elm++;
+
+							}
+							temp[endE - startE] = '\0';
+							copper = String::ToInt(temp);
+							delete[] temp;
+							temp = nullptr;
 						}
 						catch (std::bad_alloc except)
 						{
 							std::cout << "Exception in Item: " << except.what() << std::endl;
 						}
-						for (int j = startE; j < endE; j++)
-						{
-							temp[elm] = cst[j];
-							elm++;
-
-						}
-						temp[endE - startE] = '\0';
-						copper = String::ToInt(temp);
-						delete[] temp;
-						temp = nullptr;
 					break;
 				}
 
