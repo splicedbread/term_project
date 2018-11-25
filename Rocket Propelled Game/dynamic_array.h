@@ -136,15 +136,15 @@ DynamicArray<T> & DynamicArray<T>::operator = (const DynamicArray & right)
 		try
 		{
 			this->m_array = new T[right.m_elements];
+			//deep copy right data to this obj
+			for (int i = 0; i < right.m_elements; i++)
+			{
+				this->m_array[i] = right.m_array[i];
+			}
 		}
 		catch (std::bad_alloc except)
 		{
 			std::cout << "Exception in DArray: " << except.what() << std::endl;
-		}
-		//deep copy right data to this obj
-		for (int i = 0; i < right.m_elements; i++)
-		{
-			this->m_array[i] = right.m_array[i];
 		}
 	}
 	//return this obj
@@ -163,7 +163,15 @@ DynamicArray<T> & DynamicArray<T>::operator = (const DynamicArray & right)
 template <class T>
 const T& DynamicArray<T>::operator [] (const int i) const
 {
-	return this->m_array[i];
+	if (i > this->m_elements)
+	{
+		std::cout << "Out of array bounds in dynamic array" << std::endl;
+	}
+	else
+	{
+		return this->m_array[i];
+	}
+
 }
 
 
@@ -201,61 +209,56 @@ void DynamicArray<T>::Insert(const T & to_add)
 		try
 		{
 			buffer = new T[this->m_elements];
-		}
-		catch (std::bad_alloc except)
-		{
-			std::cout << "Exception in DArray: " << except.what() << std::endl;
-		}
-		//copy m_array into buffer
+			//copy m_array into buffer
 
 
-		for (int i = 0; i < this->m_elements; i++)
-		{
-			buffer[i] = this->m_array[i];
-		}
+			for (int i = 0; i < this->m_elements; i++)
+			{
+				buffer[i] = this->m_array[i];
+			}
 
-		//delete the current array
-		delete[] this->m_array;
-		m_array = nullptr;
+			//delete the current array
+			delete[] this->m_array;
+			m_array = nullptr;
 
-		//allocate new memory for the array
-		try
-		{
+			//allocate new memory for the array
 			m_array = new T[this->m_elements + 1];
+			//increment m_elements by 1, this will create space for the to_add
+			this->m_elements++;
+
+			//copy everything from the buffer to the new array, but remember the 
+			//m_elements size changed
+			for (int i = 0; i < this->m_elements - 1; i++)
+			{
+				this->m_array[i] = buffer[i];
+			}
+			//Finally everything is back into the original array, inset to_add to the last
+			//element, which is at position m_element
+			this->m_array[m_elements - 1] = to_add;
+			//cleanup our temp buffer
+			delete[] buffer;
+			buffer = nullptr;
+
 		}
 		catch (std::bad_alloc except)
 		{
 			std::cout << "Exception in DArray: " << except.what() << std::endl;
 		}
-		//increment m_elements by 1, this will create space for the to_add
-		this->m_elements++;
-
-		//copy everything from the buffer to the new array, but remember the 
-		//m_elements size changed
-		for (int i = 0; i < this->m_elements - 1; i++)
-		{
-			this->m_array[i] = buffer[i];
-		}
-		//Finally everything is back into the original array, inset to_add to the last
-		//element, which is at position m_element
-		this->m_array[m_elements - 1] = to_add;
-		//cleanup our temp buffer
-		delete[] buffer;
-		buffer = nullptr;
-
+		
 	}
 	else
 	{
 		try
 		{
 			this->m_array = new T[this->m_elements + 1];
+			this->m_elements++;
+			this->m_array[0] = to_add;
 		}
 		catch (std::bad_alloc except)
 		{
 			std::cout << "Exception in DArray: " << except.what() << std::endl;
 		}
-		this->m_elements++;
-		this->m_array[0] = to_add;
+		
 	}
 
 }
@@ -288,52 +291,47 @@ void DynamicArray<T>::Delete(const T & to_delete)
 		try
 		{
 			buffer = new T[this->m_elements];
-		}
-		catch (std::bad_alloc except)
-		{
-			std::cout << "Exception in DArray: " << except.what() << std::endl;
-		}
 
-		for (int i = 0, j = 0; i < this->m_elements; i++, j++)
-		{
-			if (i == t_element)
+			for (int i = 0, j = 0; i < this->m_elements; i++, j++)
 			{
-				//do no assigment, subtract from j before next loop, 
-				//so buffer didnt increment its index
-				j--;
+				if (i == t_element)
+				{
+					//do no assigment, subtract from j before next loop, 
+					//so buffer didnt increment its index
+					j--;
+				}
+				else
+				{
+					buffer[j] = this->m_array[i];
+				}
 			}
-			else
-			{
-				buffer[j] = this->m_array[i];
-			}
-		}
-		//after everything is in the buffer, purge this objects array
-		//delete the current array
-		delete[] this->m_array;
-		m_array = nullptr;
-		//allocate new memory for the array
-		try
-		{
+			//after everything is in the buffer, purge this objects array
+			//delete the current array
+			delete[] this->m_array;
+			m_array = nullptr;
+			//allocate new memory for the array
+
 			m_array = new T[this->m_elements - 1];
+
+			//decrement m_elements by 1, this will create space for the to_add
+			this->m_elements--;
+			//copy everything from the buffer to the new array, but remember the 
+			//m_elements size changed
+			for (int i = 0; i < this->m_elements; i++)
+			{
+				this->m_array[i] = buffer[i];
+			}
+
+			//cleanup the temp buffer
+
+			delete[] buffer;
+			buffer = nullptr;
 		}
 		catch (std::bad_alloc except)
 		{
 			std::cout << "Exception in DArray: " << except.what() << std::endl;
 		}
 
-		//decrement m_elements by 1, this will create space for the to_add
-		this->m_elements--;
-		//copy everything from the buffer to the new array, but remember the 
-		//m_elements size changed
-		for (int i = 0; i < this->m_elements; i++)
-		{
-			this->m_array[i] = buffer[i];
-		}
-
-		//cleanup the temp buffer
-
-		delete[] buffer;
-		buffer = nullptr;
 	}
 }
 
