@@ -1,10 +1,9 @@
 #include <iostream>
-#include <iomanip>
-#include <filesystem>
 #include <fstream>
 #include "character.h"
 #include "string.h"
 #include "coin_pouch.h"
+#include "game_manager.h"
 #include <SFML/Graphics.hpp>
 #include <crtdbg.h>
 using std::cin;
@@ -16,6 +15,7 @@ using std::ifstream;
 using std::ios;
 using std::fstream;
 
+void Stub2();
 void TestStub();
 void Stub();
 
@@ -26,12 +26,17 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	cout << "launching openGL application...." << endl;
-	//TestStub();
-	Stub();
-	cin.ignore();
+	TestStub();
+	//Stub();
+	//Stub2();
+	//cin.ignore();
 	return 0;
 }
 
+void Stub2()
+{
+	GameManager game;
+}
 
 void Stub() 
 {
@@ -421,14 +426,23 @@ void Stub()
 
 void TestStub()
 {
+	float margin = 50;
 	const float SPEED = 2.0f;
-	sf::RenderWindow window(sf::VideoMode(800, 800), "TestStub GL", sf::Style::Titlebar | sf::Style::Close);
-	sf::CircleShape shape(50.f);
+	sf::View view;
+	sf::RenderWindow window(sf::VideoMode(1000, 1000), "TestStub GL", sf::Style::Titlebar | sf::Style::Close);
+	sf::CircleShape shape(25.f);
+	//adding a black border around the game
+	view.setViewport(sf::FloatRect((margin/2.0)/window.getSize().x,
+								(margin/2.0)/window.getSize().y,
+								(window.getSize().x - margin) / window.getSize().x, 
+								(window.getSize().y - margin) / window.getSize().y));
+	window.setView(view);
+
 	shape.setFillColor(sf::Color::Cyan);
 	shape.setOutlineColor(sf::Color::Blue);
 	shape.setOutlineThickness(3.f);
 
-	shape.setOrigin(-300, -300);
+	shape.setOrigin(-1*(window.getSize().x/2.0f) + shape.getRadius(), -1*(window.getSize().y/2.0f) + shape.getRadius());
 	window.setPosition(sf::Vector2i(10, 50));
 	window.setVerticalSyncEnabled(true);
 
@@ -447,92 +461,104 @@ void TestStub()
 
 	while (window.isOpen())
 	{
-		while (window.pollEvent(event))
+		if (window.hasFocus())
 		{
-
-			if (event.type == sf::Event::Closed)
+			while (window.pollEvent(event))
 			{
-				window.close();
-			}
 
-			if (event.type == sf::Event::KeyReleased && !activeElm)
-			{
-				multiplier = 0.0f;
-				x_drag = true;
-				y_drag = true;
-				d_clock.restart();
-			}
-
-			if (event.type == sf::Event::KeyPressed)
-			{
-				if (event.key.code == sf::Keyboard::Escape)
+				if (event.type == sf::Event::Closed)
 				{
 					window.close();
 				}
+
+				if (event.type == sf::Event::KeyReleased && !activeElm)
+				{
+					multiplier = 0.0f;
+					x_drag = true;
+					y_drag = true;
+					d_clock.restart();
+				}
+
+				if (event.type == sf::Event::KeyPressed)
+				{
+					if (event.key.code == sf::Keyboard::Escape)
+					{
+						window.close();
+					}
+				}
 			}
-		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-		{
-			x_motion = SPEED;
-			activeElm = true;
-
-			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
-				y_drag = true;
+				x_motion = SPEED;
+				activeElm = true;
+
+				if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+				{
+					y_drag = true;
+				}
+
+				x_drag = false;
 			}
 
-			x_drag = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-		{
-			x_motion = -SPEED;
-			activeElm = true;
-
-			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			{
-				y_drag = true;
+				x_motion = -SPEED;
+				activeElm = true;
+
+				if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+				{
+					y_drag = true;
+				}
+
+				x_drag = false;
 			}
 
-			x_drag = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			y_motion = SPEED;
-			activeElm = true;
-
-			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
-				x_drag = true;
+				y_motion = SPEED;
+				activeElm = true;
+
+				if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				{
+					x_drag = true;
+				}
+
+				y_drag = false;
 			}
 
-			y_drag = false;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		{
-			y_motion = -SPEED;
-			activeElm = true;
-
-			if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
-				x_drag = true;
+				y_motion = -SPEED;
+				activeElm = true;
+
+				if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && !sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				{
+					x_drag = true;
+				}
+
+				y_drag = false;
 			}
 
-			y_drag = false;
+			if (!activeElm)
+			{
+				a_clock.restart();
+			}
+
+			if (activeElm && a_clock.getElapsedTime() >= accel_time && multiplier <= 2.0f)
+			{
+				multiplier += 0.1f;
+			}
+
+		}
+		else
+		{
+			x_drag = true;
+			y_drag = true;
+			multiplier = 0.0f;
+			d_clock.restart();
 		}
 
-		if (!activeElm)
-		{
-			a_clock.restart();
-		}
-
-		if (activeElm && a_clock.getElapsedTime() >= accel_time && multiplier <= 2.0f)
-		{
-			multiplier += 0.1f;
-		}
 
 		if (x_drag && !y_drag)
 		{
@@ -587,7 +613,7 @@ void TestStub()
 
 
 		}
-
+		
 		shape.move(x_motion + x_motion*multiplier, y_motion + y_motion*multiplier);
 		window.clear();
 		window.draw(shape);

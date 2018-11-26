@@ -163,15 +163,14 @@ DynamicArray<T> & DynamicArray<T>::operator = (const DynamicArray & right)
 template <class T>
 const T& DynamicArray<T>::operator [] (const int i) const
 {
-	if (i > this->m_elements)
-	{
-		std::cout << "Out of array bounds in dynamic array" << std::endl;
-	}
-	else
+	try
 	{
 		return this->m_array[i];
 	}
-
+	catch (const std::exception&)
+	{
+		std::cout << "Out of array bounds in dynamic array" << std::endl;
+	}
 }
 
 
