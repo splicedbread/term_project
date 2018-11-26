@@ -26,9 +26,9 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	cout << "launching openGL application...." << endl;
-	TestStub();
+	//TestStub();
 	//Stub();
-	//Stub2();
+	Stub2();
 	//cin.ignore();
 	return 0;
 }
@@ -426,17 +426,30 @@ void Stub()
 
 void TestStub()
 {
+	std::string font_path = "./comic.ttf";
 	float margin = 50;
 	const float SPEED = 2.0f;
+	sf::Font font;
 	sf::View view;
 	sf::RenderWindow window(sf::VideoMode(1000, 1000), "TestStub GL", sf::Style::Titlebar | sf::Style::Close);
 	sf::CircleShape shape(25.f);
+	sf::Text text;
+
+	font.loadFromFile(font_path);
+	text.setString("test string stuff");
+	text.setStyle(sf::Text::Bold | sf::Text::Italic);
+	text.setFont(font);
+	text.setFillColor(sf::Color::Green);
+	text.setOutlineColor(sf::Color::Green);
+	text.setOrigin(-200,-200);
 	//adding a black border around the game
 	view.setViewport(sf::FloatRect((margin/2.0)/window.getSize().x,
 								(margin/2.0)/window.getSize().y,
 								(window.getSize().x - margin) / window.getSize().x, 
 								(window.getSize().y - margin) / window.getSize().y));
 	window.setView(view);
+
+	
 
 	shape.setFillColor(sf::Color::Cyan);
 	shape.setOutlineColor(sf::Color::Blue);
@@ -445,12 +458,13 @@ void TestStub()
 	shape.setOrigin(-1*(window.getSize().x/2.0f) + shape.getRadius(), -1*(window.getSize().y/2.0f) + shape.getRadius());
 	window.setPosition(sf::Vector2i(10, 50));
 	window.setVerticalSyncEnabled(true);
-
+	sf::Time clock_time = sf::milliseconds(10);
 	sf::Time accel_time = sf::milliseconds(200);
 	sf::Time drag_time = sf::seconds(1.5f);
 	sf::Event event;
 	sf::Clock a_clock;
 	sf::Clock d_clock;
+	sf::Clock font_clock;
 	bool activeElm = false;
 	bool x_drag = false;
 	bool y_drag = false;
@@ -458,6 +472,7 @@ void TestStub()
 	float y_motion = 0.0f;
 	float m_dragcoefficient = 0.08f;
 	float multiplier = 0.0f;
+	bool temp = false;
 
 	while (window.isOpen())
 	{
@@ -613,10 +628,12 @@ void TestStub()
 
 
 		}
+
 		
 		shape.move(x_motion + x_motion*multiplier, y_motion + y_motion*multiplier);
 		window.clear();
 		window.draw(shape);
+		window.draw(text);
 		window.display();
 		activeElm = false;
 	}

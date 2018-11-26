@@ -61,7 +61,7 @@ public:
 
 private:
 	MenuMode e_StartMode;
-	DynamicArray<Character> character;
+	Character character;
 	sf::RenderWindow window;
 	sf::View view;
 	String m_pathName;

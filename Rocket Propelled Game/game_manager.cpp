@@ -90,6 +90,10 @@ void GameManager::GameStart()
 		//This will manage drawing the main menu, with options for a new game, resume last or load
 		//it will also include an exit option
 		std::cout << "Main Screen should display" << std::endl;
+		while (window.isOpen())
+		{
+
+		}
 		break;
 	case GameManager::WORLD:
 		//starting from pause will need to load the gamestate file associated with this character
