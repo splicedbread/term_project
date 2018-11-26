@@ -84,34 +84,33 @@ void GameManager::GameStart()
 	}
 
 	//once the window has been created, we must manage what things to display
-	switch (e_StartMode)
+	while (window.isOpen())
 	{
-	case GameManager::MAIN:
-		//This will manage drawing the main menu, with options for a new game, resume last or load
-		//it will also include an exit option
-		std::cout << "Main Screen should display" << std::endl;
-		while (window.isOpen())
+		switch (e_StartMode)
 		{
-
+		case GameManager::MAIN:
+			//This will manage drawing the main menu, with options for a new game, resume last or load
+			//it will also include an exit option
+			m_menuRender();
+			break;
+		case GameManager::WORLD:
+			//starting from pause will need to load the gamestate file associated with this character
+			//resuming while in a fight seems problematic
+			std::cout << "World Screen should display" << std::endl;
+			break;
+		case GameManager::FIGHT:
+			//fight may be used recursively, calling GameStart() from MAIN switch, after
+			//chaning e_StartMode to fight will bring it here, could be dangerous
+			std::cout << "Fight Screen should display" << std::endl;
+			break;
+		case GameManager::SHOP:
+			//Shop screen has the same issue as fight, but the idea is to open a shop
+			//for upgrading the character.
+			std::cout << "Shop Screen should display" << std::endl;
+			break;
+		default:
+			break;
 		}
-		break;
-	case GameManager::WORLD:
-		//starting from pause will need to load the gamestate file associated with this character
-		//resuming while in a fight seems problematic
-		std::cout << "World Screen should display" << std::endl;
-		break;
-	case GameManager::FIGHT:
-		//fight may be used recursively, calling GameStart() from MAIN switch, after
-		//chaning e_StartMode to fight will bring it here, could be dangerous
-		std::cout << "Fight Screen should display" << std::endl;
-		break;
-	case GameManager::SHOP:
-		//Shop screen has the same issue as fight, but the idea is to open a shop
-		//for upgrading the character.
-		std::cout << "Shop Screen should display" << std::endl;
-		break;
-	default:
-		break;
 	}
 
 }
@@ -125,6 +124,86 @@ void GameManager::GameSave()
 }
 
 void GameManager::GameExit()
+{
+}
+
+void GameManager::m_menuRender()
+{
+	const int MENU_OPTIONS = 3;
+	sf::Event event;
+	float text_sp = 30.0f;
+	bool windowControl = true;
+	window.setVerticalSyncEnabled(true);
+	float margin = 15;
+	//create a rectange that has a "transparent" fill color, with a white border for thickness
+	sf::RectangleShape margin_border;
+	margin_border.setFillColor(sf::Color::Black);
+	margin_border.setOutlineColor(sf::Color::White);
+	margin_border.setOutlineThickness(margin);
+	margin_border.setSize(sf::Vector2f(window.getSize().x - 4*margin, window.getSize().y - 4*margin));
+	margin_border.setOrigin(-2*margin, -2*margin);
+
+	//text pointer array for 3 elements, [0] is New Game, [1] is Load Game, [2] is Exit
+	sf::Font font;
+	font.loadFromFile("./comic.ttf");
+	sf::Text textArray[MENU_OPTIONS];
+	for (int i = 0; i < MENU_OPTIONS; i++)
+	{
+		textArray[i].setFont(font);
+		textArray[i].setFillColor(sf::Color::White);
+		textArray[i].setOutlineColor(sf::Color::White);
+		textArray[i].setStyle(sf::Text::Bold);
+		textArray[i].setOrigin(-1*(window.getSize().x/2.0f), -1*(window.getSize().y/2.0f + i*text_sp));
+	}
+
+	textArray[0].setString("New Game");
+	textArray[1].setString("Load Game");
+	textArray[2].setString("Exit");
+
+	std::cout << "Main Screen should display" << std::endl;
+	while (window.isOpen() && windowControl)
+	{
+		if (window.hasFocus())
+		{
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::Closed:
+					window.close();
+					break;
+				case sf::Event::KeyPressed:
+					switch (event.key.code)
+					{
+					case sf::Keyboard::Up:
+						break;
+					case sf::Keyboard::Down:
+						break;
+					}
+					break;
+				}
+			}
+		}
+
+		window.clear();
+		window.draw(margin_border);
+		for (int i = 0; i < MENU_OPTIONS; i++)
+		{
+			window.draw(textArray[i]);
+		}
+		window.display();
+	}
+}
+
+void GameManager::p_menuRender()
+{
+}
+
+void GameManager::shopRender()
+{
+}
+
+void GameManager::worldRender()
 {
 }
 

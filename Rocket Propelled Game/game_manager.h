@@ -60,6 +60,12 @@ public:
 	};
 
 private:
+	void m_menuRender();
+	void p_menuRender();
+	void shopRender();
+	void worldRender();
+
+
 	MenuMode e_StartMode;
 	Character character;
 	sf::RenderWindow window;
