@@ -78,7 +78,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 
 GameManager::~GameManager()
 {
-	GameSave();
+	//GameSave();
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -224,17 +224,32 @@ void GameManager::m_menuRender()
 	y_coord = 0.90;
 	instructions.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
 
-	//Load in the title to display, first load a texture, then a create a sprite
-	sf::Texture texture;
+	//Load a fancy background for the main menu
 	String str = RESOURCE_DIRECTORY_PATH_NAME;
+	sf::Texture bg_texture;
+	str = str + "/RPG_dungeon.png";
+	if (!bg_texture.loadFromFile(str.GetStr()))
+	{
+		throw RESOURCE_FILE_DIRECTORY_ERR;
+	}
+	//create the sprite for the bg
+	sf::Sprite bg_sprite;
+	bg_sprite.setTexture(bg_texture);
+	x_coord = margin_border.getOrigin().x;
+	y_coord = margin_border.getOrigin().y;
+	bg_sprite.setOrigin(x_coord, y_coord);
+
+	//Load in the title to display, first load a texture, then a create a sprite
+	sf::Texture title_texture;
+	str = RESOURCE_DIRECTORY_PATH_NAME;
 	str = str + "/RPG_name.png";
-	if (!texture.loadFromFile(str.GetStr()))
+	if (!title_texture.loadFromFile(str.GetStr()))
 	{
 		throw RESOURCE_FILE_DIRECTORY_ERR;
 	}
 	//creating a sprite for the title
 	sf::Sprite title_Sprite;
-	title_Sprite.setTexture(texture);
+	title_Sprite.setTexture(title_texture);
 	//position it
 	x_coord = 0.05;
 	y_coord = 0.05;
@@ -243,7 +258,7 @@ void GameManager::m_menuRender()
 	title_Sprite.setScale(2.0, 2.0);
 
 	std::cout << "Main Screen should display" << std::endl;
-
+	
 	int selection = 0;
 
 	while (window.isOpen() && windowControl)
@@ -281,6 +296,7 @@ void GameManager::m_menuRender()
 							n_menuRender();
 							break;
 						case 1: //Load Game
+							s_menuRender();
 							break;
 						case 2: //Exit
 							e_StartMode = EXIT;
@@ -295,6 +311,7 @@ void GameManager::m_menuRender()
 
 		window.clear();
 		window.draw(margin_border);
+		window.draw(bg_sprite);
 		window.draw(instructions);
 		window.draw(title_Sprite);
 		for (int i = 0; i < MENU_OPTIONS; i++)
@@ -331,7 +348,7 @@ void GameManager::n_menuRender()
 	//all for input, including timing
 	String Input = "";
 	String TempInput = "";
-	bool inputing = true;
+	bool inputing = false;
 	bool input_wait = false;
 
 	const int MENU_OPTIONS = 3;
@@ -465,6 +482,9 @@ void GameManager::n_menuRender()
 							{
 								if (window.waitEvent(event) && !input_wait);
 								{
+									textArray[0].setFillColor(sf::Color::Cyan);
+									textArray[0].setOutlineColor(sf::Color::Cyan);
+									window.draw(textArray[0]);
 									input_wait = true;
 									TempInput = "";
 									if (event.type == sf::Event::TextEntered && !(event.key.code == sf::Keyboard::BackSpace) && !(event.key.code == sf::Keyboard::Enter))
@@ -475,7 +495,7 @@ void GameManager::n_menuRender()
 										}
 									}
 									Input = Input + TempInput;
-
+									inputText.setString(Input.GetStr());
 									if (event.type == sf::Event::KeyPressed)
 									{
 										if (event.key.code == sf::Keyboard::Enter)
@@ -489,8 +509,9 @@ void GameManager::n_menuRender()
 								{
 										input_wait = false;
 								}
+								window.draw(inputText);
+								window.display();
 							}
-							cout << Input.GetStr() << endl;
 							inputText.setString(Input.GetStr());
 							selection = 0;
 							break;
@@ -545,8 +566,13 @@ void GameManager::n_menuRender()
 
 		if (failure)
 		{
-			textArray[selection].setFillColor(sf::Color::Red);
-			textArray[selection].setOutlineColor(sf::Color::Red);
+			textArray[1].setFillColor(sf::Color::Red);
+			textArray[1].setOutlineColor(sf::Color::Red);
+			window.draw(textArray[1]);
+		}
+		else
+		{
+			textArray[1].setString("Create Character");
 		}
 
 		window.display();
@@ -590,13 +616,19 @@ bool GameManager::onCreateCharacter(const String & name)
 			{
 				flag = true;
 				Character_Info[0][i] = character.GetName();
-				Character_Info[1][i] = Health + character.GetHealth() + Remaining + RemainingAmount;
+				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + Remaining + RemainingAmount;
 			}
 		}
 	}
 	return flag;
 }
 
+/*//////////////////////////////////////////////////////////////////////////////////////////////
+	SaveFile uses a enum switch for saving a specific type of file, wether that is the character
+	gamestate, or the list of characters, it can do all, 
+
+	LoadFile does all of that in reverse.
+*///////////////////////////////////////////////////////////////////////////////////////////////
 void GameManager::SaveFile(FileType type)
 {
 	String slash = "/";
@@ -733,8 +765,9 @@ void GameManager::SaveFile(FileType type)
 		break;
 		case GameManager::CHARLIST:
 		{
+			int length;
 			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
-			m_pathName = m_pathName + slash + name + List + extension;
+			m_pathName = m_pathName + slash + GAME_NAME + List + extension;
 			this->m_FileOut.open(m_pathName.GetStr(), ios::out | ios::binary | ios::trunc | ios::ate);
 			if (m_FileOut.is_open())
 			{
@@ -742,6 +775,8 @@ void GameManager::SaveFile(FileType type)
 				{
 					for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
 					{
+						length = Character_Info[j][i].GetLen();
+						m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
 						m_FileOut << Character_Info[j][i].GetStr();
 					}
 				}
@@ -759,7 +794,215 @@ void GameManager::SaveFile(FileType type)
 
 bool GameManager::LoadFile(FileType type)
 {
-	return false;
+	String slash = "/";
+	String extension = ".bin";
+	String GSave = "_gsave";
+	String List = "_list";
+	String dir = SAVES_DIRECTORY_PATH_NAME;
+	String name = this->character.GetName();
+	char * buffer = nullptr;
+	bool flag = false;
+	if (character.GetName() != "NA")
+	{
+		switch (type)
+		{
+		case GameManager::CHAR:
+		{
+			m_pathName = "";
+			m_pathName = dir + slash + name + extension;
+			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+			if (m_FileIn.is_open())
+			{
+				int length = 0;
+				int elements = 0;
+				/*
+					Character Write Order: Name Size, Name, Health, Armour, Mana, Strength, m_inventory (Potions), m_inventory (Items) , m_wallet
+				*/
+				//name
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				buffer = new char[length + 1];
+				m_FileIn.read(buffer, length);
+				buffer[length] = '\0';
+				character.SetName(buffer);
+				delete[] buffer;
+				buffer = nullptr;
+				//health
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				character.SetHealth(length);
+				//armour
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				character.SetArmour(length);
+				//mana
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				character.SetMana(length);
+				//strength
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				character.SetStrength(length);
+
+				//wallet
+				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+				buffer = new char[length + 1];
+				m_FileIn.read(buffer, length);
+				buffer[length] = '\0';
+				character.AddMoney(String::ToInt(buffer));
+				delete[] buffer;
+				buffer = nullptr;
+
+				//Potions
+				/*
+					Potion info Write Order: PotionArraySize ,Name, Potency, Description, Cost, CostSize
+				*/
+				//Potion Array Elements
+				m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
+
+				for (int j = 0; j < elements; j++)
+				{
+					Potion tempPt;
+					//Name
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempPt.SetName(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//Potency
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempPt.SetPoten(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//Description
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempPt.SetDesc(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//CostSize
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempPt.SetCostSize(String::ToInt(buffer));
+					delete[] buffer;
+					buffer = nullptr;
+
+					//add the potion to the character
+					character.PickupObj(tempPt);
+				}
+
+				//Items
+				/*
+					Item info Write Order: ItemArraySize ,Name, Description, Cost, CostSize
+				*/
+				//Item Array Elements
+				m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
+
+				//Items
+				for (int j = 0; j < elements; j++)
+				{
+					Item tempItm;
+					//Name
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempItm.SetName(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//Description
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempItm.SetDesc(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//CostSize
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tempItm.SetCostSize(String::ToInt(buffer));
+					delete[] buffer;
+					buffer = nullptr;
+
+					//add item to player
+					character.PickupObj(tempItm);
+				}
+				//cout << "character " << i + 1 << ". written to file" << endl;
+				m_FileIn.close();
+				//	cout << "File written to and closed" << endl;
+			}
+			else
+			{
+				cout << "Could not open file" << endl;
+				flag = true;
+			}
+		}
+		break;
+		case GameManager::CHAR_GAME:
+		{
+			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
+			m_pathName = m_pathName + slash + name + GSave + extension;
+
+			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+			if (m_FileIn.is_open())
+			{
+				GameState state;
+				m_FileIn.read(reinterpret_cast<char *>(&state), sizeof(GameState));
+				m_Gstate = state;
+				m_FileIn.close();
+			}
+			else
+			{
+				cout << "Could not open file" << endl;
+				flag = true;
+			}
+		}
+		break;
+		case GameManager::CHARLIST:
+		{
+			int length;
+			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
+			m_pathName = m_pathName + slash + GAME_NAME + List + extension;
+			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+			if (m_FileIn.is_open())
+			{
+				for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+				{
+					for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+					{
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						Character_Info[j][i] = buffer;
+						delete[] buffer;
+						buffer = nullptr;
+					}
+				}
+				m_FileIn.close();
+			}
+			else
+			{
+				cout << "could not open file" << endl;
+				flag = true;
+			}
+		}
+		break;
+		}
+	}
+	return !flag;
 }
 
 
