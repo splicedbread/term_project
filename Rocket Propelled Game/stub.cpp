@@ -35,7 +35,19 @@ int main()
 
 void Stub2()
 {
-	GameManager game;
+		GameManager game;
+		try
+		{
+			game.GameStart();
+		}
+		catch (String error)
+		{
+			if (error == "RESOURCE ERROR")
+			{
+				cout << "There was a problem with loading the resource" << endl;
+				cin.ignore();
+			}
+		}
 }
 
 void Stub() 
@@ -92,19 +104,13 @@ void Stub()
 		{
 			int length = 0;
 			int elements = 0;
-			char * buffer = nullptr;
 			/*
 				Character Write Order: Name Size, Name, Health, Armour, Mana, Strength, m_inventory (Potions), m_inventory (Items) , m_wallet
 			*/
 			//name
 			length = players[i]->GetName().GetLen();
 			file.write(reinterpret_cast<char *>(&length), sizeof(int));
-			buffer = new char[length + 1];
-			strcpy(buffer, players[i]->GetName().GetStr());
-			buffer[length] = '\0';
-			file << buffer;
-			delete[] buffer;
-			buffer = nullptr;
+			file << players[i]->GetName().GetStr();
 			//health
 			length = players[i]->GetHealth();
 			file.write(reinterpret_cast<char *>(&length), sizeof(int));
@@ -121,12 +127,7 @@ void Stub()
 			//wallet
 			length = String::ToString(players[i]->GetWallet().GetMoney()).GetLen();
 			file.write(reinterpret_cast<char *>(&length), sizeof(int));
-			buffer = new char[length + 1];
-			strcpy(buffer, String::ToString(players[i]->GetWallet().GetMoney()).GetStr());
-			buffer[length] = '\0';
-			file << buffer;
-			delete[] buffer;
-			buffer = nullptr;
+			file << String::ToString(players[i]->GetWallet().GetMoney()).GetStr();
 
 			//Potions
 			/*
@@ -141,39 +142,22 @@ void Stub()
 				//Name
 				length = players[i]->GetInv().GetPotions()[j].GetName().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetPotions()[j].GetName().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetPotions()[j].GetName().GetStr();
+
 				//Potency
 				length = players[i]->GetInv().GetPotions()[j].GetPoten().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetPotions()[j].GetPoten().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetPotions()[j].GetPoten().GetStr();
+
 				//Description
 				length = players[i]->GetInv().GetPotions()[j].GetDesc().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetPotions()[j].GetDesc().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetPotions()[j].GetDesc().GetStr();
+
 				//CostSize
 				length = players[i]->GetInv().GetPotions()[j].GetCostSize().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetPotions()[j].GetCostSize().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetPotions()[j].GetCostSize().GetStr();
 			}
 
 			//Items
@@ -189,30 +173,18 @@ void Stub()
 				//Name
 				length = players[i]->GetInv().GetItems()[j].GetName().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetItems()[j].GetName().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetItems()[j].GetName().GetStr();
+
 				//Description
 				length = players[i]->GetInv().GetItems()[j].GetDesc().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetItems()[j].GetDesc().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetItems()[j].GetDesc().GetStr();
+
 				//CostSize
 				length = players[i]->GetInv().GetItems()[j].GetCostSize().GetLen();
 				file.write(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				strcpy(buffer, players[i]->GetInv().GetItems()[j].GetCostSize().GetStr());
-				buffer[length] = '\0';
-				file << buffer;
-				delete[] buffer;
-				buffer = nullptr;
+				file << players[i]->GetInv().GetItems()[j].GetCostSize().GetStr();
+
 			}
 
 			cout << "character " << i + 1 << ". written to file" << endl;

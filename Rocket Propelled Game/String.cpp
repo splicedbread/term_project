@@ -471,7 +471,7 @@ const char& String::operator [] (const int i) const
 * Modifications:
 */
 ////////////////////////////////////////////////////////////////////////
-char* String::GetStr() const
+const char* String::GetStr() const
 {
 	return this->m_str;
 }

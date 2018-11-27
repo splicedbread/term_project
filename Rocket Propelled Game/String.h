@@ -79,7 +79,7 @@ public:
 	friend std::ostream& operator << (std::ostream& os, const String& str);
 	const char& operator [] (const int i) const;
 	//char& operator [] (int i);
-	char * GetStr() const;
+	const char * GetStr() const;
 	int GetLen() const;
 	void Display();
 
