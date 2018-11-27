@@ -74,6 +74,7 @@ private:
 	bool onCreateCharacter(const String & name);
 	void SaveFile(FileType type);
 	bool LoadFile(FileType type);
+	bool FileExists(const String & pathname);
 
 	void GamePause();
 	void GameSave();

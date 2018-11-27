@@ -66,14 +66,29 @@ GameManager::GameManager() : e_StartMode(MAIN)
 	m_Gstate.m_currentEnemy = 1;
 	m_Gstate.inFight = false;
 
-	//Setup an empty Character_Info before loading it in
-	for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+	bool charLoad = false;
+
+	charLoad = LoadFile(CHARLIST);
+
+	//Now load both the gamestate file and the character list file
+	if (charLoad)
 	{
-		for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+		cout << "Character List loaded" << endl;
+	}
+	else
+	{
+		cout << "Character List not loaded, using defaults" << endl;
+
+		//Setup an empty Character_Info before loading it in
+		for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
 		{
-			Character_Info[j][i] = "NA";
+			for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+			{
+				Character_Info[j][i] = "NA";
+			}
 		}
 	}
+	
 }
 
 GameManager::~GameManager()
@@ -146,6 +161,7 @@ void GameManager::GameStart()
 
 void GameManager::GamePause()
 {
+	p_menuRender();
 }
 
 void GameManager::GameSave()
@@ -198,8 +214,8 @@ void GameManager::m_menuRender()
 	font.loadFromFile("./comic.ttf");
 	sf::Text textArray[MENU_OPTIONS];
 	//Position where the menu objects should be positioned related to the white border
-	x_coord = 0.10; //10% of the pixels away from the left side of the white border
-	y_coord = 0.35; //35% away from the top of the white border
+	x_coord = 0.10f; //10% of the pixels away from the left side of the white border
+	y_coord = 0.35f; //35% away from the top of the white border
 	for (int i = 0; i < MENU_OPTIONS; i++)
 	{
 		textArray[i].setFont(font);
@@ -220,8 +236,8 @@ void GameManager::m_menuRender()
 	instructions.setStyle(sf::Text::Bold);
 	instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
 	//set instructions origin
-	x_coord = 0.10;
-	y_coord = 0.90;
+	x_coord = 0.10f;
+	y_coord = 0.90f;
 	instructions.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
 
 	//Load a fancy background for the main menu
@@ -348,6 +364,8 @@ void GameManager::n_menuRender()
 	//all for input, including timing
 	String Input = "";
 	String TempInput = "";
+	String BottomText = "";
+
 	bool inputing = false;
 	bool input_wait = false;
 
@@ -414,7 +432,8 @@ void GameManager::n_menuRender()
 	instructions.setFillColor(sf::Color::White);
 	instructions.setOutlineColor(sf::Color::White);
 	instructions.setStyle(sf::Text::Bold);
-	instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
+	BottomText = "Arrow Keys to navigate, [Enter] to select highlighted";
+	instructions.setString(BottomText.GetStr());
 	//set instructions origin
 	x_coord = 0.10;
 	y_coord = 0.90;
@@ -544,10 +563,264 @@ void GameManager::n_menuRender()
 		}
 
 
+
+		window.clear();
+		window.draw(margin_border);
+
+		if (failure)
+		{
+			for (int i = 0; i < MENU_OPTIONS; i++)
+			{
+				if (i != 1)
+				{
+					if (i == selection)
+					{
+						textArray[i].setFillColor(sf::Color::Yellow);
+						textArray[i].setOutlineColor(sf::Color::Yellow);
+					}
+					else
+					{
+						textArray[i].setFillColor(sf::Color::White);
+						textArray[i].setOutlineColor(sf::Color::White);
+					}
+					window.draw(textArray[i]);
+				}
+			}
+			BottomText = "Error: Character list is full";
+			textArray[1].setFillColor(sf::Color::Red);
+			textArray[1].setOutlineColor(sf::Color::Red);
+			instructions.setString(BottomText.GetStr());
+			window.draw(textArray[1]);
+		}
+		else
+		{
+			textArray[1].setString("Create Character");
+			for (int i = 0; i < MENU_OPTIONS; i++)
+			{
+				if (i == selection)
+				{
+					textArray[i].setFillColor(sf::Color::Yellow);
+					textArray[i].setOutlineColor(sf::Color::Yellow);
+				}
+				else
+				{
+					textArray[i].setFillColor(sf::Color::White);
+					textArray[i].setOutlineColor(sf::Color::White);
+				}
+				window.draw(textArray[i]);
+			}
+			BottomText = "Arrow Keys to navigate, [Enter] to select highlighted";
+			instructions.setString(BottomText.GetStr());
+		}
+
+		window.draw(instructions);
+		window.draw(inputText);
+		window.draw(title_Sprite);
+		window.display();
+	}
+}
+
+/*/////////////////////////////////////////
+	brief: renders the load character menu
+
+	renders the load character menu 
+*/////////////////////////////////////////
+void GameManager::s_menuRender()
+{
+	String BottomText = "";
+	//failure flag
+	bool failure = false;
+	//all for input, including timing
+	bool inputing = false;
+
+	const int MENU_OPTIONS = 5;
+	//used for events
+	sf::Event event;
+
+	//margin is for the gap between window and white border.
+	float margin = 15;
+
+	//text spacing
+	float text_sp = 75.0f;
+
+	//from 0.0-1.0, relative positioning for drawing objects
+	float x_coord = 0;
+	float y_coord = 0;
+
+	//window control if an exit is needed without closing the window
+	bool windowControl = true;
+
+	//load the used font, I know, I'd doing comic sans as a joke
+	sf::Font font;
+	font.loadFromFile("./comic.ttf");
+	
+	//Create a new text for instructions at the bottom.
+	sf::Text instructions;
+
+	//create a rectange that has a "transparent" fill color, with a white border for thickness
+	sf::RectangleShape margin_border;
+	margin_border.setFillColor(sf::Color::Black);
+	margin_border.setOutlineColor(sf::Color::White);
+	margin_border.setOutlineThickness(margin);
+	margin_border.setSize(sf::Vector2f(window.getSize().x - 4 * margin, window.getSize().y - 4 * margin));
+	margin_border.setOrigin(-2 * margin, -2 * margin);
+
+
+
+	//text pointer array for 3 elements, [0] is New Game, [1] is Load Game, [2] is Exit
+	//load the used font, I know, I'd doing comic sans as a joke
+	sf::Text textArray[MENU_OPTIONS];
+	sf::Text savesArray[2][MENU_OPTIONS - 2];
+	//Position where the menu objects should be positioned related to the white border
+	x_coord = 0.10; //10% of the pixels away from the left side of the white border
+	y_coord = 0.35; //35% away from the top of the white border
+	for (int i = 0; i < MENU_OPTIONS; i++)
+	{
+		textArray[i].setFont(font);
+		textArray[i].setFillColor(sf::Color::White);
+		textArray[i].setOutlineColor(sf::Color::White);
+		textArray[i].setStyle(sf::Text::Bold);
+		textArray[i].setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * ((margin_border.getSize().y * y_coord) + i * text_sp));
+	}
+
+	textArray[0].setString("Save 1 : ");
+	textArray[1].setString("Save 2 : ");
+	textArray[2].setString("Save 3 : ");
+	textArray[3].setString("Load Selected Character");
+	textArray[4].setString("Return");
+
+	x_coord = textArray[1].getOrigin().x - textArray[0].getGlobalBounds().width - margin;
+	String stringName = "Name: [ ";
+	for (int i = 0; i < MENU_OPTIONS - 2; i++)
+	{
+
+		for (int j = 0; j < 2; j++)
+		{
+
+			savesArray[j][i].setFont(font);
+			savesArray[j][i].setFillColor(sf::Color::White);
+			savesArray[j][i].setOutlineColor(sf::Color::White);
+			savesArray[j][i].setStyle(sf::Text::Bold);
+
+			if (j == 0)
+			{
+				if (Character_Info[j][i] != "NA")
+				{
+					y_coord = textArray[i].getOrigin().y + (margin);
+					stringName = stringName + Character_Info[j][i] + " ]";
+					savesArray[j][i].setString(stringName.GetStr());
+				}
+				else
+				{
+					y_coord = textArray[i].getOrigin().y;
+					savesArray[j][i].setString("Empty Save Slot");
+				}
+			}
+			else
+			{
+				if (Character_Info[j][i] != "NA")
+				{
+					y_coord = textArray[i].getOrigin().y - (margin);
+					stringName = Character_Info[j][i];
+					savesArray[j][i].setString(stringName.GetStr());
+				}
+			}
+
+			savesArray[j][i].setOrigin(x_coord, y_coord);
+			stringName = "Name: [ ";
+		}
+	}
+
+	//Create a new text for instructions at the bottom.
+	instructions.setFont(font);
+	instructions.setFillColor(sf::Color::White);
+	instructions.setOutlineColor(sf::Color::White);
+	instructions.setStyle(sf::Text::Bold);
+	instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
+	//set instructions origin
+	x_coord = 0.10;
+	y_coord = 0.90;
+	instructions.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
+
+	//Load in the title to display, first load a texture, then a create a sprite
+	sf::Texture texture;
+	String str = RESOURCE_DIRECTORY_PATH_NAME;
+	str = str + "/RPG_loadc.png";
+	if (!texture.loadFromFile(str.GetStr()))
+	{
+		throw RESOURCE_FILE_DIRECTORY_ERR;
+	}
+	//creating a sprite for the title
+	sf::Sprite title_Sprite;
+	title_Sprite.setTexture(texture);
+	//position it
+	x_coord = 0.05;
+	y_coord = 0.05;
+	title_Sprite.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
+	//lets scale it a little bigger
+	title_Sprite.setScale(2.0, 2.0);
+
+	std::cout << "Load Character Screen should display" << std::endl;
+
+	int selection = 0;
+
+	while (window.isOpen() && windowControl)
+	{
+		if (window.hasFocus())
+		{
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::Closed:
+					window.close();
+					break;
+				case sf::Event::KeyPressed:
+					switch (event.key.code)
+					{
+					case sf::Keyboard::Up:
+						--selection;
+						if (selection < 0)
+						{
+							selection = MENU_OPTIONS - 1;
+						}
+						failure = false;
+						break;
+					case sf::Keyboard::Down:
+						++selection;
+						if (selection > MENU_OPTIONS - 1)
+						{
+							selection = 0;
+						}
+						failure = false;
+						break;
+					case sf::Keyboard::Enter:
+						switch (selection)
+						{
+						case 0: //Save Slot 1
+							break;
+						case 1: //2
+							break;
+						case 2: //3
+							break;
+						case 3: //Load Character
+							break;
+						case 4: //Return
+							windowControl = false;
+							e_StartMode = MAIN;
+							break;
+						}
+						break;
+					}
+					break;
+				}
+			}
+		}
+
+
 		window.clear();
 		window.draw(margin_border);
 		window.draw(instructions);
-		window.draw(inputText);
 		window.draw(title_Sprite);
 		for (int i = 0; i < MENU_OPTIONS; i++)
 		{
@@ -564,23 +837,16 @@ void GameManager::n_menuRender()
 			window.draw(textArray[i]);
 		}
 
-		if (failure)
+		for (int i = 0; i < MENU_OPTIONS - 2; i++)
 		{
-			textArray[1].setFillColor(sf::Color::Red);
-			textArray[1].setOutlineColor(sf::Color::Red);
-			window.draw(textArray[1]);
-		}
-		else
-		{
-			textArray[1].setString("Create Character");
+			for (int j = 0; j < 2; j++)
+			{
+				window.draw(savesArray[j][i]);
+			}
 		}
 
 		window.display();
 	}
-}
-
-void GameManager::s_menuRender()
-{
 }
 
 void GameManager::p_menuRender()
@@ -602,8 +868,8 @@ void GameManager::worldRender()
 *///////////////////////////////////////////////////////////////////////////////////
 bool GameManager::onCreateCharacter(const String & name)
 {
-	String Health = "Health: ";
-	String Remaining = "Remaining Enemies: ";
+	String Health = "Health: [";
+	String Remaining = "Enemies Remaining: [";
 	String RemainingAmount = String::ToString(m_Gstate.m_enemiesRemaining);
 
 	bool flag = false;
@@ -616,7 +882,7 @@ bool GameManager::onCreateCharacter(const String & name)
 			{
 				flag = true;
 				Character_Info[0][i] = character.GetName();
-				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + Remaining + RemainingAmount;
+				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + "]  " + Remaining + RemainingAmount + "]";
 			}
 		}
 	}
@@ -810,143 +1076,151 @@ bool GameManager::LoadFile(FileType type)
 		{
 			m_pathName = "";
 			m_pathName = dir + slash + name + extension;
-			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
-			if (m_FileIn.is_open())
+			if (FileExists(m_pathName))
 			{
-				int length = 0;
-				int elements = 0;
-				/*
-					Character Write Order: Name Size, Name, Health, Armour, Mana, Strength, m_inventory (Potions), m_inventory (Items) , m_wallet
-				*/
-				//name
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				m_FileIn.read(buffer, length);
-				buffer[length] = '\0';
-				character.SetName(buffer);
-				delete[] buffer;
-				buffer = nullptr;
-				//health
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				character.SetHealth(length);
-				//armour
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				character.SetArmour(length);
-				//mana
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				character.SetMana(length);
-				//strength
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				character.SetStrength(length);
-
-				//wallet
-				m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-				buffer = new char[length + 1];
-				m_FileIn.read(buffer, length);
-				buffer[length] = '\0';
-				character.AddMoney(String::ToInt(buffer));
-				delete[] buffer;
-				buffer = nullptr;
-
-				//Potions
-				/*
-					Potion info Write Order: PotionArraySize ,Name, Potency, Description, Cost, CostSize
-				*/
-				//Potion Array Elements
-				m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
-
-				for (int j = 0; j < elements; j++)
+				this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+				if (m_FileIn.is_open())
 				{
-					Potion tempPt;
-					//Name
+					int length = 0;
+					int elements = 0;
+					/*
+						Character Write Order: Name Size, Name, Health, Armour, Mana, Strength, m_inventory (Potions), m_inventory (Items) , m_wallet
+					*/
+					//name
 					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
 					buffer = new char[length + 1];
 					m_FileIn.read(buffer, length);
 					buffer[length] = '\0';
-					tempPt.SetName(buffer);
+					character.SetName(buffer);
 					delete[] buffer;
 					buffer = nullptr;
+					//health
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					character.SetHealth(length);
+					//armour
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					character.SetArmour(length);
+					//mana
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					character.SetMana(length);
+					//strength
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					character.SetStrength(length);
 
-					//Potency
+					//wallet
 					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
 					buffer = new char[length + 1];
 					m_FileIn.read(buffer, length);
 					buffer[length] = '\0';
-					tempPt.SetPoten(buffer);
+					character.AddMoney(String::ToInt(buffer));
 					delete[] buffer;
 					buffer = nullptr;
 
-					//Description
-					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-					buffer = new char[length + 1];
-					m_FileIn.read(buffer, length);
-					buffer[length] = '\0';
-					tempPt.SetDesc(buffer);
-					delete[] buffer;
-					buffer = nullptr;
+					//Potions
+					/*
+						Potion info Write Order: PotionArraySize ,Name, Potency, Description, Cost, CostSize
+					*/
+					//Potion Array Elements
+					m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
 
-					//CostSize
-					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-					buffer = new char[length + 1];
-					m_FileIn.read(buffer, length);
-					buffer[length] = '\0';
-					tempPt.SetCostSize(String::ToInt(buffer));
-					delete[] buffer;
-					buffer = nullptr;
+					for (int j = 0; j < elements; j++)
+					{
+						Potion tempPt;
+						//Name
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempPt.SetName(buffer);
+						delete[] buffer;
+						buffer = nullptr;
 
-					//add the potion to the character
-					character.PickupObj(tempPt);
+						//Potency
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempPt.SetPoten(buffer);
+						delete[] buffer;
+						buffer = nullptr;
+
+						//Description
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempPt.SetDesc(buffer);
+						delete[] buffer;
+						buffer = nullptr;
+
+						//CostSize
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempPt.SetCostSize(String::ToInt(buffer));
+						delete[] buffer;
+						buffer = nullptr;
+
+						//add the potion to the character
+						character.PickupObj(tempPt);
+					}
+
+					//Items
+					/*
+						Item info Write Order: ItemArraySize ,Name, Description, Cost, CostSize
+					*/
+					//Item Array Elements
+					m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
+
+					//Items
+					for (int j = 0; j < elements; j++)
+					{
+						Item tempItm;
+						//Name
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempItm.SetName(buffer);
+						delete[] buffer;
+						buffer = nullptr;
+
+						//Description
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempItm.SetDesc(buffer);
+						delete[] buffer;
+						buffer = nullptr;
+
+						//CostSize
+						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+						buffer = new char[length + 1];
+						m_FileIn.read(buffer, length);
+						buffer[length] = '\0';
+						tempItm.SetCostSize(String::ToInt(buffer));
+						delete[] buffer;
+						buffer = nullptr;
+
+						//add item to player
+						character.PickupObj(tempItm);
+					}
+					//cout << "character " << i + 1 << ". written to file" << endl;
+					m_FileIn.close();
+					//	cout << "File written to and closed" << endl;
 				}
-
-				//Items
-				/*
-					Item info Write Order: ItemArraySize ,Name, Description, Cost, CostSize
-				*/
-				//Item Array Elements
-				m_FileIn.read(reinterpret_cast<char *>(&elements), sizeof(int));
-
-				//Items
-				for (int j = 0; j < elements; j++)
+				else
 				{
-					Item tempItm;
-					//Name
-					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-					buffer = new char[length + 1];
-					m_FileIn.read(buffer, length);
-					buffer[length] = '\0';
-					tempItm.SetName(buffer);
-					delete[] buffer;
-					buffer = nullptr;
-
-					//Description
-					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-					buffer = new char[length + 1];
-					m_FileIn.read(buffer, length);
-					buffer[length] = '\0';
-					tempItm.SetDesc(buffer);
-					delete[] buffer;
-					buffer = nullptr;
-
-					//CostSize
-					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-					buffer = new char[length + 1];
-					m_FileIn.read(buffer, length);
-					buffer[length] = '\0';
-					tempItm.SetCostSize(String::ToInt(buffer));
-					delete[] buffer;
-					buffer = nullptr;
-
-					//add item to player
-					character.PickupObj(tempItm);
+					cout << "Could not open file" << endl;
+					flag = true;
 				}
-				//cout << "character " << i + 1 << ". written to file" << endl;
-				m_FileIn.close();
-				//	cout << "File written to and closed" << endl;
 			}
 			else
 			{
-				cout << "Could not open file" << endl;
-				flag = true;
+			cout << "Character File does not exist" << endl;
+			flag = true;
 			}
 		}
 		break;
@@ -954,18 +1228,25 @@ bool GameManager::LoadFile(FileType type)
 		{
 			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
 			m_pathName = m_pathName + slash + name + GSave + extension;
-
-			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
-			if (m_FileIn.is_open())
+			if (FileExists(m_pathName))
 			{
-				GameState state;
-				m_FileIn.read(reinterpret_cast<char *>(&state), sizeof(GameState));
-				m_Gstate = state;
-				m_FileIn.close();
+				this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+				if (m_FileIn.is_open())
+				{
+					GameState state;
+					m_FileIn.read(reinterpret_cast<char *>(&state), sizeof(GameState));
+					m_Gstate = state;
+					m_FileIn.close();
+				}
+				else
+				{
+					cout << "Could not open file" << endl;
+					flag = true;
+				}
 			}
 			else
 			{
-				cout << "Could not open file" << endl;
+				cout << "GameState File does not exist" << endl;
 				flag = true;
 			}
 		}
@@ -975,27 +1256,35 @@ bool GameManager::LoadFile(FileType type)
 			int length;
 			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
 			m_pathName = m_pathName + slash + GAME_NAME + List + extension;
-			this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
-			if (m_FileIn.is_open())
+			if (FileExists(m_pathName))
 			{
-				for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+				this->m_FileIn.open(m_pathName.GetStr(), ios::in | ios::binary);
+				if (m_FileIn.is_open())
 				{
-					for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+					for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
 					{
-						m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
-						buffer = new char[length + 1];
-						m_FileIn.read(buffer, length);
-						buffer[length] = '\0';
-						Character_Info[j][i] = buffer;
-						delete[] buffer;
-						buffer = nullptr;
+						for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+						{
+							m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+							buffer = new char[length + 1];
+							m_FileIn.read(buffer, length);
+							buffer[length] = '\0';
+							Character_Info[j][i] = buffer;
+							delete[] buffer;
+							buffer = nullptr;
+						}
 					}
+					m_FileIn.close();
 				}
-				m_FileIn.close();
+				else
+				{
+					cout << "could not open file" << endl;
+					flag = true;
+				}
 			}
 			else
 			{
-				cout << "could not open file" << endl;
+				cout << "Character List File does not exist" << endl;
 				flag = true;
 			}
 		}
@@ -1003,6 +1292,15 @@ bool GameManager::LoadFile(FileType type)
 		}
 	}
 	return !flag;
+}
+
+bool GameManager::FileExists(const String & pathname)
+{
+	bool flag = false;
+	m_FileIn.open(pathname.GetStr(), ios::in | ios::binary);
+	flag = m_FileIn.good();
+	m_FileIn.close();
+	return flag;
 }
 
 
