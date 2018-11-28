@@ -48,8 +48,8 @@ private:
 public:
 	Weapon();
 	Weapon(const Weapon & pt);
-	Weapon(String name, String desc, int dmg, String cost);
-	Weapon(String name, String desc, int dmg);
+	Weapon(String name, String desc, String dmg, String cost);
+	Weapon(String name, String desc, String dmg);
 	Weapon(String name, String desc);
 	Weapon(String name);
 

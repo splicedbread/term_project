@@ -180,6 +180,7 @@ void GameManager::GameSave()
 {
 	if (character.GetName() != "NA" )
 	{
+		character.Info(0);
 		SaveFile(CHAR);
 		SaveFile(CHAR_GAME);
 	}
@@ -209,6 +210,7 @@ void GameManager::GameLoad()
 	{
 		LoadFile(CHAR);
 		LoadFile(CHAR_GAME);
+		character.Info(0);
 	}
 }
 
@@ -607,6 +609,7 @@ void GameManager::n_menuRender()
 								if (onCreateCharacter(Input))
 								{
 									cout << "character created successfully" << endl;
+
 									GameSave();
 									windowControl = false;
 									//character.SetName("NA");
@@ -718,7 +721,7 @@ void GameManager::s_menuRender()
 	float margin = 15;
 
 	//text spacing
-	float text_sp = 75.0f;
+	float text_sp = 110.0f;
 
 	//from 0.0-1.0, relative positioning for drawing objects
 	float x_coord = 0;
@@ -757,6 +760,7 @@ void GameManager::s_menuRender()
 		textArray[i].setFillColor(sf::Color::White);
 		textArray[i].setOutlineColor(sf::Color::White);
 		textArray[i].setStyle(sf::Text::Bold);
+		textArray[i].setLineSpacing(0.0f);
 		textArray[i].setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * ((margin_border.getSize().y * y_coord) + i * text_sp));
 	}
 
@@ -960,12 +964,13 @@ void GameManager::s_menuRender()
 					savesArray[j][i].setFillColor(sf::Color::White);
 					savesArray[j][i].setOutlineColor(sf::Color::White);
 					savesArray[j][i].setStyle(sf::Text::Bold);
+					savesArray[j][i].setLineSpacing(0.7f);
 
 					if (j == 0)
 					{
 						if (Character_Info[j][i] != "NA")
 						{
-							y_coord = textArray[i].getOrigin().y + (margin);
+							y_coord = textArray[i].getOrigin().y + 2.5f*(margin);
 							stringName = stringName + Character_Info[j][i] + " ]";
 							savesArray[j][i].setString(stringName.GetStr());
 						}
@@ -979,7 +984,7 @@ void GameManager::s_menuRender()
 					{
 						if (Character_Info[j][i] != "NA")
 						{
-							y_coord = textArray[i].getOrigin().y - (margin);
+							y_coord = textArray[i].getOrigin().y + 0.5f*(margin);
 							stringName = Character_Info[j][i];
 							savesArray[j][i].setString(stringName.GetStr());
 						}
@@ -1049,6 +1054,10 @@ void GameManager::fightRender()
 	const int MENU_OPTIONS = 4;
 	//used for events
 	sf::Event event;
+
+	bool isReleased = false;
+
+	int selected = -1;
 
 	//margin is for the gap between window and white border.
 	float margin = 15;
@@ -1186,6 +1195,7 @@ void GameManager::fightRender()
 						{
 							selection = MENU_OPTIONS - 1;
 						}
+						isReleased = true;
 						break;
 					case sf::Keyboard::Down:
 						++selection;
@@ -1193,21 +1203,70 @@ void GameManager::fightRender()
 						{
 							selection = 0;
 						}
+						isReleased = true;
+						break;
+					case sf::Keyboard::Right:
+						++selection;
+						++selection;
+						if (selection > MENU_OPTIONS - 1)
+						{
+							selection = 0;
+						}
+						isReleased = true;
+						break;
+					case sf::Keyboard::Left:
+						--selection;
+						--selection;
+						if (selection < 0)
+						{
+							selection = MENU_OPTIONS - 1;
+						}
+						isReleased = true;
 						break;
 					case sf::Keyboard::Enter:
-						cout << "What is selection: " << selection << endl;
 						switch (selection)
 						{
 						case 0: //Fight
+							if (selected == -1 || selected != selection)
+							{
+								selected = selection;
+							}
 							break;
 						case 1: //Items
+							if (selected == -1 || selected != selection)
+							{
+								selected = selection;
+							}
 							break;
 						case 2: //Run (reload fight)
+							if (selected = -1)
+							{
+								LoadFile(CHAR_GAME);
+								windowControl = false;
+								e_StartMode = FIGHT;
+							}
+							
+							if (selected = 0)
+							{
+								//fight stuff
+							}
+
 							break;
 						case 3: //Exit
-							SaveFile(CHAR_GAME);
-							windowControl = false;
-							e_StartMode = MAIN;
+							if (selected == -1 && isReleased)
+							{
+								SaveFile(CHAR_GAME);
+								windowControl = false;
+								e_StartMode = MAIN;
+							}
+							
+							if (selected == 0)
+							{
+								//all case 3's in the menu will return to the previous one
+																//selection = 0;
+								selection = 0;
+								selected = -1;
+							}
 							break;
 						}
 						break;
@@ -1223,6 +1282,25 @@ void GameManager::fightRender()
 		window.draw(context_menu);
 		//window.draw(instructions);
 		//window.draw(title_Sprite);
+		switch (selected)
+		{
+		case -1:
+			for (int i = 0; i < MENU_OPTIONS; i++)
+			{
+				textArray[i].setString(contextArray[i].GetStr());
+			}
+			break;
+		case 0: //Fight Menu
+			for (int i = 0; i < MENU_OPTIONS; i++)
+			{
+				textArray[i].setString(fightArray[i].GetStr());
+			}
+			break;
+		case 1: //Items Menu
+			//not yet
+			break;
+		}
+
 		for (int i = 0; i < MENU_OPTIONS; i++)
 		{
 			if (i == selection)
@@ -1251,6 +1329,10 @@ bool GameManager::onCreateCharacter(const String & name)
 	String Health = "Health: [";
 	String Remaining = "Enemies Remaining: [";
 	String RemainingAmount = String::ToString(m_Gstate.m_enemiesRemaining);
+	String Strength = "Strength: [";
+	String Armour = "Armour: [";
+	String Mana = "Mana: [";
+	String buff = "";
 
 	String coolNames[5] = {"DoomGuy", "GoblinSlayer", "Brock", "Kira", "KillerQueen"};
 
@@ -1270,14 +1352,46 @@ bool GameManager::onCreateCharacter(const String & name)
 			character.SetMana(999);
 			character.SetHealth(999);
 		}
-		else
-		{
-			character.SetHealth(Entity::STRD_HEALTH);
-			character.SetArmour(Entity::STRD_ARMOUR);
-			character.SetMana(Entity::STRD_MANA);
-			character.SetHealth(Entity::STRD_HEALTH);
-		}
 	}
+
+	if (!flag)
+	{
+		std::default_random_engine gen;
+		cout << "entering random numergen: diceroll before roll" << dice_roll << endl;
+		//random character stats
+		//health
+		std::uniform_int_distribution<int> health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
+		dice_roll = health_distribution(gen);
+		character.SetHealth(dice_roll);
+		cout << "character number health: dice" << dice_roll << " character: " << character.GetHealth() << endl;
+
+		//strength
+		std::uniform_int_distribution<int> strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
+		dice_roll = strength_distribution(gen);
+		character.SetStrength(dice_roll);
+
+		//armour
+		std::uniform_int_distribution<int> arm_distribution(0, 10);
+		dice_roll = arm_distribution(gen);
+		character.SetArmour(dice_roll);
+
+		//mana
+		std::uniform_int_distribution<int> mana_distribution(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
+		dice_roll = mana_distribution(gen);
+		character.SetMana(dice_roll);
+
+		//Weapon Damage
+		std::uniform_int_distribution<int> dmg_distribution(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
+		dice_roll = dmg_distribution(gen);
+		buff = String::ToString(dice_roll);
+		Weapon tempWep("RNG Sword", "Sold as is", buff, "00.00.01.11");
+		character.SetWep(tempWep);
+
+	}
+
+	//character.Info(0);
+
+
 	flag = false;
 	
 	for (int i = 0; i < MAX_CHARACTER_AMOUNT && !flag; i++)
@@ -1288,7 +1402,8 @@ bool GameManager::onCreateCharacter(const String & name)
 			{
 				flag = true;
 				Character_Info[0][i] = character.GetName();
-				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + "]  " + Remaining + RemainingAmount + "]";
+				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + "] " + Remaining + RemainingAmount + "]\n" +
+										Strength + String::ToString(character.GetStrength()) + "] " + Armour + String::ToString(character.GetArmour()) + "]";
 			}
 		}
 	}
@@ -1410,6 +1525,29 @@ void GameManager::SaveFile(FileType type)
 					this->m_FileOut << this->character.GetInv().GetItems()[j].GetCostSize().GetStr();
 
 				}
+
+				//Weapon
+
+				//Name
+				length = this->character.GetWep().GetName().GetLen();
+				this->m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
+				this->m_FileOut << this->character.GetWep().GetName().GetStr();
+
+				//Description
+				length = this->character.GetWep().GetDesc().GetLen();
+				this->m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
+				this->m_FileOut << this->character.GetWep().GetDesc().GetStr();
+
+				//damage
+				length = this->character.GetWep().GetDmg().GetLen();
+				this->m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
+				this->m_FileOut << this->character.GetWep().GetDmg().GetStr();
+
+				//cost
+				length = this->character.GetWep().GetCost().GetLen();
+				this->m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
+				this->m_FileOut << this->character.GetWep().GetCost().GetStr();
+
 				//cout << "character " << i + 1 << ". written to file" << endl;
 				m_FileOut.close();
 				//	cout << "File written to and closed" << endl;
@@ -1620,6 +1758,50 @@ bool GameManager::LoadFile(FileType type)
 						//add item to player
 						character.PickupObj(tempItm);
 					}
+
+					Weapon tmpWep;
+
+					//Weapon
+
+					//name
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tmpWep.SetName(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//desc
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tmpWep.SetDesc(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+					//damage
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tmpWep.SetDmg(String::ToInt(buffer));
+					delete[] buffer;
+					buffer = nullptr;
+
+					//cost
+					m_FileIn.read(reinterpret_cast<char *>(&length), sizeof(int));
+					buffer = new char[length + 1];
+					m_FileIn.read(buffer, length);
+					buffer[length] = '\0';
+					tmpWep.SetCost(buffer);
+					delete[] buffer;
+					buffer = nullptr;
+
+
+					character.SetWep(tmpWep);
+
 					//cout << "character " << i + 1 << ". written to file" << endl;
 					m_FileIn.close();
 					//	cout << "File written to and closed" << endl;

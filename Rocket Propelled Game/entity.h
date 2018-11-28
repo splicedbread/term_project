@@ -59,7 +59,7 @@ public:
 	const CoinPouch & GetWallet() const;
 
 	const Weapon & GetWep() const;
-	void SetWep(const Weapon & wep);
+	void SetWep(const Weapon wep);
 
 	void AddMoney(int amount);
 	void RmvMoney(int amount);

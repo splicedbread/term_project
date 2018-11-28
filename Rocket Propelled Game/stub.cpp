@@ -40,9 +40,9 @@ void gameStub()
 		{
 			game.GameStart();
 		}
-		catch (String error)
+		catch (int error)
 		{
-			if (error == "RESOURCE ERROR")
+			if (error == -1)
 			{
 				cout << "There was a problem with loading the resource" << endl;
 				cin.ignore();

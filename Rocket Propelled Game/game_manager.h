@@ -1,6 +1,7 @@
 #ifndef GAME_MANAGER_H
 #define GAME_MANAGER_H
 #include <iostream>
+#include <random>
 #include <experimental/filesystem>
 #include <fstream>
 #include "dynamic_array.h"
@@ -62,6 +63,9 @@ public:
 	};
 
 private:
+	int dice_roll;
+	//std::default_random_engine gen;
+
 	bool isStartup;
 	bool fileChange;
 
@@ -71,6 +75,7 @@ private:
 	void p_menuRender();
 	void shopRender();
 	void worldRender();
+
 	void fightRender();
 
 

@@ -33,17 +33,17 @@
 ***************************************************/
 
 
-Weapon::Weapon() : Item(), m_damage("")
+Weapon::Weapon() : Item(), m_damage(String::ToString(STRD_DMG))
 {
 }
 
-Weapon::Weapon(String name, String desc, int dmg, String cost) : Item(name, desc, cost), m_damage(String::ToString(dmg))
+Weapon::Weapon(String name, String desc, String dmg, String cost) : Item(name, desc, cost), m_damage(dmg)
 {
 	//std::cout << "1st Massive overloaded ctor called..." << std::endl;
 	SetCost(cost);
 }
 
-Weapon::Weapon(String name, String desc, int dmg) : Item(name, desc, ""), m_damage(String::ToString(dmg))
+Weapon::Weapon(String name, String desc, String dmg) : Item(name, desc, ""), m_damage(dmg)
 {
 	//std::cout << "2nd Massive overloaded ctor called..." << std::endl;
 };
