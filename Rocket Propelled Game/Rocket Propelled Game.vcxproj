@@ -136,25 +136,48 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="backpack.cpp" />
+    <ClCompile Include="boss.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="coin_pouch.cpp" />
+    <ClCompile Include="eagle.cpp" />
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="game_manager.cpp" />
+    <ClCompile Include="goat.cpp" />
+    <ClCompile Include="goblin.cpp" />
+    <ClCompile Include="griffin.cpp" />
+    <ClCompile Include="grub.cpp" />
     <ClCompile Include="item.cpp" />
+    <ClCompile Include="lion.cpp" />
     <ClCompile Include="potion.cpp" />
+    <ClCompile Include="serphent.cpp" />
     <ClCompile Include="string.cpp" />
     <ClCompile Include="stub.cpp" />
+    <ClCompile Include="troll.cpp" />
+    <ClCompile Include="weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="backpack.h" />
+    <ClInclude Include="boss.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="coin_pouch.h" />
     <ClInclude Include="dynamic_array.h" />
+    <ClInclude Include="eagle.h" />
+    <ClInclude Include="enemy.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="game_manager.h" />
+    <ClInclude Include="goat.h" />
+    <ClInclude Include="goblin.h" />
+    <ClInclude Include="griffin.h" />
+    <ClInclude Include="grub.h" />
     <ClInclude Include="item.h" />
+    <ClInclude Include="linked_list.h" />
+    <ClInclude Include="lion.h" />
     <ClInclude Include="potion.h" />
+    <ClInclude Include="serphent.h" />
     <ClInclude Include="string.h" />
+    <ClInclude Include="troll.h" />
+    <ClInclude Include="weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

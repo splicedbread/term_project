@@ -4,7 +4,7 @@
 *
 	Author: Jacob Vanderkarr
 	Filename: Weapon.cpp
-	Date Created: 10/2/18
+	Date Created: 10/28/18
 	Modifications:
 				10/4/18 (17.56pm), flushed out Getters and Setters
 					   , added a Display method
@@ -37,25 +37,24 @@ Weapon::Weapon() : Item(), m_damage("")
 {
 }
 
-Weapon::Weapon(String name, String desc, String pot, String cost) : Item(name, desc, cost), m_damage(String::ToUp(pot, 1))
+Weapon::Weapon(String name, String desc, int dmg, String cost) : Item(name, desc, cost), m_damage(String::ToString(dmg))
 {
 	//std::cout << "1st Massive overloaded ctor called..." << std::endl;
 	SetCost(cost);
 }
 
-Weapon::Weapon(String name, String desc, String pot) : Item(name, desc, ""), m_damage(String::ToUp(pot, 1))
+Weapon::Weapon(String name, String desc, int dmg) : Item(name, desc, ""), m_damage(String::ToString(dmg))
 {
 	//std::cout << "2nd Massive overloaded ctor called..." << std::endl;
-
 };
 
-Weapon::Weapon(String name, String desc) : Item(name, desc, ""), m_damage("")
+Weapon::Weapon(String name, String desc) : Item(name, desc, ""), m_damage(String::ToString(STRD_DMG))
 {
 	//std::cout << "3rd Massive overloaded ctor called..." << std::endl;
 
 };
 
-Weapon::Weapon(String name) : Item(name, "", ""), m_damage("")
+Weapon::Weapon(String name) : Item(name, "", ""), m_damage(String::ToString(STRD_DMG))
 {
 	//std::cout << "overloaded ctor called..." << std::endl;
 
@@ -114,18 +113,17 @@ bool Weapon::operator== (const Weapon & right) const
 }
 
 /*///////////////////////////////////////////////////
-	Purpose: This function sets the potency string
+	Purpose: This function sets the dmgency string
 *////////////////////////////////////////////////////
-void Weapon::SetPoten(String pot)
+void Weapon::SetDmg(int dmg)
 {
-	String::ToUp(pot);
-	this->m_damage = pot;
+	this->m_damage = String::ToString(dmg);
 }
 
 /*//////////////////////////////////////////////////////
-	Purpose: This function returns the potency string
+	Purpose: This function returns the dmgency string
 *///////////////////////////////////////////////////////
-const String Weapon::GetPoten() const
+const String Weapon::GetDmg() const
 {
 	return this->m_damage;
 }
@@ -141,7 +139,7 @@ const String Weapon::GetPoten() const
 ************************************************************************/
 void Weapon::Display() const
 {
-	std::cout << "Weapon Name: [" << this->m_damage << "] [" << this->m_name << "]" << std::endl;
+	std::cout << "Weapon Name: [DMG:" << this->m_damage << "] [ " << this->m_name << "]" << std::endl;
 	std::cout << "Weapon Description: [" << this->m_description << "]" << std::endl;
 	DisplayCost();
 }

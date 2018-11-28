@@ -1,8 +1,8 @@
 #include "game_manager.h"
-const char * GameManager::GAME_NAME = "Rock Paper Gun";
-const char * GameManager::SAVES_DIRECTORY_PATH_NAME = "./saves";
-const char * GameManager::GSAVES_DIRECTORY_PATH_NAME = "./saves/game";
-const char * GameManager::RESOURCE_DIRECTORY_PATH_NAME = "./resources";
+const String GameManager::GAME_NAME = "Rock Paper Gun";
+const String GameManager::SAVES_DIRECTORY_PATH_NAME = "./saves";
+const String GameManager::GSAVES_DIRECTORY_PATH_NAME = "./saves/game";
+const String GameManager::RESOURCE_DIRECTORY_PATH_NAME = "./resources";
 namespace fs = std::experimental::filesystem;
 
 /*//////////////////////////////////////////////////////////////////////////////////////
@@ -13,10 +13,12 @@ namespace fs = std::experimental::filesystem;
 *///////////////////////////////////////////////////////////////////////////////////////
 GameManager::GameManager() : e_StartMode(MAIN)
 {
+	isStartup = true;
+	fileChange = false;
 	//As the game is starting, we will make sure we start at the main menu
 	//using base # initialization
 	//On creation of the object, we want to make sure the environment is setup
-	fs::path pt = SAVES_DIRECTORY_PATH_NAME;
+	fs::path pt = SAVES_DIRECTORY_PATH_NAME.GetStr();
 	//if that directory doesnt exist, then create one
 	if (!fs::is_directory(pt))
 	{
@@ -28,7 +30,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 		std::cout << "Saves directory exists.." << std::endl;
 	}
 
-	pt = GSAVES_DIRECTORY_PATH_NAME;
+	pt = GSAVES_DIRECTORY_PATH_NAME.GetStr();
 	//if that directory doesnt exist, then create one
 	if (!fs::is_directory(pt))
 	{
@@ -41,7 +43,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 	}
 
 	//if no resource folder is found, or it is empty, throw an error.
-	pt = RESOURCE_DIRECTORY_PATH_NAME;
+	pt = RESOURCE_DIRECTORY_PATH_NAME.GetStr();
 	if (!fs::is_directory(pt))
 	{
 		std::cout << "No resource folder found" << std::endl;
@@ -61,15 +63,13 @@ GameManager::GameManager() : e_StartMode(MAIN)
 	}
 
 	//GameState setup for a freshgame
-	m_Gstate.m_enemiesRemaining = 20;
+	m_Gstate.m_enemiesRemaining = 10;
 	m_Gstate.m_enemiesKilled = 0;
 	m_Gstate.m_currentEnemy = 1;
 	m_Gstate.inFight = false;
 
 	bool charLoad = false;
-
 	charLoad = LoadFile(CHARLIST);
-
 	//Now load both the gamestate file and the character list file
 	if (charLoad)
 	{
@@ -87,13 +87,16 @@ GameManager::GameManager() : e_StartMode(MAIN)
 				Character_Info[j][i] = "NA";
 			}
 		}
+		SaveFile(CHARLIST);
 	}
-	
+
+	isStartup = false;
 }
 
+//default dtor, saves the game before the object disappears out of scope.
 GameManager::~GameManager()
 {
-	//GameSave();
+	GameSave();
 }
 
 /*//////////////////////////////////////////////////////////////
@@ -109,7 +112,7 @@ void GameManager::GameStart()
 	//check if the window is already open, if it is, resume, if it isnt then open it
 	if (!window.isOpen())
 	{
-		window.create(sf::VideoMode(1000.0f, 1000.0f), GAME_NAME, sf::Style::Titlebar | sf::Style::Close);
+		window.create(sf::VideoMode(1000.0f, 1000.0f), GAME_NAME.GetStr(), sf::Style::Titlebar | sf::Style::Close);
 		window.setVerticalSyncEnabled(true);
 	}
 
@@ -144,6 +147,9 @@ void GameManager::GameStart()
 			//fight may be used recursively, calling GameStart() from MAIN switch, after
 			//chaning e_StartMode to fight will bring it here, could be dangerous
 			std::cout << "Fight Screen should display" << std::endl;
+			GameSave();
+			GameLoad();
+			fightRender();
 			break;
 		case GameManager::SHOP:
 			//Shop screen has the same issue as fight, but the idea is to open a shop
@@ -159,20 +165,51 @@ void GameManager::GameStart()
 
 }
 
+/*///////////////////////////////////////////////////////////////////////////////////
+	GamePause calls the pause menu render, realistically only called when in a fight
+*///////////////////////////////////////////////////////////////////////////////////
 void GameManager::GamePause()
 {
 	p_menuRender();
 }
 
+/*///////////////////////////////////////////////////////////////////////////////
+	GameSave saves all the needed files for the game into their respective files.
+*////////////////////////////////////////////////////////////////////////////////
 void GameManager::GameSave()
 {
-	SaveFile(CHAR);
-	SaveFile(CHAR_GAME);
-	SaveFile(CHARLIST);
+	if (character.GetName() != "NA" )
+	{
+		SaveFile(CHAR);
+		SaveFile(CHAR_GAME);
+	}
+
+	bool isListEmpty = true;
+	for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+	{
+		if (Character_Info[0][1] != "NA")
+		{
+			isListEmpty = false;
+		}
+	}
+
+	if (!isListEmpty)
+	{
+		SaveFile(CHARLIST);
+	}
+	else
+	{
+		DeleteFile(CHARLIST);
+	}
 }
 
 void GameManager::GameLoad()
 {
+	if (character.GetName() != "NA")
+	{
+		LoadFile(CHAR);
+		LoadFile(CHAR_GAME);
+	}
 }
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -279,7 +316,7 @@ void GameManager::m_menuRender()
 
 	while (window.isOpen() && windowControl)
 	{
-		if (window.hasFocus())
+		if (window.hasFocus() && windowControl)
 		{
 			while (window.pollEvent(event))
 			{
@@ -345,7 +382,7 @@ void GameManager::m_menuRender()
 			window.draw(textArray[i]);
 		}
 		window.display();
-		if (e_StartMode == EXIT)
+		if (e_StartMode != MAIN)
 		{
 			windowControl = false;
 		}
@@ -419,7 +456,7 @@ void GameManager::n_menuRender()
 	inputText.setFont(font);
 	inputText.setFillColor(sf::Color::Yellow);
 	inputText.setOutlineColor(sf::Color::Yellow);
-	inputText.setStyle(sf::Text::Bold);
+	//inputText.setStyle(sf::Text::Bold);
 
 	//set the position of the entered text right next to the character:
 	x_coord = textArray[0].getOrigin().x - textArray[0].getGlobalBounds().width - margin;
@@ -432,7 +469,7 @@ void GameManager::n_menuRender()
 	instructions.setFillColor(sf::Color::White);
 	instructions.setOutlineColor(sf::Color::White);
 	instructions.setStyle(sf::Text::Bold);
-	BottomText = "Arrow Keys to navigate, [Enter] to select highlighted";
+	BottomText = "Arrow Keys to navigate, [Enter] to select highlighted, [Enter] to clear";
 	instructions.setString(BottomText.GetStr());
 	//set instructions origin
 	x_coord = 0.10;
@@ -496,15 +533,33 @@ void GameManager::n_menuRender()
 						{
 						case 0: //Character Name
 							inputing = true;
-							Input = "";
+							if (inputText.getString() != "")
+							{
+								inputText.setFillColor(sf::Color::Black);
+								inputText.setOutlineColor(sf::Color::Black);
+								inputText.setOutlineThickness(2.0f);
+								window.draw(inputText);
+								window.display();
+								Input = "";
+								TempInput = "";
+
+								inputText.setString(Input.GetStr());
+								inputText.setFillColor(sf::Color::Yellow);
+								inputText.setOutlineColor(sf::Color::Yellow);
+								inputText.setOutlineThickness(0.0f);
+								window.draw(inputText);
+								window.display();
+								inputing = false;
+							}
+
 							while (inputing)
 							{
-								if (window.waitEvent(event) && !input_wait);
+								if (window.waitEvent(event))
 								{
 									textArray[0].setFillColor(sf::Color::Cyan);
 									textArray[0].setOutlineColor(sf::Color::Cyan);
+									textArray[0].setOutlineThickness(0.0f);
 									window.draw(textArray[0]);
-									input_wait = true;
 									TempInput = "";
 									if (event.type == sf::Event::TextEntered && !(event.key.code == sf::Keyboard::BackSpace) && !(event.key.code == sf::Keyboard::Enter))
 									{
@@ -513,46 +568,64 @@ void GameManager::n_menuRender()
 											TempInput = static_cast<char>(event.text.unicode);
 										}
 									}
-									Input = Input + TempInput;
-									inputText.setString(Input.GetStr());
+									
 									if (event.type == sf::Event::KeyPressed)
 									{
 										if (event.key.code == sf::Keyboard::Enter)
 										{
 											inputing = false;
 										}
+
+										if (event.key.code == sf::Keyboard::BackSpace)
+										{
+											inputing = false;
+											inputText.setFillColor(sf::Color::Black);
+											inputText.setOutlineColor(sf::Color::Black);
+											window.draw(inputText);
+											window.display();
+											Input = "";
+											inputText.setString(Input.GetStr());
+										}
 									}
 								}
 
-								if (!(sf::Keyboard::isKeyPressed) && input_wait)
-								{
-										input_wait = false;
-								}
+								Input = Input + TempInput;
+								inputText.setString(Input.GetStr());
 								window.draw(inputText);
 								window.display();
 							}
+
 							inputText.setString(Input.GetStr());
+							window.draw(inputText);
+							window.display();
 							selection = 0;
 							break;
 						case 1: //Create Character
 							//for now, test if the character could be made
-							if (onCreateCharacter(Input))
+							if (Input != "")
 							{
-								cout << "character created successfully" << endl;
-								GameSave();
-								windowControl = false;
-								e_StartMode = MAIN;
-							}
-							else
-							{
-								cout << "character creation failed" << endl;
-								character.SetName("NA");
-								failure = true;
+								if (onCreateCharacter(Input))
+								{
+									cout << "character created successfully" << endl;
+									GameSave();
+									windowControl = false;
+									//character.SetName("NA");
+									//redirect to fight
+									e_StartMode = FIGHT;
+								}
+								else
+								{
+									cout << "character creation failed" << endl;
+									character.SetName("NA");
+									failure = true;
+								}
 							}
 							break;
 						case 2: //Return
 							windowControl = false;
 							e_StartMode = MAIN;
+							break;
+						default:
 							break;
 						}
 						break;
@@ -609,7 +682,7 @@ void GameManager::n_menuRender()
 				}
 				window.draw(textArray[i]);
 			}
-			BottomText = "Arrow Keys to navigate, [Enter] to select highlighted";
+			BottomText = "Arrow Keys to navigate, [Enter] to select highlighted, \n[Enter] to clear";
 			instructions.setString(BottomText.GetStr());
 		}
 
@@ -633,7 +706,11 @@ void GameManager::s_menuRender()
 	//all for input, including timing
 	bool inputing = false;
 
+	bool fileDeleted = true;
+
 	const int MENU_OPTIONS = 5;
+
+	int selected = -1;
 	//used for events
 	sf::Event event;
 
@@ -689,54 +766,12 @@ void GameManager::s_menuRender()
 	textArray[3].setString("Load Selected Character");
 	textArray[4].setString("Return");
 
-	x_coord = textArray[1].getOrigin().x - textArray[0].getGlobalBounds().width - margin;
-	String stringName = "Name: [ ";
-	for (int i = 0; i < MENU_OPTIONS - 2; i++)
-	{
-
-		for (int j = 0; j < 2; j++)
-		{
-
-			savesArray[j][i].setFont(font);
-			savesArray[j][i].setFillColor(sf::Color::White);
-			savesArray[j][i].setOutlineColor(sf::Color::White);
-			savesArray[j][i].setStyle(sf::Text::Bold);
-
-			if (j == 0)
-			{
-				if (Character_Info[j][i] != "NA")
-				{
-					y_coord = textArray[i].getOrigin().y + (margin);
-					stringName = stringName + Character_Info[j][i] + " ]";
-					savesArray[j][i].setString(stringName.GetStr());
-				}
-				else
-				{
-					y_coord = textArray[i].getOrigin().y;
-					savesArray[j][i].setString("Empty Save Slot");
-				}
-			}
-			else
-			{
-				if (Character_Info[j][i] != "NA")
-				{
-					y_coord = textArray[i].getOrigin().y - (margin);
-					stringName = Character_Info[j][i];
-					savesArray[j][i].setString(stringName.GetStr());
-				}
-			}
-
-			savesArray[j][i].setOrigin(x_coord, y_coord);
-			stringName = "Name: [ ";
-		}
-	}
-
 	//Create a new text for instructions at the bottom.
 	instructions.setFont(font);
 	instructions.setFillColor(sf::Color::White);
 	instructions.setOutlineColor(sf::Color::White);
 	instructions.setStyle(sf::Text::Bold);
-	instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
+	instructions.setString("Arrow Keys to navigate, [Enter] to select yellow\n[BackSpace] then [Enter] when red to delete a save\n[Esc] to cancel delete");
 	//set instructions origin
 	x_coord = 0.10;
 	y_coord = 0.90;
@@ -795,20 +830,95 @@ void GameManager::s_menuRender()
 						failure = false;
 						break;
 					case sf::Keyboard::Enter:
-						switch (selection)
+						if (!fileDeleted)
 						{
-						case 0: //Save Slot 1
-							break;
-						case 1: //2
-							break;
-						case 2: //3
-							break;
-						case 3: //Load Character
-							break;
-						case 4: //Return
-							windowControl = false;
-							e_StartMode = MAIN;
-							break;
+							switch (selection)
+							{
+							case 0: //Save Slot 1
+								if (selected == -1 || selected != selection)
+								{
+									selected = selection;
+								}
+								else if (selected == selection)
+								{
+									selected = -1;
+								}
+								break;
+							case 1: //2
+								if (selected == -1 || selected != selection)
+								{
+									selected = selection;
+								}
+								else if (selected == selection)
+								{
+									selected = -1;
+								}
+								break;
+							case 2: //3
+								if (selected == -1 || selected != selection)
+								{
+									selected = selection;
+								}
+								else if (selected == selection)
+								{
+									selected = -1;
+								}
+								break;
+							case 3: //Load Character
+								if (selected != -1 && Character_Info[0][selected] != "NA")
+								{
+									windowControl = false;
+									e_StartMode = FIGHT;
+									character.SetName(Character_Info[0][selected]);
+									GameLoad();
+								}
+								break;
+							case 4: //Return
+								windowControl = false;
+								e_StartMode = MAIN;
+								break;
+							}
+						}
+						break;
+					case sf::Keyboard::BackSpace:
+						if (selected != -1)
+						{
+							if (Character_Info[0][selected] != "NA")
+							{
+								textArray[selected].setFillColor(sf::Color::Red);
+								textArray[selected].setOutlineColor(sf::Color::Red);
+								textArray[selected].setOutlineThickness(2.0f);
+								window.draw(textArray[selected]);
+								window.display();
+								inputing = true;
+								while (inputing)
+								{
+									if (window.hasFocus())
+									{
+										if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+										{
+											if (DeleteFile(Character_Info[0][selected]))
+											{
+												cout << "Chacter deleted" << endl;
+												fileChange = true;
+												SaveFile(CHARLIST);
+												fileChange = false;
+												textArray[selected].setOutlineThickness(0.0f);
+												inputing = false;
+												fileDeleted = true;
+												selected = -1;
+											}
+										}
+
+										if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+										{
+											textArray[selected].setOutlineThickness(0.0f);
+											inputing = false;
+											selected = -1;
+										}
+									}
+								}
+							}
 						}
 						break;
 					}
@@ -817,14 +927,87 @@ void GameManager::s_menuRender()
 			}
 		}
 
-
 		window.clear();
+
+		if (fileDeleted)
+		{
+			fileChange = true;
+			if (!LoadFile(CHARLIST))
+			{
+				cout << "Character List not loaded, using defaults" << endl;
+
+				//Setup an empty Character_Info before loading it in
+				for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+				{
+					for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+					{
+						Character_Info[j][i] = "NA";
+					}
+				}
+				SaveFile(CHARLIST);
+			}
+			fileChange = false;
+
+			x_coord = textArray[1].getOrigin().x - textArray[0].getGlobalBounds().width - margin;
+			String stringName = "Name: [ ";
+			for (int i = 0; i < MENU_OPTIONS - 2; i++)
+			{
+
+				for (int j = 0; j < 2; j++)
+				{
+
+					savesArray[j][i].setFont(font);
+					savesArray[j][i].setFillColor(sf::Color::White);
+					savesArray[j][i].setOutlineColor(sf::Color::White);
+					savesArray[j][i].setStyle(sf::Text::Bold);
+
+					if (j == 0)
+					{
+						if (Character_Info[j][i] != "NA")
+						{
+							y_coord = textArray[i].getOrigin().y + (margin);
+							stringName = stringName + Character_Info[j][i] + " ]";
+							savesArray[j][i].setString(stringName.GetStr());
+						}
+						else
+						{
+							y_coord = textArray[i].getOrigin().y;
+							savesArray[j][i].setString("Empty Save Slot");
+						}
+					}
+					else
+					{
+						if (Character_Info[j][i] != "NA")
+						{
+							y_coord = textArray[i].getOrigin().y - (margin);
+							stringName = Character_Info[j][i];
+							savesArray[j][i].setString(stringName.GetStr());
+						}
+						else
+						{
+							y_coord = textArray[i].getOrigin().y;
+							savesArray[j][i].setString("Empty Save Slot");
+						}
+					}
+
+					savesArray[j][i].setOrigin(x_coord, y_coord);
+					stringName = "Name: [ ";
+				}
+			}
+			fileDeleted = false;
+		}
+
 		window.draw(margin_border);
 		window.draw(instructions);
 		window.draw(title_Sprite);
 		for (int i = 0; i < MENU_OPTIONS; i++)
 		{
-			if (i == selection)
+			if (i == selected)
+			{
+				textArray[i].setFillColor(sf::Color::Cyan);
+				textArray[i].setOutlineColor(sf::Color::Cyan);
+			}
+			else if (i == selection)
 			{
 				textArray[i].setFillColor(sf::Color::Yellow);
 				textArray[i].setOutlineColor(sf::Color::Yellow);
@@ -861,6 +1044,203 @@ void GameManager::worldRender()
 {
 }
 
+void GameManager::fightRender()
+{
+	const int MENU_OPTIONS = 4;
+	//used for events
+	sf::Event event;
+
+	//margin is for the gap between window and white border.
+	float margin = 15;
+
+	//text spacing
+	float text_sp = 20.0f;
+
+	//from 0.0-1.0, relative positioning for drawing objects
+	float x_coord = 0;
+	float y_coord = 0;
+
+	//window control if an exit is needed without closing the window
+	bool windowControl = true;
+
+	//create a rectange that has a "transparent" fill color, with a white border for thickness
+	sf::RectangleShape margin_border;
+	margin_border.setFillColor(sf::Color::Black);
+	margin_border.setOutlineColor(sf::Color::White);
+	margin_border.setOutlineThickness(margin);
+	margin_border.setSize(sf::Vector2f(window.getSize().x - 4 * margin, window.getSize().y - 4 * margin));
+	margin_border.setOrigin(-2 * margin, -2 * margin);
+
+	//Second rectange to put the context menu in
+	sf::RectangleShape context_menu;
+	context_menu = margin_border;
+	//resize it
+	context_menu.setSize(sf::Vector2f(margin_border.getSize().x - 4*margin, margin_border.getSize().y * 0.15f));
+
+	//position it
+		//get the orgin from the margin, then subtract the height of the margin then add the height of your rectangle
+	x_coord = margin_border.getOrigin().x - 2*margin;
+	y_coord = margin_border.getOrigin().y - margin_border.getSize().y + context_menu.getSize().y + 2*margin;
+	context_menu.setOrigin(x_coord, y_coord);
+
+	//text pointer array for 3 elements, [0] is New Game, [1] is Load Game, [2] is Exit
+	//load the used font, I know, I'd doing comic sans as a joke
+	sf::Font font;
+	font.loadFromFile("./comic.ttf");
+	sf::Text textArray[MENU_OPTIONS];
+	String contextArray[MENU_OPTIONS] = {"Fight", "Items", "Run", "Exit"};
+	String fightArray[MENU_OPTIONS] = { "Attack", "Block", "Guts", "Return" };
+
+	//Position where the menu objects should be positioned related to the white border of the context menu
+	x_coord = context_menu.getOrigin().x; 
+	y_coord = context_menu.getOrigin().y - 2*margin; 
+
+	for (int j = 0; j < 2; j++)
+	{
+		for (int i = 0; i < MENU_OPTIONS; i++)
+		{
+			textArray[i].setFont(font);
+			textArray[i].setFillColor(sf::Color::White);
+			textArray[i].setOutlineColor(sf::Color::White);
+			textArray[i].setStyle(sf::Text::Bold);
+			textArray[i].setString(contextArray[i].GetStr());
+			if (i < 2)
+			{
+				textArray[i].setOrigin(x_coord - (context_menu.getSize().x * 0.1f), y_coord - (i * context_menu.getSize().y * 0.25f));
+			}
+			else
+			{
+				textArray[i].setOrigin(textArray[i-2].getOrigin().x - (context_menu.getSize().x * 0.5f), textArray[i-2].getOrigin().y);
+			}
+
+		}
+	}
+
+
+	////Create a new text for instructions at the bottom.
+	//sf::Text instructions;
+	//instructions.setFont(font);
+	//instructions.setFillColor(sf::Color::White);
+	//instructions.setOutlineColor(sf::Color::White);
+	//instructions.setStyle(sf::Text::Bold);
+	//instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
+	////set instructions origin
+	//x_coord = 0.10f;
+	//y_coord = 0.90f;
+	//instructions.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
+
+	//Load a fancy background for the main menu
+	String str = RESOURCE_DIRECTORY_PATH_NAME;
+	sf::Texture bg_texture;
+	str = str + "/RPG_dungeon.png";
+	if (!bg_texture.loadFromFile(str.GetStr()))
+	{
+		throw RESOURCE_FILE_DIRECTORY_ERR;
+	}
+	//create the sprite for the bg
+	sf::Sprite bg_sprite;
+	bg_sprite.setTexture(bg_texture);
+	x_coord = margin_border.getOrigin().x;
+	y_coord = margin_border.getOrigin().y;
+	bg_sprite.setOrigin(x_coord, y_coord);
+
+	////Load in the title to display, first load a texture, then a create a sprite
+	//sf::Texture title_texture;
+	//str = RESOURCE_DIRECTORY_PATH_NAME;
+	//str = str + "/RPG_name.png";
+	//if (!title_texture.loadFromFile(str.GetStr()))
+	//{
+	//	throw RESOURCE_FILE_DIRECTORY_ERR;
+	//}
+	////creating a sprite for the title
+	//sf::Sprite title_Sprite;
+	//title_Sprite.setTexture(title_texture);
+	////position it
+	//x_coord = 0.05;
+	//y_coord = 0.05;
+	//title_Sprite.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
+	////lets scale it a little bigger
+	//title_Sprite.setScale(2.0, 2.0);
+
+	std::cout << "Fight Screen should display" << std::endl;
+
+	int selection = 0;
+
+	while (window.isOpen() && windowControl)
+	{
+		if (window.hasFocus())
+		{
+			while (window.pollEvent(event))
+			{
+				switch (event.type)
+				{
+				case sf::Event::Closed:
+					window.close();
+					break;
+				case sf::Event::KeyPressed:
+					switch (event.key.code)
+					{
+					case sf::Keyboard::Up:
+						--selection;
+						if (selection < 0)
+						{
+							selection = MENU_OPTIONS - 1;
+						}
+						break;
+					case sf::Keyboard::Down:
+						++selection;
+						if (selection > MENU_OPTIONS - 1)
+						{
+							selection = 0;
+						}
+						break;
+					case sf::Keyboard::Enter:
+						cout << "What is selection: " << selection << endl;
+						switch (selection)
+						{
+						case 0: //Fight
+							break;
+						case 1: //Items
+							break;
+						case 2: //Run (reload fight)
+							break;
+						case 3: //Exit
+							SaveFile(CHAR_GAME);
+							windowControl = false;
+							e_StartMode = MAIN;
+							break;
+						}
+						break;
+					}
+					break;
+				}
+			}
+		}
+
+		window.clear();
+		window.draw(margin_border);
+		window.draw(bg_sprite);
+		window.draw(context_menu);
+		//window.draw(instructions);
+		//window.draw(title_Sprite);
+		for (int i = 0; i < MENU_OPTIONS; i++)
+		{
+			if (i == selection)
+			{
+				textArray[i].setFillColor(sf::Color::Yellow);
+				textArray[i].setOutlineColor(sf::Color::Yellow);
+			}
+			else
+			{
+				textArray[i].setFillColor(sf::Color::White);
+				textArray[i].setOutlineColor(sf::Color::White);
+			}
+			window.draw(textArray[i]);
+		}
+		window.display();
+	}
+}
+
 /*///////////////////////////////////////////////////////////////////////////////////
 	onCreateCharacter checks if there is space for the character to inhabit without
 	over-writing
@@ -872,8 +1252,34 @@ bool GameManager::onCreateCharacter(const String & name)
 	String Remaining = "Enemies Remaining: [";
 	String RemainingAmount = String::ToString(m_Gstate.m_enemiesRemaining);
 
+	String coolNames[5] = {"DoomGuy", "GoblinSlayer", "Brock", "Kira", "KillerQueen"};
+
 	bool flag = false;
 	character.SetName(name);
+
+	//dev mode names make the character op
+
+	for (int i = 0; i < 5 && !flag; i++)
+	{
+		if (character.GetName() == coolNames[i])
+		{
+			cout << "You must be pretty cool: " << character.GetName() << endl;
+			flag = true;
+			character.SetStrength(999);
+			character.SetArmour(999);
+			character.SetMana(999);
+			character.SetHealth(999);
+		}
+		else
+		{
+			character.SetHealth(Entity::STRD_HEALTH);
+			character.SetArmour(Entity::STRD_ARMOUR);
+			character.SetMana(Entity::STRD_MANA);
+			character.SetHealth(Entity::STRD_HEALTH);
+		}
+	}
+	flag = false;
+	
 	for (int i = 0; i < MAX_CHARACTER_AMOUNT && !flag; i++)
 	{
 		for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1 && !flag; j++)
@@ -886,6 +1292,12 @@ bool GameManager::onCreateCharacter(const String & name)
 			}
 		}
 	}
+
+	if (flag)
+	{
+		SaveFile(CHARLIST);
+	}
+
 	return flag;
 }
 
@@ -903,7 +1315,7 @@ void GameManager::SaveFile(FileType type)
 	String List = "_list";
 	String dir = SAVES_DIRECTORY_PATH_NAME;
 	String name = this->character.GetName();
-	if (character.GetName() != "NA")
+	if (character.GetName() != "NA" || isStartup || fileChange)
 	{
 		switch (type)
 		{
@@ -1068,12 +1480,13 @@ bool GameManager::LoadFile(FileType type)
 	String name = this->character.GetName();
 	char * buffer = nullptr;
 	bool flag = false;
-	if (character.GetName() != "NA")
+	if (character.GetName() != "NA" || isStartup || fileChange)
 	{
 		switch (type)
 		{
 		case GameManager::CHAR:
 		{
+			cout << "loading character... " << character.GetName() << endl;
 			m_pathName = "";
 			m_pathName = dir + slash + name + extension;
 			if (FileExists(m_pathName))
@@ -1291,9 +1704,81 @@ bool GameManager::LoadFile(FileType type)
 		break;
 		}
 	}
+	else
+	{
+	flag = true;
+	}
 	return !flag;
 }
+/*
+	DeleteFile removes files for the respective name
+*/
+bool GameManager::DeleteFile(String name)
+{
+	bool cf_flag = false;
+	bool cg_flag = false;
+	bool cl_flag = false;
+	String slash = "/";
+	String extension = ".bin";
+	String GSave = "_gsave";
+	String List = "_list";
+	String dir = SAVES_DIRECTORY_PATH_NAME;
+	//Delete the character file
+	m_pathName = dir + slash + name + extension;
+	if (FileExists(m_pathName))
+	{
+		remove(m_pathName.GetStr());
+		cf_flag = FileExists(m_pathName);
+	}
+	//Delete the character game state file
+	dir = GSAVES_DIRECTORY_PATH_NAME;
+	m_pathName = dir + slash + name + GSave + extension;
+	if (FileExists(m_pathName))
+	{
+		remove(m_pathName.GetStr());
+		cg_flag = FileExists(m_pathName);
+	}
+	//remove the character from the character list
+	cl_flag = true;
+	bool emptyList = true;
 
+	for (int i = 0; i < MAX_CHARACTER_AMOUNT && cl_flag; i++)
+	{
+			if (Character_Info[0][i] == name)
+			{
+				cl_flag = false;
+				Character_Info[0][i] = "NA";
+				Character_Info[1][i] = "NA";
+			}
+	}
+
+	for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+	{
+		if (Character_Info[0][i] != "NA")
+		{
+			emptyList = false;
+		}
+	}
+
+	if (emptyList)
+	{
+		dir = GSAVES_DIRECTORY_PATH_NAME;
+		m_pathName = dir + slash + GAME_NAME + List + extension;
+		cout << "EmptyList Path name: " << m_pathName << endl;
+		if (FileExists(m_pathName))
+		{
+			remove(m_pathName.GetStr());
+			cl_flag = FileExists(m_pathName);
+		}
+	}
+
+	//return the results of the flags
+	return (!cf_flag && !cg_flag && !cl_flag);
+}
+
+/*///////////////////////////////////////////////////////////////////////////////
+	Checks for a file at a given pathname, if it does not exist then return false
+*///////////////////////////////////////////////////////////////////////////////
 bool GameManager::FileExists(const String & pathname)
 {
 	bool flag = false;

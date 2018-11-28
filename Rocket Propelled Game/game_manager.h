@@ -46,10 +46,10 @@ public:
 	static const int MAX_CHARACTER_AMOUNT = 3;
 	static const int RESOURCE_FILE_DIRECTORY_ERR = -1;
 
-	static const char * SAVES_DIRECTORY_PATH_NAME;
-	static const char * GSAVES_DIRECTORY_PATH_NAME;
-	static const char * RESOURCE_DIRECTORY_PATH_NAME;
-	static const char * GAME_NAME;
+	static const String SAVES_DIRECTORY_PATH_NAME;
+	static const String GSAVES_DIRECTORY_PATH_NAME;
+	static const String RESOURCE_DIRECTORY_PATH_NAME;
+	static const String GAME_NAME;
 
 	enum MenuMode
 	{
@@ -62,7 +62,8 @@ public:
 	};
 
 private:
-	bool isRunningSave;
+	bool isStartup;
+	bool fileChange;
 
 	void m_menuRender();
 	void n_menuRender();
@@ -70,10 +71,13 @@ private:
 	void p_menuRender();
 	void shopRender();
 	void worldRender();
+	void fightRender();
+
 
 	bool onCreateCharacter(const String & name);
 	void SaveFile(FileType type);
 	bool LoadFile(FileType type);
+	bool DeleteFile(String name);
 	bool FileExists(const String & pathname);
 
 	void GamePause();
@@ -96,8 +100,6 @@ private:
 	MenuMode e_StartMode;
 	Character character;
 	sf::RenderWindow window;
-	sf::View display;
-	sf::View action_bar;
 	String m_pathName;
 	ifstream m_FileIn;
 	ofstream m_FileOut;

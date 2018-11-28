@@ -9,7 +9,7 @@
 /*
 	Author: Jacob Vanderkarr
 	Filename: Weapon.h
-	Date Created: 10/2/18
+	Date Created: 10/28/18
 	Modifications:
 				10/4/18, added a DisplayCost and Display method
 
@@ -22,10 +22,10 @@
 			default ctor, does nothing.
 		+Weapon(Weapon & pt);
 			copy ctor, used To copy Weapon objects
-		+Weapon(string name, string desc, string pot, string cost);
-			largest overloaded ctor, takes a name, description, potency and cost
-		+Weapon(string name, string desc, string pot);
-			2nd largest o ctor, takes a name, description and potency
+		+Weapon(string name, string desc, string dmg, string cost);
+			largest overloaded ctor, takes a name, description, dmgency and cost
+		+Weapon(string name, string desc, string dmg);
+			2nd largest o ctor, takes a name, description and dmgency
 		+Weapon(string name, string desc);
 			3rd largest o ctor, takes a name and description
 		+Weapon(string name);
@@ -33,9 +33,9 @@
 		+~Weapon();
 
 	Methods:
-		+void SetPoten(String pot);
-		+const string GetPoten() const;
-			returns the potency of the Weapon
+		+void SetDmg(String dmg);
+		+const string GetDmg() const;
+			returns the dmgency of the Weapon
 		+void Display();
 			Displays the Weapon object as text
 
@@ -48,17 +48,18 @@ private:
 public:
 	Weapon();
 	Weapon(const Weapon & pt);
-	Weapon(String name, String desc, String pot, String cost);
-	Weapon(String name, String desc, String pot);
+	Weapon(String name, String desc, int dmg, String cost);
+	Weapon(String name, String desc, int dmg);
 	Weapon(String name, String desc);
 	Weapon(String name);
 
 	~Weapon();
-	void SetPoten(String pot);
-	const String GetPoten() const;
+	void SetDmg(int dmg);
+	const String GetDmg() const;
 	Weapon & operator = (const Weapon & right);
 	bool operator == (const Weapon & right) const;
 
 	void Display() const;
+	static const int STRD_DMG = 2;
 };
 

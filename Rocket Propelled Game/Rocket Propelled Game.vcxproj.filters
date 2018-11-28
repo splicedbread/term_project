@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Enemy Classes">
+      <UniqueIdentifier>{abcbd215-0de0-4447-ab32-516a8a311e4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Enemy Classes">
+      <UniqueIdentifier>{87e0ad0c-3b16-4e18-962c-9217454288c3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stub.cpp">
@@ -42,6 +48,39 @@
     <ClCompile Include="entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="weapon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="enemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grub.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="boss.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="eagle.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="goat.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="goblin.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="griffin.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="lion.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="serphent.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="troll.cpp">
+      <Filter>Source Files\Enemy Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="potion.h">
@@ -70,6 +109,42 @@
     </ClInclude>
     <ClInclude Include="entity.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linked_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="weapon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="enemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grub.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="boss.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="eagle.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="goat.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="goblin.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="griffin.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="lion.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="serphent.h">
+      <Filter>Header Files\Enemy Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="troll.h">
+      <Filter>Header Files\Enemy Classes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

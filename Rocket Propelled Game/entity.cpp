@@ -6,17 +6,19 @@
 
 	Implementation file for the entity class
 *///////////////////////////////////////////
+const Weapon Entity::STRD_WEP("Basic Sword", "It has an edge", 6, "00.00.15.50");
+
 
 //default ctor
-Entity::Entity() : m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH), m_name("DudeGuy")
+Entity::Entity() : m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH), m_name("NA"), m_wep(STRD_WEP)
 {}
 
 //default one arg ctor
-Entity::Entity(String name) : m_name(name), m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH)
+Entity::Entity(String name) : m_name(name), m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH), m_wep(STRD_WEP)
 {}
 
 //copy ctor
-Entity::Entity(const Entity & copy) : m_name(copy.m_name), m_health(copy.m_health), m_armour(copy.m_armour), m_mana(copy.m_mana), m_strength(copy.m_strength), m_wallet(copy.m_wallet)
+Entity::Entity(const Entity & copy) : m_name(copy.m_name), m_health(copy.m_health), m_armour(copy.m_armour), m_mana(copy.m_mana), m_strength(copy.m_strength), m_wallet(copy.m_wallet), m_wep(copy.m_wep)
 {}
 
 //dtor
@@ -27,6 +29,7 @@ Entity & Entity::operator=(const Entity & right)
 {
 	if (this != &right)
 	{
+		this->m_wep = right.m_wep;
 		this->m_wallet = right.m_wallet;
 		this->m_name = right.m_name;
 		this->m_health = right.m_health;
@@ -167,6 +170,22 @@ int Entity::GetStrength() const
 const CoinPouch & Entity::GetWallet() const
 {
 	return this->m_wallet;
+}
+
+/*/////////////////////////////////////////////
+	Purpose: Returns the weapon of the entity
+*/////////////////////////////////////////////
+const Weapon & Entity::GetWep() const
+{
+	return this->m_wep;
+}
+
+/*//////////////////////////////////////////
+	Purpose: sets the weapon of this entity
+*//////////////////////////////////////////
+void Entity::SetWep(const Weapon & wep)
+{
+	this->m_wep = wep;
 }
 
 /*///////////////////////////////////////////////////////////////////////////

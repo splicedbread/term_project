@@ -1,6 +1,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 #include "String.h"
+#include "weapon.h"
 #include "coin_pouch.h"
 /*///////////////////////////////////////////////////////////////////////////////
 	Author: Jacob Vanderkarr
@@ -40,7 +41,7 @@ public:
 	Entity();
 	Entity(String name);
 	Entity(const Entity & copy);
-	virtual ~Entity();
+	virtual ~Entity() = 0;
 
 	Entity & operator = (const Entity & right);
 
@@ -57,18 +58,23 @@ public:
 	int GetStrength() const;
 	const CoinPouch & GetWallet() const;
 
+	const Weapon & GetWep() const;
+	void SetWep(const Weapon & wep);
+
 	void AddMoney(int amount);
 	void RmvMoney(int amount);
 
 	virtual void Info(bool mode) const;
 
-	static const int STRD_HEALTH = 50;
+	static const int STRD_HEALTH = 150;
 	static const int STRD_ARMOUR = 0;
 	static const int STRD_MANA = 20;
-	static const int STRD_STRGTH = 5;
+	static const int STRD_STRGTH = 2;
+	static const Weapon STRD_WEP;
 
 protected:
 	CoinPouch m_wallet;
+	Weapon m_wep;
 	String m_name;
 	int m_health;
 	int m_armour;
