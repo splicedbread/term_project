@@ -1055,7 +1055,13 @@ void GameManager::fightRender()
 	//used for events
 	sf::Event event;
 
+	int damageD = 0;
+
+	float originalHealth = static_cast<float>(enemy.GetHealth());
+
 	bool isReleased = false;
+
+	bool action = false;
 
 	int selected = -1;
 
@@ -1079,6 +1085,7 @@ void GameManager::fightRender()
 	margin_border.setOutlineThickness(margin);
 	margin_border.setSize(sf::Vector2f(window.getSize().x - 4 * margin, window.getSize().y - 4 * margin));
 	margin_border.setOrigin(-2 * margin, -2 * margin);
+
 
 	//Second rectange to put the context menu in
 	sf::RectangleShape context_menu;
@@ -1153,23 +1160,41 @@ void GameManager::fightRender()
 	y_coord = margin_border.getOrigin().y;
 	bg_sprite.setOrigin(x_coord, y_coord);
 
-	////Load in the title to display, first load a texture, then a create a sprite
-	//sf::Texture title_texture;
-	//str = RESOURCE_DIRECTORY_PATH_NAME;
-	//str = str + "/RPG_name.png";
-	//if (!title_texture.loadFromFile(str.GetStr()))
-	//{
-	//	throw RESOURCE_FILE_DIRECTORY_ERR;
-	//}
-	////creating a sprite for the title
-	//sf::Sprite title_Sprite;
-	//title_Sprite.setTexture(title_texture);
-	////position it
-	//x_coord = 0.05;
-	//y_coord = 0.05;
-	//title_Sprite.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
-	////lets scale it a little bigger
-	//title_Sprite.setScale(2.0, 2.0);
+	//Load in the title to display, first load a texture, then a create a sprite
+	sf::Texture place_texture;
+	str = RESOURCE_DIRECTORY_PATH_NAME;
+	str = str + "/RPG_place.png";
+	if (!place_texture.loadFromFile(str.GetStr()))
+	{
+		throw RESOURCE_FILE_DIRECTORY_ERR;
+	}
+	//creating a sprite for the title
+	sf::Sprite place_Sprite;
+	place_Sprite.setTexture(place_texture);
+	//position it
+	x_coord = margin_border.getOrigin().x - 4*margin;
+	y_coord = margin_border.getOrigin().y - 0.2*margin_border.getSize().y;
+	place_Sprite.setOrigin(x_coord, y_coord);
+	//place_Sprite.scale(0.35,0.35);
+
+	//create a rectange that has ahealth bar
+	sf::RectangleShape health_green;
+	health_green.setFillColor(sf::Color::Green);
+	health_green.setOutlineColor(sf::Color::Black);
+	health_green.setOutlineThickness(1.0f);
+	health_green.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width * (static_cast<float>(enemy.GetHealth())/originalHealth), margin*2));
+	x_coord = place_Sprite.getOrigin().x;
+	y_coord = place_Sprite.getOrigin().y + margin*2;
+	health_green.setOrigin(x_coord, y_coord);
+
+	sf::RectangleShape health_red;
+	health_red.setFillColor(sf::Color::Red);
+	health_red.setOutlineColor(sf::Color::Black);
+	health_red.setOutlineThickness(1.0f);
+	health_red.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width, margin * 2));
+	x_coord = place_Sprite.getOrigin().x;
+	y_coord = place_Sprite.getOrigin().y + margin * 2;
+	health_red.setOrigin(x_coord, y_coord);
 
 	std::cout << "Fight Screen should display" << std::endl;
 
@@ -1195,7 +1220,6 @@ void GameManager::fightRender()
 						{
 							selection = MENU_OPTIONS - 1;
 						}
-						isReleased = true;
 						break;
 					case sf::Keyboard::Down:
 						++selection;
@@ -1203,7 +1227,6 @@ void GameManager::fightRender()
 						{
 							selection = 0;
 						}
-						isReleased = true;
 						break;
 					case sf::Keyboard::Right:
 						++selection;
@@ -1212,7 +1235,6 @@ void GameManager::fightRender()
 						{
 							selection = 0;
 						}
-						isReleased = true;
 						break;
 					case sf::Keyboard::Left:
 						--selection;
@@ -1221,18 +1243,17 @@ void GameManager::fightRender()
 						{
 							selection = MENU_OPTIONS - 1;
 						}
-						isReleased = true;
 						break;
 					case sf::Keyboard::Enter:
 						switch (selection)
 						{
-						case 0: //Fight
+						case 0: //Fight menu
 							if (selected == -1 || selected != selection)
 							{
 								selected = selection;
 							}
 							break;
-						case 1: //Items
+						case 1: //Items menu
 							if (selected == -1 || selected != selection)
 							{
 								selected = selection;
@@ -1242,15 +1263,10 @@ void GameManager::fightRender()
 							if (selected = -1)
 							{
 								LoadFile(CHAR_GAME);
+								enemy.SetHealth(originalHealth);
 								windowControl = false;
 								e_StartMode = FIGHT;
 							}
-							
-							if (selected = 0)
-							{
-								//fight stuff
-							}
-
 							break;
 						case 3: //Exit
 							if (selected == -1 && isReleased)
@@ -1279,9 +1295,13 @@ void GameManager::fightRender()
 		window.clear();
 		window.draw(margin_border);
 		window.draw(bg_sprite);
+		window.draw(place_Sprite);
+		window.draw(health_red);
+		health_green.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width * (static_cast<float>(enemy.GetHealth()) / originalHealth), margin * 2));
+		window.draw(health_green);
 		window.draw(context_menu);
 		//window.draw(instructions);
-		//window.draw(title_Sprite);
+		
 		switch (selected)
 		{
 		case -1:
@@ -1294,6 +1314,16 @@ void GameManager::fightRender()
 			for (int i = 0; i < MENU_OPTIONS; i++)
 			{
 				textArray[i].setString(fightArray[i].GetStr());
+			}
+			if (selection == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+			{
+				damageD = character.GetStrength() * String::ToInt(character.GetWep().GetDmg().GetStr());
+				enemy.SetHealth(enemy.GetHealth() - (damageD));
+				if (enemy.GetHealth() < 0)
+				{
+					enemy.SetHealth(0);
+				}
+				isReleased = true;
 			}
 			break;
 		case 1: //Items Menu
@@ -1360,29 +1390,33 @@ bool GameManager::onCreateCharacter(const String & name)
 		cout << "entering random numergen: diceroll before roll" << dice_roll << endl;
 		//random character stats
 		//health
-		std::uniform_int_distribution<int> health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
-		dice_roll = health_distribution(gen);
+		auto gen1 = [](int lower, int upper)
+		{
+			return lower + static_cast<int>(rand() % (upper - lower + 1));
+		};
+		//std::uniform_int_distribution<int> health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
+		dice_roll = gen1(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30); // health_distribution(gen);
 		character.SetHealth(dice_roll);
 		cout << "character number health: dice" << dice_roll << " character: " << character.GetHealth() << endl;
 
 		//strength
-		std::uniform_int_distribution<int> strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
-		dice_roll = strength_distribution(gen);
+		//std::uniform_int_distribution<int> strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
+		dice_roll = gen1(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
 		character.SetStrength(dice_roll);
 
 		//armour
-		std::uniform_int_distribution<int> arm_distribution(0, 10);
-		dice_roll = arm_distribution(gen);
+		//std::uniform_int_distribution<int> arm_distribution(0, 10);
+		dice_roll = gen1(0, 10);
 		character.SetArmour(dice_roll);
 
 		//mana
-		std::uniform_int_distribution<int> mana_distribution(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
-		dice_roll = mana_distribution(gen);
+		//std::uniform_int_distribution<int> mana_distribution(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
+		dice_roll = gen1(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
 		character.SetMana(dice_roll);
 
 		//Weapon Damage
-		std::uniform_int_distribution<int> dmg_distribution(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
-		dice_roll = dmg_distribution(gen);
+		//std::uniform_int_distribution<int> dmg_distribution(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
+		dice_roll = gen1(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
 		buff = String::ToString(dice_roll);
 		Weapon tempWep("RNG Sword", "Sold as is", buff, "00.00.01.11");
 		character.SetWep(tempWep);

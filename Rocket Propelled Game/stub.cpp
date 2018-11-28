@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include "character.h"
 #include "string.h"
 #include "coin_pouch.h"
@@ -25,6 +26,7 @@ const char * FILENAME = "character.bin";
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	std::srand(time(NULL));
 	cout << "launching openGL application...." << endl;
 	//TestStub();
 	//Stub();

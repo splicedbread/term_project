@@ -1,6 +1,7 @@
 #ifndef GAME_MANAGER_H
 #define GAME_MANAGER_H
 #include <iostream>
+#include "troll.h"
 #include <random>
 #include <experimental/filesystem>
 #include <fstream>
@@ -65,6 +66,8 @@ public:
 private:
 	int dice_roll;
 	//std::default_random_engine gen;
+	Troll enemy;
+
 
 	bool isStartup;
 	bool fileChange;
