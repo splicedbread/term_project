@@ -1103,10 +1103,15 @@ void GameManager::fightRender()
 	//used for events
 	sf::Event event;
 	//setup current position in the enemy list
-	if (!enemyList.SetCurrentPos(m_Gstate.m_currentEnemy))
+	if (!enemyList.SetCurrentPos(m_Gstate.m_currentEnemy - 1))
 	{
 		cout << "There was a problem getting the current enemy" << endl;
 	}
+
+	cout << "Gstate current enemy: " << m_Gstate.m_currentEnemy << endl;
+	cout << "current enemy name: " << enemyList.GetData()->GetName().GetStr() << endl;
+	cout << "current_pos value: " << enemyList.GetCurrentPos() << endl;
+
 	//text pointer array for 3 elements, [0] is New Game, [1] is Load Game, [2] is Exit
 	//load the used font, I know, I'd doing comic sans as a joke
 	sf::Font font;
@@ -1119,8 +1124,8 @@ void GameManager::fightRender()
 	int damageD = 0;
 	//get the health of the enemy
 	Enemy * enemy = enemyList.GetData();
-	float originalHealth = static_cast<float>(enemy->GetHealth());
-
+	float eOriginalHealth = static_cast<float>(enemy->GetHealth());
+	float pOriginalHealth = static_cast<float>(character.GetHealth());
 	//Create all necessary rectangles
 		//margin is for the gap between window and white border.
 		float margin = 15; //Margin in pixels
@@ -1190,11 +1195,26 @@ void GameManager::fightRender()
 		y_coord = margin_border.getOrigin().y;
 		bg_sprite.setOrigin(x_coord, y_coord);
 
+	//Player Sprite Setup
+		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
+		sf::Texture player_texture;
+		m_pathName = m_pathName + "/RPG_player.png";
+		if (!player_texture.loadFromFile(m_pathName.GetStr()))
+		{
+			throw RESOURCE_FILE_DIRECTORY_ERR;
+		}
+		//create the sprite for the player
+		sf::Sprite player_Sprite;
+		player_Sprite.setTexture(player_texture);
+		x_coord = margin_border.getOrigin().x - margin_border.getGlobalBounds().width + player_Sprite.getGlobalBounds().width + 2.0f*margin;
+		y_coord = margin_border.getOrigin().y - margin_border.getGlobalBounds().height + player_Sprite.getGlobalBounds().height + context_menu.getGlobalBounds().height;
+		player_Sprite.setOrigin(x_coord, y_coord);
+
 	//Enemy Sprite Setup
 		//Load in the title to display, first load a texture, then a create a sprite
 		sf::Texture enemy_texture;
 		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
-		m_pathName = m_pathName + EnemyResourceArray[m_Gstate.m_currentEnemy];
+		m_pathName = m_pathName + EnemyResourceArray[m_Gstate.m_currentEnemy -1];
 		if (!enemy_texture.loadFromFile(m_pathName.GetStr()))
 		{
 			throw RESOURCE_FILE_DIRECTORY_ERR;
@@ -1203,30 +1223,42 @@ void GameManager::fightRender()
 		sf::Sprite enemy_Sprite;
 		enemy_Sprite.setTexture(enemy_texture);
 		//position it
-		x_coord = margin_border.getOrigin().x - 4*margin;
-		y_coord = margin_border.getOrigin().y - 0.2*margin_border.getSize().y;
+		x_coord = margin_border.getOrigin().x - enemy_Sprite.getGlobalBounds().width*0.5f;
+		y_coord = context_menu.getOrigin().y + enemy_Sprite.getGlobalBounds().height;
 		enemy_Sprite.setOrigin(x_coord, y_coord);
 		//enemy_Sprite.scale(0.35,0.35);
 
-		float healthPercent = static_cast<float>(enemy->GetHealth())/originalHealth;
+		float healthPercent = static_cast<float>(enemy->GetHealth())/eOriginalHealth;
+		sf::Color green(150, 220, 180);
 		//create a rectange that has ahealth bar
-		sf::RectangleShape health_green;
-		health_green.setFillColor(sf::Color::Green);
-		health_green.setOutlineColor(sf::Color::Black);
-		health_green.setOutlineThickness(1.0f);
-		health_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin*2));
+		sf::RectangleShape ehealth_green;
+		ehealth_green.setFillColor(green);
+		ehealth_green.setOutlineColor(sf::Color::Black);
+		ehealth_green.setOutlineThickness(2.0f);
+		ehealth_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin));
 		x_coord = enemy_Sprite.getOrigin().x;
 		y_coord = enemy_Sprite.getOrigin().y + margin*2;
-		health_green.setOrigin(x_coord, y_coord);
+		ehealth_green.setOrigin(x_coord, y_coord);
 
-		sf::RectangleShape health_red;
-		health_red.setFillColor(sf::Color::Red);
-		health_red.setOutlineColor(sf::Color::Black);
-		health_red.setOutlineThickness(1.0f);
-		health_red.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width, margin * 2));
+		sf::RectangleShape ehealth_red;
+		ehealth_red.setFillColor(sf::Color::Red);
+		ehealth_red.setOutlineColor(sf::Color::Black);
+		ehealth_red.setOutlineThickness(1.0f);
+		ehealth_red.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width, margin));
 		x_coord = enemy_Sprite.getOrigin().x;
 		y_coord = enemy_Sprite.getOrigin().y + margin * 2;
-		health_red.setOrigin(x_coord, y_coord);
+		ehealth_red.setOrigin(x_coord, y_coord);
+
+		//create copies of the health bar, but for player
+		sf::RectangleShape phealth_green = ehealth_green;
+		sf::RectangleShape phealth_red = ehealth_red;
+		healthPercent = static_cast<float>(character.GetHealth()) / pOriginalHealth;
+		phealth_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin));
+		phealth_red.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width, margin));
+		x_coord = player_Sprite.getOrigin().x - 0.3f*player_Sprite.getGlobalBounds().width;
+		y_coord = player_Sprite.getOrigin().y + margin * 2;
+		phealth_green.setOrigin(x_coord, y_coord);
+		phealth_red.setOrigin(x_coord, y_coord);
 
 	std::cout << "Fight Screen should display" << std::endl;
 
@@ -1305,12 +1337,18 @@ void GameManager::fightRender()
 		window.draw(margin_border); //first draw the first 
 		window.draw(bg_sprite); //draw the background on top of the margin border
 		window.draw(enemy_Sprite); //draw the enemy sprite
+		window.draw(player_Sprite);
 		//player sprite goes here
-		window.draw(health_red); //draw the enemy red health bar
 		//Check the current health of the enemy, and using that info, set the appropiate width for the green bar
-		float healthPercent = static_cast<float>(enemy->GetHealth()) / originalHealth;
-		health_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin * 2));
-		window.draw(health_green); //draw the green healthbar after
+		healthPercent = static_cast<float>(enemy->GetHealth()) / eOriginalHealth;
+		ehealth_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin));
+		window.draw(ehealth_red); //draw the enemy red health bar
+		window.draw(ehealth_green); //draw the green healthbar after
+		//same for the player
+		healthPercent = static_cast<float>(character.GetHealth()) / pOriginalHealth;
+		window.draw(phealth_red); //draw the enemy red health bar
+		window.draw(phealth_green); //draw the green healthbar after
+
 		window.draw(context_menu); //draw the context menu on top of the sprites
 		
 		//this is where it is complicated
