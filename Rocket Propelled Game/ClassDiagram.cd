@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" GroupingSetting="Access" MembersFormat="FullSignature">
+  <Class Name="BackPack">
+    <Position X="6.5" Y="5.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAIgABAAQCAAABAAAAAABQAAABAIAwAAAABwAAAEAAA=</HashCode>
+      <FileName>backpack.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Character">
+    <Position X="10" Y="7.25" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgAAEAAAAAAAAAAAAAAIAAAAAAAAAgAECAKAA=</HashCode>
+      <FileName>character.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CoinPouch">
+    <Position X="11" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAAAAAgAAAAAAAEAAAAAAABAAAAEgQAAAAAE=</HashCode>
+      <FileName>coin_pouch.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DynamicArray&lt;T&gt;">
+    <Position X="2.5" Y="7.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAEAAAAAAAAAAEJAAAAAAAgAAAIEAI=</HashCode>
+      <FileName>dynamic_array.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Enemy">
+    <Position X="16.75" Y="8.75" Width="3" />
+    <NestedTypes>
+      <Enum Name="Enemy::Moves" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>enemy.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IgAAAgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>enemy.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Entity">
+    <Position X="14.75" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>EEgAAAIgCAECJEAEAAAABSBgACAAAAgAAABgQmCABAw=</HashCode>
+      <FileName>entity.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GameManager">
+    <Position X="21.75" Y="0.5" Width="5.5" />
+    <NestedTypes>
+      <Enum Name="GameManager::MenuMode" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>game_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="GameManager::FileType" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>game_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Struct Name="GameManager::GameState" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>game_manager.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>gAjoQACFQAASCACADgMAQAAYACBAAIAIFCMAIglQBBA=</HashCode>
+      <FileName>game_manager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Item">
+    <Position X="2.5" Y="11.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>EQAIAAAABiAAAABAABQAAQAUAAAAAAAAAAAgQABQBAE=</HashCode>
+      <FileName>item.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LinkedList&lt;T&gt;">
+    <Position X="27.75" Y="6" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEABEBABABAAAAEEBQAAEEEoAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>linked_list.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Potion">
+    <Position X="0.5" Y="18.5" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAIAAAAAAgAAAAAAQABABAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>potion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="String">
+    <Position X="18.25" Y="0.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAIABAAAAAAAAAEQAAAAYAIAgkAAAAAAIggAAAAgAA=</HashCode>
+      <FileName>string.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Weapon">
+    <Position X="5" Y="18.5" Width="4" />
+    <TypeIdentifier>
+      <HashCode>BAEAAAAACAAAEAAAAAAAAQAAAACAAAgAAAAgAAAAAAA=</HashCode>
+      <FileName>weapon.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Boss">
+    <Position X="20.5" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQEAAAAAAAAAAAJAAAAAAAAQAAAA=</HashCode>
+      <FileName>boss.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Eagle">
+    <Position X="26" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQMEAAAAAAAAAAIAAAAAAAAQAAAA=</HashCode>
+      <FileName>eagle.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Goat">
+    <Position X="5.75" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAQAAQEAAAAAAAAAAAIAAAAAAAAQAAAA=</HashCode>
+      <FileName>goat.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Goblin">
+    <Position X="11.75" Y="12.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQEAAAAAAAAAIAIAAAAAAIAQAAAA=</HashCode>
+      <FileName>goblin.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Griffin">
+    <Position X="17.5" Y="12.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>ACAAgAAAAAAAAAAAQEAAAAAAAAAAAIAAAAAAAAQAAAA=</HashCode>
+      <FileName>griffin.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Grub">
+    <Position X="23.25" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAAAAAAAAAAQEAAAABAAAAAAIAAAAAAAAQAAAA=</HashCode>
+      <FileName>grub.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lion">
+    <Position X="28.75" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAQEAAAAAAAAAAAIAAAAAAAAwAAAA=</HashCode>
+      <FileName>lion.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Serphent">
+    <Position X="8.5" Y="12.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAQFAAAAAAAAAAAIAAAAAAAAQAAAA=</HashCode>
+      <FileName>serphent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Troll">
+    <Position X="14.75" Y="12.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAQEAAAAAAAAAgAIAAAAAAABQAAAA=</HashCode>
+      <FileName>troll.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Node&lt;T&gt;">
+    <Position X="27.75" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgAAAIAAAAAAAAAAAAAAAAgAAAAAAAA=</HashCode>
+      <FileName>linked_list.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
