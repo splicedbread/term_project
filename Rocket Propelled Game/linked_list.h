@@ -1,6 +1,7 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 #include <iostream>
+#include "enemy.h"
 /*/////////////////////////////////////////////////////////////////////////////
 	Author: Jacob Vanderkarr
 	FileName: linked_list.h
@@ -20,8 +21,8 @@ struct Node
 {
 friend class LinkedList<T>;
 private:
-	Node<T> * m_next;
-	Node<T> * m_prev;
+	Node<T> * m_next = nullptr;
+	Node<T> * m_prev = nullptr;
 	T m_data;
 };
 
@@ -33,31 +34,33 @@ private:
 	Node<T> * m_head;
 	Node<T> * m_current;
 	Node<T> * m_tail;
-	bool Find(const Node<T> & n) const;
+	int m_current_pos;
+	bool Find(const Node<T> & n);
 public:
 	LinkedList();
-	LinkedList(const T data);
+	LinkedList(T data);
 	~LinkedList();
 
 	void SetData(T data);
 	const T GetData() const;
 
-	void NextNode();
-	void PreviousNode();
+	bool NextNode();
+	bool PreviousNode();
+	bool SetCurrentPos(int num);
 
-	void Insert(const T in);
+	void Insert(T in);
 	bool Delete(Node<T> * out);
 
 	void Purge();
-	void Display() const;
+	void Display();
 };
 //default ctor
 template <class T>
-LinkedList<T>::LinkedList(): m_head(nullptr), m_tail(nullptr), m_current(nullptr)
+LinkedList<T>::LinkedList(): m_head(nullptr), m_tail(m_head), m_current(m_head), m_current_pos(0)
 {}
 //one arg ctor, takes in data and assigns m_next and m_prev as nullptr
 template <class T>
-LinkedList<T>::LinkedList(const T data): m_head(new Node<T>(data)), m_tail(m_head), m_current(m_head)
+LinkedList<T>::LinkedList(T data): m_head(new Node<T>(data)), m_tail(m_head), m_current(m_head), m_current_pos(0)
 {
 	m_head->m_next(nullptr);
 	m_head->m_prev(nullptr);
@@ -92,16 +95,20 @@ const T LinkedList<T>::GetData() const
 	Next node checks the next node and then sets the current pointer to the next pointer. 
 *////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
-void LinkedList<T>::NextNode()
+bool LinkedList<T>::NextNode()
 {
+	bool flag = false;
 	if (m_current->m_next != nullptr)
 	{
+		m_current_pos++;
 		m_current = m_current->m_next;
+		flag = true;
 	}
 	else
 	{
-		m_current = m_head;
+		flag = false;
 	}
+	return flag;
 }
 
 /*////////////////////////////////////////////////////////////////
@@ -109,16 +116,45 @@ void LinkedList<T>::NextNode()
 	current pointer as the previous node
 */////////////////////////////////////////////////////////////////
 template<class T>
-void LinkedList<T>::PreviousNode()
+bool LinkedList<T>::PreviousNode()
 {
+	bool flag = false;
 	if (m_current->m_prev != nullptr)
 	{
+		m_current_pos--;
 		m_current = m_current->m_prev;
+		flag = true;
 	}
 	else
 	{
-		m_current = m_tail;
+		flag = false;
 	}
+	return flag;
+}
+
+/*///////////////////////////////////////////////////////////
+	SetCurrentPos will attempt to set the current node
+	and pos to the desired num, if that num is out of bounds
+	then it will return false;
+*///////////////////////////////////////////////////////////
+template<class T>
+bool LinkedList<T>::SetCurrentPos(int num)
+{
+	m_current = m_head;
+	m_current_pos = 0;
+	bool flag = false;
+	if (m_current_pos == num)
+	{
+		flag = true;
+	}
+	while (NextNode() && !flag)
+	{
+		if (m_current_pos == num)
+		{
+			flag = true;
+		}
+	}
+	return flag;
 }
 
 /*//////////////////////////////////////////////////////////////////////////////////
@@ -126,23 +162,25 @@ void LinkedList<T>::PreviousNode()
 		returns false if the node is not found
 *///////////////////////////////////////////////////////////////////////////////////
 template <class T>
-bool LinkedList<T>::Find(const Node<T> & n) const
+bool LinkedList<T>::Find(const Node<T> & n)
 {
 	bool found = false;
-	Node<T> * travel = m_head;
+	m_current_pos = 0;
+	m_current = m_head;
 	if (m_current->m_data == n.m_data)
 	{
 		found = true;
 	}
-	while (!found && travel->m_next != nullptr)
+	while (!found && m_current->m_next != nullptr)
 	{
-		if (n.m_data == travel->m_data)
+		if (n.m_data == m_current->m_data)
 		{
 			found = true;
 		}
 		else
 		{
-			travel = travel->m_next;
+			m_current = m_current->m_next;
+			m_current_pos++;
 		}
 	}
 	return found;
@@ -152,11 +190,24 @@ bool LinkedList<T>::Find(const Node<T> & n) const
 	Insert is a append style insert, only inserts at the end of the list
 *////////////////////////////////////////////////////////////////////////
 template <class T>
-void LinkedList<T>::Insert(const T in)
+void LinkedList<T>::Insert(T in)
 {
-	m_tail->m_next = new Node<T>(in);
-	m_tail->m_next->m_prev = m_tail;
-	m_tail = m_tail->m_next;
+	if (m_head == nullptr)
+	{
+		m_head = new Node<T>;
+		m_head->m_data = in;
+		m_tail = m_head;
+		m_current = m_head;
+	}
+	else 
+	{
+		m_tail->m_next = new Node<T>;
+		m_tail->m_next->m_data = in;
+		m_tail->m_next->m_prev = m_tail;
+		m_tail = m_tail->m_next;
+		m_current = m_head;
+	}
+
 }
 
 /*////////////////////////////////////////////////////////
@@ -211,13 +262,14 @@ void LinkedList<T>::Purge()
 	Display displays each piece of data one by one in the console
 *//////////////////////////////////////////////////////////////////
 template <class T>
-void LinkedList<T>::Display() const
+void LinkedList<T>::Display()
 {
-	Node<T> * travel = m_head;
-	while (travel != nullptr)
+	m_current = m_head;
+	m_current_pos = 0;
+	while (m_current->m_next != nullptr && NextNode())
 	{
-		std::cout << travel->m_data << std::endl;
-		travel = travel->m_next;
+		std::cout << "pos[" << m_current_pos << "]: " << m_current->m_data << std::endl;
 	}
 }
+
 #endif // !LINKED_LIST_H;
