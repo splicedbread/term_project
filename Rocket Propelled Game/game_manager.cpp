@@ -220,6 +220,9 @@ void GameManager::GameSave()
 	}
 }
 
+/*/////////////////////////////////////////////////////////////
+	GameLoad() loads appropiate files from the saves directory
+*/////////////////////////////////////////////////////////////
 void GameManager::GameLoad()
 {
 	if (character.GetName() != "NA")
