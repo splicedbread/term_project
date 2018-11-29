@@ -26,7 +26,6 @@ const char * FILENAME = "character.bin";
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	std::srand(time(NULL));
 	cout << "launching openGL application...." << endl;
 	//TestStub();
 	//Stub();
