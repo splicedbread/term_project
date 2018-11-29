@@ -30,5 +30,6 @@ public:
 	Troll(const Troll & copy);
 	~Troll();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Troll & enemy);
 };
 #endif // !GRUB_H

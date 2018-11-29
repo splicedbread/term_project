@@ -6,7 +6,7 @@
 
 	Implementation file for the entity class
 *///////////////////////////////////////////
-const Weapon Entity::STRD_WEP("Basic Sword", "It has an edge", 6, "00.00.15.50");
+const Weapon Entity::STRD_WEP("Basic Sword", "It has an edge", "6", "00.00.15.50");
 
 //default ctor
 Entity::Entity() : m_health(STRD_HEALTH), m_armour(STRD_ARMOUR), m_mana(STRD_MANA), m_strength(STRD_STRGTH), m_name("NA"), m_wep(STRD_WEP)

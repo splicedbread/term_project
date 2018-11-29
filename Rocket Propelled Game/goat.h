@@ -30,5 +30,6 @@ public:
 	Goat(const Goat & copy);
 	~Goat();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Goat & enemy);
 };
 #endif // !GRUB_H

@@ -30,5 +30,6 @@ public:
 	Grub(const Grub & copy);
 	~Grub();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Grub & enemy);
 };
 #endif // !GRUB_H

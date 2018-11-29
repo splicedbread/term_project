@@ -18,6 +18,7 @@ Serphent::Serphent() : Enemy("Serphent")
 	m_health = 35;
 	m_armour = 2;
 	m_strength = 8;
+	craftWeapon();
 }
 
 //one arg ctor
@@ -41,4 +42,13 @@ void Serphent::craftWeapon()
 	this->m_wep.SetName(WepName);
 	this->m_wep.SetDesc(WepDesc);
 	this->m_wep.SetDmg(WepDmg);
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Serphent & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }

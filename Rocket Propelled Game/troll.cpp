@@ -17,6 +17,7 @@ Troll::Troll() : Enemy("Troll")
 {
 	m_health = 100;
 	m_strength = 3;
+	craftWeapon();
 }
 
 //one arg ctor
@@ -40,4 +41,13 @@ void Troll::craftWeapon()
 	this->m_wep.SetName(WepName);
 	this->m_wep.SetDesc(WepDesc);
 	this->m_wep.SetDmg(WepDmg);
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Troll & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }

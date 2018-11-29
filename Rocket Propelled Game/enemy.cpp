@@ -46,10 +46,10 @@ int Enemy::enemyMoves(Moves type)
 		dmg = String::ToInt(this->m_wep.GetDmg()) * 10;
 		break;
 	case Enemy::BLOCK:
-		dmg = -1*this->m_armour - (String::ToInt(this->m_wep.GetDmg()));
+		dmg = -1*this->m_armour - (String::ToInt(this->m_wep.GetDmg().GetStr()));
 		break;
 	case Enemy::NOTHING:
-		dmg = this->m_armour;
+		dmg = -1*this->m_armour;
 		break;
 	default:
 		dmg = 0;
@@ -71,4 +71,13 @@ Enemy & Enemy::operator=(const Enemy & right)
 		this->m_strength = right.m_strength;
 	}
 	return *this;
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Enemy & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }

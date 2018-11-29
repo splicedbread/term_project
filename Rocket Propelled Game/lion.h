@@ -30,5 +30,6 @@ public:
 	Lion(const Lion & copy);
 	~Lion();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Lion & enemy);
 };
 #endif // !GRUB_H

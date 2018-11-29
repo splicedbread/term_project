@@ -30,5 +30,6 @@ public:
 	Boss(const Boss & copy);
 	~Boss();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Boss & enemy);
 };
 #endif // !BOSS_H

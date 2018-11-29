@@ -30,5 +30,6 @@ public:
 	Griffin(const Griffin & copy);
 	~Griffin();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Griffin & enemy);
 };
 #endif // !GRUB_H

@@ -8,17 +8,18 @@
 	Modifications:
 *///////////////////////////
 
-const String Boss::WepName = "Cronk's Steel Club";
-const String Boss::WepDesc = "Made by Cronk's people, this wrought iron weapon is dangerous to get close to";
+const String Boss::WepName = "ZA WAROLDO";
+const String Boss::WepDesc = "ROLLA ROADA";
 const int Boss::WepDmg = 3;
 
 //default ctor
-Boss::Boss() : Enemy("Cronk")
+Boss::Boss() : Enemy("DIO")
 {
 	m_strength = 5;
 	m_health = 200;
 	m_armour = 10;
 	m_mana = 0;
+	craftWeapon();
 }
 
 //one arg ctor
@@ -42,4 +43,13 @@ void Boss::craftWeapon()
 	this->m_wep.SetName(WepName);
 	this->m_wep.SetDesc(WepDesc);
 	this->m_wep.SetDmg(WepDmg);
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Boss & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }

@@ -1,5 +1,6 @@
 #ifndef ENEMY_H
 #define ENEMY_H
+#include <iostream>
 #include "entity.h"
 #include "backpack.h"
 /*///////////////////////////////////////////////////////////////////////////////
@@ -34,10 +35,11 @@ public:
 
 	int enemyMoves(Moves type);
 	Enemy & operator = (const Enemy & right);
+	friend std::ostream& operator << (std::ostream& os, const Enemy& enemy);
 
 	virtual void craftWeapon() = 0;
 
-private:
+protected:
 
 };
 #endif // !Enemy_H

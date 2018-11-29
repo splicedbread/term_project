@@ -18,6 +18,7 @@ Goblin::Goblin() : Enemy("Goblin")
 	m_health = 70;
 	m_armour = 4;
 	m_strength = 3;
+	craftWeapon();
 }
 
 //one arg ctor
@@ -41,4 +42,13 @@ void Goblin::craftWeapon()
 	this->m_wep.SetName(WepName);
 	this->m_wep.SetDesc(WepDesc);
 	this->m_wep.SetDmg(WepDmg);
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Goblin & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }

@@ -30,5 +30,6 @@ public:
 	Serphent(const Serphent & copy);
 	~Serphent();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Serphent & enemy);
 };
 #endif // !GRUB_H

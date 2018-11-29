@@ -30,5 +30,6 @@ public:
 	Goblin(const Goblin & copy);
 	~Goblin();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Goblin & enemy);
 };
 #endif // !GRUB_H

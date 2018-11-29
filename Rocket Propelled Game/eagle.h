@@ -30,5 +30,6 @@ public:
 	Eagle(const Eagle & copy);
 	~Eagle();
 	void craftWeapon();
+	friend std::ostream & operator << (std::ostream & os, const Eagle & enemy);
 };
 #endif // !EAGLE_H

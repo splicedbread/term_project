@@ -18,6 +18,7 @@ Eagle::Eagle() : Enemy("Eagle")
 	m_health = 20;
 	m_mana = 0;
 	m_strength = 1;
+	craftWeapon();
 }
 
 //one arg ctor
@@ -41,4 +42,13 @@ void Eagle::craftWeapon()
 	this->m_wep.SetName(WepName);
 	this->m_wep.SetDesc(WepDesc);
 	this->m_wep.SetDmg(WepDmg);
+}
+
+/*///////////////////////////////////////////////////////////////////////
+	stream operator overload, which is used just for displaying the name.
+*////////////////////////////////////////////////////////////////////////
+std::ostream & operator<<(std::ostream & os, const Eagle & enemy)
+{
+	os << enemy.GetName().GetStr();
+	return os;
 }
