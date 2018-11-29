@@ -789,7 +789,7 @@ int String::ToInt(const String& in)
 {
 	int temp = 0;
 	int sig = 0;
-	if (in == "0")
+	if (in != "0")
 	{
 		for (int i = 0; i < in.GetLen(); i++)
 		{
