@@ -3,6 +3,15 @@ const String GameManager::GAME_NAME = "Rock Paper Gun";
 const String GameManager::SAVES_DIRECTORY_PATH_NAME = "./saves";
 const String GameManager::GSAVES_DIRECTORY_PATH_NAME = "./saves/game";
 const String GameManager::RESOURCE_DIRECTORY_PATH_NAME = "./resources";
+const String GameManager::EnemyResourceArray[GameManager::NUM_ENEMY_TYPES] = {"/RPG_grub.png", "/RPG_eagle.png", "/RPG_goat.png", "/RPG_serphent.png", "/RPG_lion.png", "/RPG_goblin.png",
+																			"/RPG_griffin.png", "/RPG_troll.png", "/RPG_boss.png" };
+std::uniform_int_distribution<int> GameManager::health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
+std::uniform_int_distribution<int> GameManager::strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 6);
+std::uniform_int_distribution<int> GameManager::arm_distribution(0, 10);
+std::uniform_int_distribution<int> GameManager::mana_distribution(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
+std::uniform_int_distribution<int> GameManager::dmg_distribution(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
+
+
 namespace fs = std::experimental::filesystem;
 
 /*//////////////////////////////////////////////////////////////////////////////////////
@@ -15,6 +24,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 {
 	isStartup = true;
 	fileChange = false;
+	loadLinkedList();
 	//As the game is starting, we will make sure we start at the main menu
 	//using base # initialization
 	//On creation of the object, we want to make sure the environment is setup
@@ -89,6 +99,12 @@ GameManager::GameManager() : e_StartMode(MAIN)
 		}
 		SaveFile(CHARLIST);
 	}
+	//setting up the seed for the random number generator
+	std::chrono::high_resolution_clock clock;
+	std::chrono::high_resolution_clock::time_point period = clock.now();
+	std::chrono::high_resolution_clock::duration dur = std::chrono::high_resolution_clock::now() - period;
+	unsigned seed = dur.count();
+	gen.seed(seed);
 
 	isStartup = false;
 }
@@ -1037,6 +1053,10 @@ void GameManager::s_menuRender()
 	}
 }
 
+/*//////////////////////////////////////////////////////////////////
+	p_menuRender(), shopRender, and worldRender were original plans,
+	but they will be incorporated on my free time
+*///////////////////////////////////////////////////////////////////
 void GameManager::p_menuRender()
 {
 }
@@ -1049,64 +1069,87 @@ void GameManager::worldRender()
 {
 }
 
+/*//////////////////////////////
+	load Linked list on startup
+*//////////////////////////////
+void GameManager::loadLinkedList()
+{
+	enemyList.Insert(new Grub);
+	enemyList.Insert(new Grub);
+	enemyList.Insert(new Eagle);
+	enemyList.Insert(new Goat);
+	enemyList.Insert(new Serphent);
+	enemyList.Insert(new Lion);
+	enemyList.Insert(new Goblin);
+	enemyList.Insert(new Griffin);
+	enemyList.Insert(new Troll);
+	enemyList.Insert(new Boss);
+	enemyList.Display();
+	if (enemyList.SetCurrentPos(0))
+	{
+		cout << "LinkedList Loaded and current pos is 0" << endl;
+	}
+}
+
+/*///////////////////////////////////////////////////////////////////////////////////
+	Fight Render is for managing both the menu for fighting and the turn based combat
+*////////////////////////////////////////////////////////////////////////////////////
 void GameManager::fightRender()
 {
+	//window control if an exit is needed without closing the window
+	bool windowControl = true;
+	//How many options are in the menu?
 	const int MENU_OPTIONS = 4;
 	//used for events
 	sf::Event event;
-
-	int damageD = 0;
-
-	float originalHealth = static_cast<float>(enemy.GetHealth());
-
-	bool isReleased = false;
-
-	bool action = false;
-
-	int selected = -1;
-
-	//margin is for the gap between window and white border.
-	float margin = 15;
-
-	//text spacing
-	float text_sp = 20.0f;
-
-	//from 0.0-1.0, relative positioning for drawing objects
-	float x_coord = 0;
-	float y_coord = 0;
-
-	//window control if an exit is needed without closing the window
-	bool windowControl = true;
-
-	//create a rectange that has a "transparent" fill color, with a white border for thickness
-	sf::RectangleShape margin_border;
-	margin_border.setFillColor(sf::Color::Black);
-	margin_border.setOutlineColor(sf::Color::White);
-	margin_border.setOutlineThickness(margin);
-	margin_border.setSize(sf::Vector2f(window.getSize().x - 4 * margin, window.getSize().y - 4 * margin));
-	margin_border.setOrigin(-2 * margin, -2 * margin);
-
-
-	//Second rectange to put the context menu in
-	sf::RectangleShape context_menu;
-	context_menu = margin_border;
-	//resize it
-	context_menu.setSize(sf::Vector2f(margin_border.getSize().x - 4*margin, margin_border.getSize().y * 0.15f));
-
-	//position it
-		//get the orgin from the margin, then subtract the height of the margin then add the height of your rectangle
-	x_coord = margin_border.getOrigin().x - 2*margin;
-	y_coord = margin_border.getOrigin().y - margin_border.getSize().y + context_menu.getSize().y + 2*margin;
-	context_menu.setOrigin(x_coord, y_coord);
-
+	//setup current position in the enemy list
+	if (!enemyList.SetCurrentPos(m_Gstate.m_currentEnemy))
+	{
+		cout << "There was a problem getting the current enemy" << endl;
+	}
 	//text pointer array for 3 elements, [0] is New Game, [1] is Load Game, [2] is Exit
 	//load the used font, I know, I'd doing comic sans as a joke
 	sf::Font font;
 	font.loadFromFile("./comic.ttf");
 	sf::Text textArray[MENU_OPTIONS];
-	String contextArray[MENU_OPTIONS] = {"Fight", "Items", "Run", "Exit"};
+	String contextArray[MENU_OPTIONS] = { "Fight", "Items", "Run", "Exit" };
 	String fightArray[MENU_OPTIONS] = { "Attack", "Block", "Guts", "Return" };
 
+	//data for managing 
+	int damageD = 0;
+	//get the health of the enemy
+	Enemy * enemy = enemyList.GetData();
+	float originalHealth = static_cast<float>(enemy->GetHealth());
+
+	//Create all necessary rectangles
+		//margin is for the gap between window and white border.
+		float margin = 15; //Margin in pixels
+		float text_sp = 20.0f; //spacing that text shall use
+		float x_coord = 0; //xcoordinate for use in orgins
+		float y_coord = 0; //ycoordinate
+
+		//create a rectange that has a "transparent" fill color, with a white border for thickness
+		sf::RectangleShape margin_border;
+		margin_border.setFillColor(sf::Color::Black);
+		margin_border.setOutlineColor(sf::Color::White);
+		margin_border.setOutlineThickness(margin);
+		margin_border.setSize(sf::Vector2f(window.getSize().x - 4 * margin, window.getSize().y - 4 * margin));
+		margin_border.setOrigin(-2 * margin, -2 * margin);
+
+		//Second rectange to put the context menu in
+		sf::RectangleShape context_menu;
+		context_menu = margin_border;
+		//resize it
+		context_menu.setSize(sf::Vector2f(margin_border.getSize().x - 4*margin, margin_border.getSize().y * 0.15f));
+		//position it
+		//get the orgin from the margin, then subtract the height of the margin then add the height of your rectangle
+		x_coord = margin_border.getOrigin().x - 2*margin;
+		y_coord = margin_border.getOrigin().y - margin_border.getSize().y + context_menu.getSize().y + 2*margin;
+		context_menu.setOrigin(x_coord, y_coord);
+	//End Rectangle creation
+
+
+	
 	//Position where the menu objects should be positioned related to the white border of the context menu
 	x_coord = context_menu.getOrigin().x; 
 	y_coord = context_menu.getOrigin().y - 2*margin; 
@@ -1128,77 +1171,68 @@ void GameManager::fightRender()
 			{
 				textArray[i].setOrigin(textArray[i-2].getOrigin().x - (context_menu.getSize().x * 0.5f), textArray[i-2].getOrigin().y);
 			}
-
 		}
 	}
 
+	//BackGround Setup
+		//Load a fancy background for the main menu
+		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
+		sf::Texture bg_texture;
+		m_pathName = m_pathName + "/RPG_dungeon.png";
+		if (!bg_texture.loadFromFile(m_pathName.GetStr()))
+		{
+			throw RESOURCE_FILE_DIRECTORY_ERR;
+		}
+		//create the sprite for the bg
+		sf::Sprite bg_sprite;
+		bg_sprite.setTexture(bg_texture);
+		x_coord = margin_border.getOrigin().x;
+		y_coord = margin_border.getOrigin().y;
+		bg_sprite.setOrigin(x_coord, y_coord);
 
-	////Create a new text for instructions at the bottom.
-	//sf::Text instructions;
-	//instructions.setFont(font);
-	//instructions.setFillColor(sf::Color::White);
-	//instructions.setOutlineColor(sf::Color::White);
-	//instructions.setStyle(sf::Text::Bold);
-	//instructions.setString("Arrow Keys to navigate, [Enter] to select highlighted");
-	////set instructions origin
-	//x_coord = 0.10f;
-	//y_coord = 0.90f;
-	//instructions.setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * (margin_border.getSize().y * y_coord));
+	//Enemy Sprite Setup
+		//Load in the title to display, first load a texture, then a create a sprite
+		sf::Texture enemy_texture;
+		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
+		m_pathName = m_pathName + EnemyResourceArray[m_Gstate.m_currentEnemy];
+		if (!enemy_texture.loadFromFile(m_pathName.GetStr()))
+		{
+			throw RESOURCE_FILE_DIRECTORY_ERR;
+		}
+		//creating a sprite for the title
+		sf::Sprite enemy_Sprite;
+		enemy_Sprite.setTexture(enemy_texture);
+		//position it
+		x_coord = margin_border.getOrigin().x - 4*margin;
+		y_coord = margin_border.getOrigin().y - 0.2*margin_border.getSize().y;
+		enemy_Sprite.setOrigin(x_coord, y_coord);
+		//enemy_Sprite.scale(0.35,0.35);
 
-	//Load a fancy background for the main menu
-	String str = RESOURCE_DIRECTORY_PATH_NAME;
-	sf::Texture bg_texture;
-	str = str + "/RPG_dungeon.png";
-	if (!bg_texture.loadFromFile(str.GetStr()))
-	{
-		throw RESOURCE_FILE_DIRECTORY_ERR;
-	}
-	//create the sprite for the bg
-	sf::Sprite bg_sprite;
-	bg_sprite.setTexture(bg_texture);
-	x_coord = margin_border.getOrigin().x;
-	y_coord = margin_border.getOrigin().y;
-	bg_sprite.setOrigin(x_coord, y_coord);
+		float healthPercent = static_cast<float>(enemy->GetHealth())/originalHealth;
+		//create a rectange that has ahealth bar
+		sf::RectangleShape health_green;
+		health_green.setFillColor(sf::Color::Green);
+		health_green.setOutlineColor(sf::Color::Black);
+		health_green.setOutlineThickness(1.0f);
+		health_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin*2));
+		x_coord = enemy_Sprite.getOrigin().x;
+		y_coord = enemy_Sprite.getOrigin().y + margin*2;
+		health_green.setOrigin(x_coord, y_coord);
 
-	//Load in the title to display, first load a texture, then a create a sprite
-	sf::Texture place_texture;
-	str = RESOURCE_DIRECTORY_PATH_NAME;
-	str = str + "/RPG_place.png";
-	if (!place_texture.loadFromFile(str.GetStr()))
-	{
-		throw RESOURCE_FILE_DIRECTORY_ERR;
-	}
-	//creating a sprite for the title
-	sf::Sprite place_Sprite;
-	place_Sprite.setTexture(place_texture);
-	//position it
-	x_coord = margin_border.getOrigin().x - 4*margin;
-	y_coord = margin_border.getOrigin().y - 0.2*margin_border.getSize().y;
-	place_Sprite.setOrigin(x_coord, y_coord);
-	//place_Sprite.scale(0.35,0.35);
-
-	//create a rectange that has ahealth bar
-	sf::RectangleShape health_green;
-	health_green.setFillColor(sf::Color::Green);
-	health_green.setOutlineColor(sf::Color::Black);
-	health_green.setOutlineThickness(1.0f);
-	health_green.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width * (static_cast<float>(enemy.GetHealth())/originalHealth), margin*2));
-	x_coord = place_Sprite.getOrigin().x;
-	y_coord = place_Sprite.getOrigin().y + margin*2;
-	health_green.setOrigin(x_coord, y_coord);
-
-	sf::RectangleShape health_red;
-	health_red.setFillColor(sf::Color::Red);
-	health_red.setOutlineColor(sf::Color::Black);
-	health_red.setOutlineThickness(1.0f);
-	health_red.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width, margin * 2));
-	x_coord = place_Sprite.getOrigin().x;
-	y_coord = place_Sprite.getOrigin().y + margin * 2;
-	health_red.setOrigin(x_coord, y_coord);
+		sf::RectangleShape health_red;
+		health_red.setFillColor(sf::Color::Red);
+		health_red.setOutlineColor(sf::Color::Black);
+		health_red.setOutlineThickness(1.0f);
+		health_red.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width, margin * 2));
+		x_coord = enemy_Sprite.getOrigin().x;
+		y_coord = enemy_Sprite.getOrigin().y + margin * 2;
+		health_red.setOrigin(x_coord, y_coord);
 
 	std::cout << "Fight Screen should display" << std::endl;
 
+	//Variables used for menu
 	int selection = 0;
+	int selected = -1;
 
 	while (window.isOpen() && windowControl)
 	{
@@ -1248,41 +1282,15 @@ void GameManager::fightRender()
 						switch (selection)
 						{
 						case 0: //Fight menu
-							if (selected == -1 || selected != selection)
-							{
-								selected = selection;
-							}
 							break;
 						case 1: //Items menu
-							if (selected == -1 || selected != selection)
-							{
-								selected = selection;
-							}
 							break;
 						case 2: //Run (reload fight)
-							if (selected = -1)
-							{
-								LoadFile(CHAR_GAME);
-								enemy.SetHealth(originalHealth);
-								windowControl = false;
-								e_StartMode = FIGHT;
-							}
 							break;
 						case 3: //Exit
-							if (selected == -1 && isReleased)
-							{
-								SaveFile(CHAR_GAME);
-								windowControl = false;
-								e_StartMode = MAIN;
-							}
-							
-							if (selected == 0)
-							{
-								//all case 3's in the menu will return to the previous one
-																//selection = 0;
-								selection = 0;
-								selected = -1;
-							}
+							SaveFile(CHAR_GAME);
+							windowControl = false;
+							e_StartMode = MAIN;
 							break;
 						}
 						break;
@@ -1292,38 +1300,33 @@ void GameManager::fightRender()
 			}
 		}
 
-		window.clear();
-		window.draw(margin_border);
-		window.draw(bg_sprite);
-		window.draw(place_Sprite);
-		window.draw(health_red);
-		health_green.setSize(sf::Vector2f(place_Sprite.getGlobalBounds().width * (static_cast<float>(enemy.GetHealth()) / originalHealth), margin * 2));
-		window.draw(health_green);
-		window.draw(context_menu);
-		//window.draw(instructions);
+		//Draw Updates
+		window.clear(); //clear the frame buffer and screen
+		window.draw(margin_border); //first draw the first 
+		window.draw(bg_sprite); //draw the background on top of the margin border
+		window.draw(enemy_Sprite); //draw the enemy sprite
+		//player sprite goes here
+		window.draw(health_red); //draw the enemy red health bar
+		//Check the current health of the enemy, and using that info, set the appropiate width for the green bar
+		float healthPercent = static_cast<float>(enemy->GetHealth()) / originalHealth;
+		health_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin * 2));
+		window.draw(health_green); //draw the green healthbar after
+		window.draw(context_menu); //draw the context menu on top of the sprites
 		
+		//this is where it is complicated
+		//Depending on the selection provided by menu navigation, change the displayed text
 		switch (selected)
 		{
-		case -1:
+		case -1: //context menu (fight, items, run, exit)
 			for (int i = 0; i < MENU_OPTIONS; i++)
 			{
-				textArray[i].setString(contextArray[i].GetStr());
+				textArray[i].setString(contextArray[i].GetStr()); //If context menu, use context menu strings
 			}
 			break;
-		case 0: //Fight Menu
+		case 0: //Fight Menu (attack, block, guts, return)
 			for (int i = 0; i < MENU_OPTIONS; i++)
 			{
-				textArray[i].setString(fightArray[i].GetStr());
-			}
-			if (selection == 0 && sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-			{
-				damageD = character.GetStrength() * String::ToInt(character.GetWep().GetDmg().GetStr());
-				enemy.SetHealth(enemy.GetHealth() - (damageD));
-				if (enemy.GetHealth() < 0)
-				{
-					enemy.SetHealth(0);
-				}
-				isReleased = true;
+				textArray[i].setString(fightArray[i].GetStr()); //If fight menu, use fight menu strings
 			}
 			break;
 		case 1: //Items Menu
@@ -1343,7 +1346,7 @@ void GameManager::fightRender()
 				textArray[i].setFillColor(sf::Color::White);
 				textArray[i].setOutlineColor(sf::Color::White);
 			}
-			window.draw(textArray[i]);
+			window.draw(textArray[i]); //based on the current selection, hightlight the text yellow
 		}
 		window.display();
 	}
@@ -1386,39 +1389,34 @@ bool GameManager::onCreateCharacter(const String & name)
 
 	if (!flag)
 	{
-		std::default_random_engine gen;
-		cout << "entering random numergen: diceroll before roll" << dice_roll << endl;
 		//random character stats
 		//health
-		auto gen1 = [](int lower, int upper)
-		{
-			return lower + static_cast<int>(rand() % (upper - lower + 1));
-		};
-		//std::uniform_int_distribution<int> health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
-		dice_roll = gen1(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30); // health_distribution(gen);
+		
+		dice_roll = health_distribution(gen);
+		health_distribution.reset();
 		character.SetHealth(dice_roll);
-		cout << "character number health: dice" << dice_roll << " character: " << character.GetHealth() << endl;
-
+		
 		//strength
-		//std::uniform_int_distribution<int> strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
-		dice_roll = gen1(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 5);
+		dice_roll = strength_distribution(gen);
+		strength_distribution.reset();
 		character.SetStrength(dice_roll);
 
 		//armour
-		//std::uniform_int_distribution<int> arm_distribution(0, 10);
-		dice_roll = gen1(0, 10);
+		dice_roll = arm_distribution(gen);
+		arm_distribution.reset();
 		character.SetArmour(dice_roll);
 
 		//mana
-		//std::uniform_int_distribution<int> mana_distribution(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
-		dice_roll = gen1(Entity::STRD_MANA - 5, Entity::STRD_MANA + 25);
+		dice_roll = mana_distribution(gen);
+		mana_distribution.reset();
 		character.SetMana(dice_roll);
 
 		//Weapon Damage
-		//std::uniform_int_distribution<int> dmg_distribution(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
-		dice_roll = gen1(1, String::ToInt(Entity::STRD_WEP.GetDmg()) + 3);
+		int wepDMG = String::ToInt(Entity::STRD_WEP.GetDmg());
+		dice_roll = dmg_distribution(gen);
+		dmg_distribution.reset();
 		buff = String::ToString(dice_roll);
-		Weapon tempWep("RNG Sword", "Sold as is", buff, "00.00.01.11");
+		Weapon tempWep("RNG Sword", "Sold as is", buff, "00.00.01.50");
 		character.SetWep(tempWep);
 
 	}

@@ -1,14 +1,25 @@
 #ifndef GAME_MANAGER_H
 #define GAME_MANAGER_H
 #include <iostream>
-#include "troll.h"
 #include <random>
+#include <chrono>
 #include <experimental/filesystem>
 #include <fstream>
 #include "dynamic_array.h"
 #include "string.h"
 #include "SFML/Graphics.hpp"
 #include "character.h"
+
+#include "boss.h"
+#include "eagle.h"
+#include "goat.h"
+#include "goblin.h"
+#include "griffin.h"
+#include "grub.h"
+#include "lion.h"
+#include "serphent.h"
+#include "troll.h"
+#include "linked_list.h"
 
 using std::cin;
 using std::cout;
@@ -45,9 +56,11 @@ public:
 
 	void GameStart();
 
+	static const int NUM_ENEMY_TYPES = 9;
 	static const int MAX_CHARACTER_AMOUNT = 3;
 	static const int RESOURCE_FILE_DIRECTORY_ERR = -1;
 
+	static const String EnemyResourceArray[NUM_ENEMY_TYPES];
 	static const String SAVES_DIRECTORY_PATH_NAME;
 	static const String GSAVES_DIRECTORY_PATH_NAME;
 	static const String RESOURCE_DIRECTORY_PATH_NAME;
@@ -65,8 +78,13 @@ public:
 
 private:
 	int dice_roll;
-	//std::default_random_engine gen;
-	Troll enemy;
+	std::default_random_engine gen;
+	static std::uniform_int_distribution<int> health_distribution;
+	static std::uniform_int_distribution<int> strength_distribution;
+	static std::uniform_int_distribution<int> arm_distribution;
+	static std::uniform_int_distribution<int> mana_distribution;
+	static std::uniform_int_distribution<int> dmg_distribution;
+
 
 
 	bool isStartup;
@@ -78,9 +96,9 @@ private:
 	void p_menuRender();
 	void shopRender();
 	void worldRender();
+	void loadLinkedList();
 
 	void fightRender();
-
 
 	bool onCreateCharacter(const String & name);
 	void SaveFile(FileType type);
@@ -105,6 +123,7 @@ private:
 	//multidimensional array, [0][i] is for name, [1][i] is for character stats for display
 	String Character_Info[MAX_CHARACTER_AMOUNT - 1][MAX_CHARACTER_AMOUNT];
 
+	LinkedList<Enemy*> enemyList;
 	MenuMode e_StartMode;
 	Character character;
 	sf::RenderWindow window;
