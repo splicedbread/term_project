@@ -47,6 +47,7 @@ public:
 	bool NextNode();
 	bool PreviousNode();
 	bool SetCurrentPos(int num);
+	int GetCurrentPos();
 
 	void Insert(T in);
 	bool Delete(Node<T> * out);
@@ -147,14 +148,25 @@ bool LinkedList<T>::SetCurrentPos(int num)
 	{
 		flag = true;
 	}
-	while (NextNode() && !flag)
+	while (!flag && m_current->m_next != nullptr)
 	{
 		if (m_current_pos == num)
 		{
 			flag = true;
 		}
+		NextNode();
 	}
 	return flag;
+}
+
+
+/*/////////////////////////////////
+	returns the m_current_pos value
+*//////////////////////////////////
+template<class T>
+int LinkedList<T>::GetCurrentPos()
+{
+	return m_current_pos;
 }
 
 /*//////////////////////////////////////////////////////////////////////////////////
@@ -198,6 +210,7 @@ void LinkedList<T>::Insert(T in)
 		m_head->m_data = in;
 		m_tail = m_head;
 		m_current = m_head;
+		m_current_pos = 0;
 	}
 	else 
 	{
@@ -206,6 +219,7 @@ void LinkedList<T>::Insert(T in)
 		m_tail->m_next->m_prev = m_tail;
 		m_tail = m_tail->m_next;
 		m_current = m_head;
+		m_current_pos = 0;
 	}
 
 }
@@ -266,10 +280,14 @@ void LinkedList<T>::Display()
 {
 	m_current = m_head;
 	m_current_pos = 0;
-	while (m_current->m_next != nullptr && NextNode())
+	while (m_current != nullptr)
 	{
 		std::cout << "pos[" << m_current_pos << "]: " << m_current->m_data << std::endl;
+		m_current = m_current->m_next;
+		m_current_pos++;
 	}
+	m_current = m_head;
+	m_current_pos = 0;
 }
 
 #endif // !LINKED_LIST_H;
