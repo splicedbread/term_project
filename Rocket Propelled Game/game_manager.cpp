@@ -3,7 +3,7 @@ const String GameManager::GAME_NAME = "Rock Paper Gun";
 const String GameManager::SAVES_DIRECTORY_PATH_NAME = "./saves";
 const String GameManager::GSAVES_DIRECTORY_PATH_NAME = "./saves/game";
 const String GameManager::RESOURCE_DIRECTORY_PATH_NAME = "./resources";
-const String GameManager::EnemyResourceArray[GameManager::NUM_ENEMY_TYPES] = {"/RPG_grub.png", "/RPG_eagle.png", "/RPG_goat.png", "/RPG_serphent.png", "/RPG_lion.png", "/RPG_goblin.png",
+const String GameManager::EnemyResourceArray[GameManager::NUM_ENEMY_] = {"/RPG_grub.png", "/RPG_grub.png", "/RPG_eagle.png", "/RPG_goat.png", "/RPG_serphent.png", "/RPG_lion.png", "/RPG_goblin.png",
 																			"/RPG_griffin.png", "/RPG_troll.png", "/RPG_boss.png" };
 std::uniform_int_distribution<int> GameManager::health_distribution(Entity::STRD_HEALTH - 70, Entity::STRD_HEALTH + 30);
 std::uniform_int_distribution<int> GameManager::strength_distribution(Entity::STRD_STRGTH - 1, Entity::STRD_STRGTH + 6);
@@ -75,7 +75,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 	//GameState setup for a freshgame
 	m_Gstate.m_enemiesRemaining = 10;
 	m_Gstate.m_enemiesKilled = 0;
-	m_Gstate.m_currentEnemy = 0;
+	m_Gstate.m_currentEnemy = 0; //this should be overwritten
 	m_Gstate.generated_health = 150;
 
 	bool charLoad = false;
@@ -112,6 +112,7 @@ GameManager::GameManager() : e_StartMode(MAIN)
 //default dtor, saves the game before the object disappears out of scope.
 GameManager::~GameManager()
 {
+	character.SetName("NA");
 	GameSave();
 }
 
@@ -172,7 +173,7 @@ void GameManager::GameStart()
 			else
 			{
 				//winning screen?
-				m_menuRender();
+				e_StartMode = MAIN;
 			}
 			break;
 		case GameManager::SHOP:
@@ -426,6 +427,7 @@ void GameManager::m_menuRender()
 */////////////////////////////////////////////////////////////////////////////////////
 void GameManager::n_menuRender()
 {
+	bool created = false;
 	//failure flag
 	bool failure = false;
 	//all for input, including timing
@@ -452,6 +454,7 @@ void GameManager::n_menuRender()
 
 	//window control if an exit is needed without closing the window
 	bool windowControl = true;
+
 
 	//create a rectange that has a "transparent" fill color, with a white border for thickness
 	sf::RectangleShape margin_border;
@@ -480,6 +483,17 @@ void GameManager::n_menuRender()
 	textArray[0].setString("Character Name: ");
 	textArray[1].setString("Create Character");
 	textArray[2].setString("Return");
+
+	//temp menu text
+	sf::Text s_textArray[MENU_OPTIONS + 2];
+	for (int i = 0; i < MENU_OPTIONS + 2; i++)
+	{
+		s_textArray[i].setFont(font);
+		s_textArray[i].setFillColor(sf::Color::White);
+		s_textArray[i].setOutlineColor(sf::Color::White);
+		s_textArray[i].setStyle(sf::Text::Bold);
+		s_textArray[i].setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * ((margin_border.getSize().y * y_coord) + i * (text_sp - text_sp/2)));
+	}
 
 	//Need to create a text for entered text
 	sf::Text inputText;
@@ -632,27 +646,7 @@ void GameManager::n_menuRender()
 							break;
 						case 1: //Create Character
 							//for now, test if the character could be made
-							if (Input != "")
-							{
-								if (onCreateCharacter(Input))
-								{
-									cout << "character created successfully" << endl;
-
-									GameSave();
-									windowControl = false;
-									//character.SetName("NA");
-									//redirect to fight
-									character.DropEverything();
-									GameLoad();
-									e_StartMode = FIGHT;
-								}
-								else
-								{
-									cout << "character creation failed" << endl;
-									character.SetName("NA");
-									failure = true;
-								}
-							}
+							created = true;
 							break;
 						case 2: //Return
 							windowControl = false;
@@ -667,6 +661,8 @@ void GameManager::n_menuRender()
 				}
 			}
 		}
+
+		
 
 
 
@@ -692,11 +688,14 @@ void GameManager::n_menuRender()
 					window.draw(textArray[i]);
 				}
 			}
-			BottomText = "Error: Character list is full";
-			textArray[1].setFillColor(sf::Color::Red);
-			textArray[1].setOutlineColor(sf::Color::Red);
-			instructions.setString(BottomText.GetStr());
-			window.draw(textArray[1]);
+			if (!created && !failure)
+			{
+				BottomText = "Error: Character list is full";
+				textArray[1].setFillColor(sf::Color::Red);
+				textArray[1].setOutlineColor(sf::Color::Red);
+				instructions.setString(BottomText.GetStr());
+				window.draw(textArray[1]);
+			}
 		}
 		else
 		{
@@ -719,9 +718,75 @@ void GameManager::n_menuRender()
 			instructions.setString(BottomText.GetStr());
 		}
 
-		window.draw(instructions);
-		window.draw(inputText);
-		window.draw(title_Sprite);
+		if (!created)
+		{
+			window.draw(instructions);
+			window.draw(inputText);
+			window.draw(title_Sprite);
+		}
+		
+		if (created)
+		{
+			bool trying = false;
+			window.clear();
+			window.draw(margin_border);
+			BottomText = "Use this character? (Y/N)";
+			instructions.setString(BottomText.GetStr());
+			trying = onCreateCharacter(Input);
+			do
+			{
+				created = false;
+				if (trying && !failure)
+				{
+					String questionArray[MENU_OPTIONS + 2] = { 
+															String("Name: [") + character.GetName() + String("]"),
+															String("Health: [") + String::ToString(character.GetHealth()) + String("]"),
+															String("Strength: [") + String::ToString(character.GetStrength()) + String("]"),
+															String("Armour: [") + String::ToString(character.GetArmour()) + String("]"),
+															String("Mana: [") + String::ToString(character.GetMana()) + String("]")};
+					for (int i = 0; i < MENU_OPTIONS + 2; i++)
+					{
+						s_textArray[i].setString(questionArray[i].GetStr());
+						window.draw(s_textArray[i]);
+					}
+					window.display();
+
+					created = sf::Keyboard::isKeyPressed(sf::Keyboard::Y);
+					failure = sf::Keyboard::isKeyPressed(sf::Keyboard::N);
+					if (created)
+					{
+						GameSave();
+						windowControl = false;
+						//character.SetName("NA");
+						//redirect to fight
+						character.DropEverything();
+						GameLoad();
+						e_StartMode = FIGHT;
+						SaveFile(CHARLIST);
+						SaveFile(CHAR);
+					}
+				}
+				else
+				{
+					bool cl_flag = true;
+					cout << "character creation failed" << endl;
+					for (int i = 0; i < MAX_CHARACTER_AMOUNT && cl_flag; i++)
+					{
+						if (Character_Info[0][i] == character.GetName())
+						{
+							cl_flag = false;
+							Character_Info[0][i] = "NA";
+							Character_Info[1][i] = "NA";
+						}
+					}
+					character.DropEverything();
+					character.SetName("NA");
+					failure = true;
+				}
+			} while (!created && !failure);
+
+		}
+
 		window.display();
 	}
 }
@@ -1098,6 +1163,7 @@ void GameManager::loadLinkedList()
 	enemyList.Insert(new Griffin);
 	enemyList.Insert(new Troll);
 	enemyList.Insert(new Boss);
+	enemyList.Insert(new Boss);
 	enemyList.Display();
 	if (enemyList.SetCurrentPos(0))
 	{
@@ -1157,6 +1223,11 @@ void GameManager::fightRender()
 
 	//get the health of the enemy
 	Enemy * enemy = enemyList.GetData();
+	if (m_Gstate.m_currentEnemy == 9)
+	{
+		int a = 2;
+	}
+
 	float eOriginalHealth = static_cast<float>(enemy->GetHealth());
 	float pOriginalHealth = static_cast<float>(m_Gstate.generated_health);
 	//Create all necessary rectangles
@@ -1281,7 +1352,7 @@ void GameManager::fightRender()
 		//Load in the title to display, first load a texture, then a create a sprite
 		sf::Texture enemy_texture;
 		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
-		m_pathName = m_pathName + EnemyResourceArray[m_Gstate.m_currentEnemy -1];
+		m_pathName = m_pathName + EnemyResourceArray[m_Gstate.m_currentEnemy];
 		if (!enemy_texture.loadFromFile(m_pathName.GetStr()))
 		{
 			throw RESOURCE_FILE_DIRECTORY_ERR;
@@ -1405,7 +1476,9 @@ void GameManager::fightRender()
 								}
 								else
 								{
+									
 									contextSelect = selection;
+									
 								}
 								break;
 							case 2: //Run (reload fight)
@@ -1415,20 +1488,17 @@ void GameManager::fightRender()
 									LoadFile(CHAR);
 									e_StartMode = FIGHT;
 								}
-								else if (selected == 0)
-								{
-									contextSelect = selection;
-								}
 								else
 								{
-									selected = selection;
+									contextSelect = selection;
 								}
 								break;
 							case 3: //Exit
 								if (selected == -1)
 								{
 									SaveFile(CHAR_GAME);
-									character.DropEverything();
+									SaveFile(CHARLIST);
+									//character.DropEverything();
 									windowControl = false;
 									e_StartMode = MAIN;
 								}
@@ -1502,6 +1572,7 @@ void GameManager::fightRender()
 					else //enemy is attacking
 					{
 						damageDelt = damageDelt + character.actionMoves(Entity::RAGE);
+						damageTaken = damageTaken * 3;
 					}
 					break;
 				case 3: //return
@@ -1557,12 +1628,30 @@ void GameManager::fightRender()
 		//player sprite goes here
 		//Check the current health of the enemy, and using that info, set the appropiate width for the green bar
 		healthPercent = static_cast<float>(enemy->GetHealth()) / eOriginalHealth;
+		if (healthPercent < 0.0)
+		{
+			healthPercent = 0.0f;
+		}
+
+		if (healthPercent > 1.0f)
+		{
+			healthPercent = 1.0f;
+		}
 		ehealth_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin));
 		window.draw(ehealth_red); //draw the enemy red health bar
 		window.draw(ehealth_green); //draw the green healthbar after
 		//same for the player
 		healthPercent = static_cast<float>(character.GetHealth()) / pOriginalHealth;
-		phealth_green.setSize(sf::Vector2f(player_Sprite.getGlobalBounds().width * healthPercent, margin));
+		if (healthPercent < 0.0)
+		{
+			healthPercent = 0.0f;
+		}
+		
+		if (healthPercent > 1.0f)
+		{
+			healthPercent = 1.0f;
+		}
+		phealth_green.setSize(sf::Vector2f(enemy_Sprite.getGlobalBounds().width * healthPercent, margin));
 		window.draw(phealth_red); //draw the enemy red health bar
 		window.draw(phealth_green); //draw the green healthbar after
 		window.draw(stats_box); //draw the stats box
@@ -1577,7 +1666,7 @@ void GameManager::fightRender()
 			{
 				textArray[i].setString(contextArray[i].GetStr()); //If context menu, use context menu strings
 			}
-			selection = 0;
+			//selection = 0;
 			//end case -1
 			break;
 		case 0: //Fight Menu (attack, block, guts, return)
@@ -1590,16 +1679,17 @@ void GameManager::fightRender()
 		case 1: //Items Menu
 			if (character.GetInv().GetPotions().GetElements() != 0)
 			{
-				for (int i = 0; i < character.GetInv().GetPotions().GetElements() - 1; i++)
+				for (int i = 0; i < character.GetInv().GetPotions().GetElements(); i++)
 				{
 					textArray[i].setString(item_mArray[i].GetStr()); //If items, use item strings
 				}
+				textArray[3].setString("Return");
 			}
 			else
 			{
 				for (int i = 0; i < MENU_OPTIONS - 1; i++)
 				{
-					textArray[i].setString("");
+					textArray[i].setString(" ");
 				}
 			}
 			
@@ -1608,9 +1698,16 @@ void GameManager::fightRender()
 			{
 				selection = 3;
 			}
-			else if (selection > character.GetInv().GetPotions().GetElements())
+			else
 			{
-				selection = 0;
+				if (selection > character.GetInv().GetPotions().GetElements() && selection != 3)
+				{
+					selection = 0;
+				}
+				else if (selection < 0)
+				{
+					selection = 3;
+				}
 			}
 			//end case 1
 			break;
@@ -1641,9 +1738,9 @@ void GameManager::fightRender()
 		{
 			if (m_Gstate.m_enemiesRemaining != 0)
 			{
-				m_Gstate.m_currentEnemy++;
-				m_Gstate.m_enemiesKilled++;
-				m_Gstate.m_enemiesRemaining--;
+				++m_Gstate.m_currentEnemy;
+				++m_Gstate.m_enemiesKilled;
+				--m_Gstate.m_enemiesRemaining;
 				e_StartMode = FIGHT;
 			}
 			else
@@ -1651,7 +1748,9 @@ void GameManager::fightRender()
 				e_StartMode = MAIN;
 			}
 			windowControl = false;
-			GameSave();
+			SaveFile(CHAR);
+			SaveFile(CHAR_GAME);
+			SaveFile(CHARLIST);
 		}
 
 
@@ -1706,6 +1805,7 @@ bool GameManager::onCreateCharacter(const String & name)
 		dice_roll = health_distribution(gen);
 		health_distribution.reset();
 		character.SetHealth(dice_roll);
+		m_Gstate.generated_health = dice_roll;
 		
 		//strength
 		dice_roll = strength_distribution(gen);
@@ -1755,10 +1855,7 @@ bool GameManager::onCreateCharacter(const String & name)
 		}
 	}
 
-	if (flag)
-	{
-		SaveFile(CHARLIST);
-	}
+
 
 	return flag;
 }
@@ -1958,8 +2055,6 @@ void GameManager::SaveFile(FileType type)
 			this->m_FileOut.open(m_pathName.GetStr(), ios::out | ios::binary | ios::trunc | ios::ate);
 			if (m_FileOut.is_open())
 			{
-				if (flag)
-				{
 					for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
 					{
 						for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
@@ -1969,7 +2064,6 @@ void GameManager::SaveFile(FileType type)
 							m_FileOut << Character_Info[j][i].GetStr();
 						}
 					}
-				}
 				m_FileOut.close();
 			}
 			else
@@ -1999,6 +2093,7 @@ bool GameManager::LoadFile(FileType type)
 		case GameManager::CHAR:
 		{
 			cout << "loading character... " << character.GetName() << endl;
+			character.DropEverything();
 			m_pathName = "";
 			m_pathName = dir + slash + name + extension;
 			if (FileExists(m_pathName))

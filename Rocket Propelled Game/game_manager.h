@@ -56,11 +56,11 @@ public:
 
 	void GameStart();
 
-	static const int NUM_ENEMY_TYPES = 9;
+	static const int NUM_ENEMY_ = 10;
 	static const int MAX_CHARACTER_AMOUNT = 3;
 	static const int RESOURCE_FILE_DIRECTORY_ERR = -1;
 
-	static const String EnemyResourceArray[NUM_ENEMY_TYPES];
+	static const String EnemyResourceArray[NUM_ENEMY_];
 	static const String SAVES_DIRECTORY_PATH_NAME;
 	static const String GSAVES_DIRECTORY_PATH_NAME;
 	static const String RESOURCE_DIRECTORY_PATH_NAME;

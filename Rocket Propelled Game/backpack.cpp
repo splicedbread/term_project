@@ -282,6 +282,7 @@ int BackPack::GetAvailable() const
 *////////////////////////////////////
 void BackPack::Clear()
 {
+	this->m_itemAmount = 0;
 	this->m_items.Empty();
 	this->m_ptbelt.Empty();
 }

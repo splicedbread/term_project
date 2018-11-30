@@ -264,10 +264,10 @@ int Entity::actionMoves(Moves type)
 		dmg = this->m_strength * String::ToInt(this->m_wep.GetDmg()) * 2;
 		break;
 	case Entity::RAGE:
-		dmg = String::ToInt(this->m_wep.GetDmg()) * 10;
+		dmg = 5 + String::ToInt(this->m_wep.GetDmg()) * 10;
 		break;
 	case Entity::BLOCK:
-		dmg = -1 - this->m_armour - (String::ToInt(this->m_wep.GetDmg().GetStr()));
+		dmg = -1 * this->m_armour - (String::ToInt(this->m_wep.GetDmg().GetStr()));
 		break;
 	case Entity::NOTHING:
 		dmg = -1 * this->m_armour;
