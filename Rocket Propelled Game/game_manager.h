@@ -123,7 +123,7 @@ private:
 	//multidimensional array, [0][i] is for name, [1][i] is for character stats for display
 	String Character_Info[MAX_CHARACTER_AMOUNT - 1][MAX_CHARACTER_AMOUNT];
 
-	LinkedList<Enemy*> enemyList;
+	LinkedList<Enemy> enemyList;
 	MenuMode e_StartMode;
 	Character character;
 	sf::RenderWindow window;

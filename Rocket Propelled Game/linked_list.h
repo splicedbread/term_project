@@ -20,12 +20,16 @@ template <class T>
 struct Node
 {
 friend class LinkedList<T>;
+public:
+	~Node()
+	{
+		delete m_data;
+	};
 private:
 	Node<T> * m_next = nullptr;
 	Node<T> * m_prev = nullptr;
-	T m_data;
+	T * m_data;
 };
-
 
 template <class T>
 class LinkedList
@@ -35,22 +39,22 @@ private:
 	Node<T> * m_current;
 	Node<T> * m_tail;
 	int m_current_pos;
-	bool Find(const Node<T> & n);
+	bool Find(T * n);
 public:
 	LinkedList();
-	LinkedList(T data);
+	LinkedList(T * data);
 	~LinkedList();
 
-	void SetData(T data);
-	const T GetData() const;
+	void SetData(T * data);
+	T * GetData() const;
 
 	bool NextNode();
 	bool PreviousNode();
 	bool SetCurrentPos(int num);
 	int GetCurrentPos();
 
-	void Insert(T in);
-	bool Delete(Node<T> * out);
+	void Insert(T * in);
+	bool Delete(T * out);
 
 	void Purge();
 	void Display();
@@ -61,7 +65,7 @@ LinkedList<T>::LinkedList(): m_head(nullptr), m_tail(m_head), m_current(m_head),
 {}
 //one arg ctor, takes in data and assigns m_next and m_prev as nullptr
 template <class T>
-LinkedList<T>::LinkedList(T data): m_head(new Node<T>(data)), m_tail(m_head), m_current(m_head), m_current_pos(0)
+LinkedList<T>::LinkedList(T * data): m_head(new Node<T>(data)), m_tail(m_head), m_current(m_head), m_current_pos(0)
 {
 	m_head->m_next(nullptr);
 	m_head->m_prev(nullptr);
@@ -78,7 +82,7 @@ LinkedList<T>::~LinkedList()
 	SetData sets/overwrites the data of the current node
 *///////////////////////////////////////////////////////
 template<class T>
-void LinkedList<T>::SetData(T data)
+void LinkedList<T>::SetData(T * data)
 {
 	m_current->m_data = data;
 }
@@ -87,7 +91,7 @@ void LinkedList<T>::SetData(T data)
 	GetData returns a constant version of the data
 *//////////////////////////////////////////////////
 template<class T>
-const T LinkedList<T>::GetData() const
+T * LinkedList<T>::GetData() const
 {
 	return m_current->m_data;
 }
@@ -174,7 +178,7 @@ int LinkedList<T>::GetCurrentPos()
 		returns false if the node is not found
 *///////////////////////////////////////////////////////////////////////////////////
 template <class T>
-bool LinkedList<T>::Find(const Node<T> & n)
+bool LinkedList<T>::Find(T * n)
 {
 	bool found = false;
 	m_current_pos = 0;
@@ -202,7 +206,7 @@ bool LinkedList<T>::Find(const Node<T> & n)
 	Insert is a append style insert, only inserts at the end of the list
 *////////////////////////////////////////////////////////////////////////
 template <class T>
-void LinkedList<T>::Insert(T in)
+void LinkedList<T>::Insert(T * in)
 {
 	if (m_head == nullptr)
 	{
@@ -229,13 +233,13 @@ void LinkedList<T>::Insert(T in)
 	returns true or false if it was deleted or not
 */////////////////////////////////////////////////////////
 template <class T>
-bool LinkedList<T>::Delete(Node<T> * out)
+bool LinkedList<T>::Delete(T * out)
 {
 	bool found = false;
 
 	Node<T> * travel = m_head;
 
-	while (travel != nullptr && travel->m_data != out->m_data)
+	while (travel != nullptr && travel->m_data != out)
 	{
 		travel = travel->m_next;
 	}
@@ -247,10 +251,13 @@ bool LinkedList<T>::Delete(Node<T> * out)
 			travel->m_next->m_prev = travel->m_prev;
 			travel->m_prev->m_next = travel->m_next;
 		}
+		else if (travel == m_head)
+		{
+			m_head = m_head->m_next;
+		}
 		else
 		{
-			m_head = nullptr;
-			m_tail = nullptr;
+			m_tail = m_tail->m_prev;
 		}
 		delete travel;
 	}
@@ -268,7 +275,7 @@ void LinkedList<T>::Purge()
 	while (travel != nullptr)
 	{
 		travel = travel->m_next;
-		travel != nullptr ? Delete(travel->m_prev) : Delete(m_head);
+		travel != nullptr ? Delete(travel->m_prev->m_data) : Delete(m_head->m_data);
 	}
 }
 
