@@ -427,7 +427,6 @@ void GameManager::m_menuRender()
 */////////////////////////////////////////////////////////////////////////////////////
 void GameManager::n_menuRender()
 {
-	bool created = false;
 	//failure flag
 	bool failure = false;
 	//all for input, including timing
@@ -454,7 +453,6 @@ void GameManager::n_menuRender()
 
 	//window control if an exit is needed without closing the window
 	bool windowControl = true;
-
 
 	//create a rectange that has a "transparent" fill color, with a white border for thickness
 	sf::RectangleShape margin_border;
@@ -483,17 +481,6 @@ void GameManager::n_menuRender()
 	textArray[0].setString("Character Name: ");
 	textArray[1].setString("Create Character");
 	textArray[2].setString("Return");
-
-	//temp menu text
-	sf::Text s_textArray[MENU_OPTIONS + 2];
-	for (int i = 0; i < MENU_OPTIONS + 2; i++)
-	{
-		s_textArray[i].setFont(font);
-		s_textArray[i].setFillColor(sf::Color::White);
-		s_textArray[i].setOutlineColor(sf::Color::White);
-		s_textArray[i].setStyle(sf::Text::Bold);
-		s_textArray[i].setOrigin(-1 * (margin_border.getSize().x * x_coord), -1 * ((margin_border.getSize().y * y_coord) + i * (text_sp - text_sp/2)));
-	}
 
 	//Need to create a text for entered text
 	sf::Text inputText;
@@ -612,7 +599,7 @@ void GameManager::n_menuRender()
 											TempInput = static_cast<char>(event.text.unicode);
 										}
 									}
-									
+
 									if (event.type == sf::Event::KeyPressed)
 									{
 										if (event.key.code == sf::Keyboard::Enter)
@@ -646,7 +633,27 @@ void GameManager::n_menuRender()
 							break;
 						case 1: //Create Character
 							//for now, test if the character could be made
-							created = true;
+							if (Input != "")
+							{
+								if (onCreateCharacter(Input))
+								{
+									cout << "character created successfully" << endl;
+
+									GameSave();
+									windowControl = false;
+									//character.SetName("NA");
+									//redirect to fight
+									character.DropEverything();
+									GameLoad();
+									e_StartMode = FIGHT;
+								}
+								else
+								{
+									cout << "character creation failed" << endl;
+									character.SetName("NA");
+									failure = true;
+								}
+							}
 							break;
 						case 2: //Return
 							windowControl = false;
@@ -661,8 +668,6 @@ void GameManager::n_menuRender()
 				}
 			}
 		}
-
-		
 
 
 
@@ -688,14 +693,11 @@ void GameManager::n_menuRender()
 					window.draw(textArray[i]);
 				}
 			}
-			if (!created && !failure)
-			{
-				BottomText = "Error: Character list is full";
-				textArray[1].setFillColor(sf::Color::Red);
-				textArray[1].setOutlineColor(sf::Color::Red);
-				instructions.setString(BottomText.GetStr());
-				window.draw(textArray[1]);
-			}
+			BottomText = "Error: Character list is full";
+			textArray[1].setFillColor(sf::Color::Red);
+			textArray[1].setOutlineColor(sf::Color::Red);
+			instructions.setString(BottomText.GetStr());
+			window.draw(textArray[1]);
 		}
 		else
 		{
@@ -718,78 +720,14 @@ void GameManager::n_menuRender()
 			instructions.setString(BottomText.GetStr());
 		}
 
-		if (!created)
-		{
-			window.draw(instructions);
-			window.draw(inputText);
-			window.draw(title_Sprite);
-		}
-		
-		if (created)
-		{
-			bool trying = false;
-			window.clear();
-			window.draw(margin_border);
-			BottomText = "Use this character? (Y/N)";
-			instructions.setString(BottomText.GetStr());
-			trying = onCreateCharacter(Input);
-			do
-			{
-				created = false;
-				if (trying && !failure)
-				{
-					String questionArray[MENU_OPTIONS + 2] = { 
-															String("Name: [") + character.GetName() + String("]"),
-															String("Health: [") + String::ToString(character.GetHealth()) + String("]"),
-															String("Strength: [") + String::ToString(character.GetStrength()) + String("]"),
-															String("Armour: [") + String::ToString(character.GetArmour()) + String("]"),
-															String("Mana: [") + String::ToString(character.GetMana()) + String("]")};
-					for (int i = 0; i < MENU_OPTIONS + 2; i++)
-					{
-						s_textArray[i].setString(questionArray[i].GetStr());
-						window.draw(s_textArray[i]);
-					}
-					window.display();
-
-					created = sf::Keyboard::isKeyPressed(sf::Keyboard::Y);
-					failure = sf::Keyboard::isKeyPressed(sf::Keyboard::N);
-					if (created)
-					{
-						GameSave();
-						windowControl = false;
-						//character.SetName("NA");
-						//redirect to fight
-						character.DropEverything();
-						GameLoad();
-						e_StartMode = FIGHT;
-						SaveFile(CHARLIST);
-						SaveFile(CHAR);
-					}
-				}
-				else
-				{
-					bool cl_flag = true;
-					cout << "character creation failed" << endl;
-					for (int i = 0; i < MAX_CHARACTER_AMOUNT && cl_flag; i++)
-					{
-						if (Character_Info[0][i] == character.GetName())
-						{
-							cl_flag = false;
-							Character_Info[0][i] = "NA";
-							Character_Info[1][i] = "NA";
-						}
-					}
-					character.DropEverything();
-					character.SetName("NA");
-					failure = true;
-				}
-			} while (!created && !failure);
-
-		}
-
+		window.draw(instructions);
+		window.draw(inputText);
+		window.draw(title_Sprite);
 		window.display();
 	}
 }
+
+
 
 /*/////////////////////////////////////////
 	brief: renders the load character menu
@@ -1773,8 +1711,8 @@ bool GameManager::onCreateCharacter(const String & name)
 	String Mana = "Mana: [";
 	String buff = "";
 
-	String coolNames[5] = {"DoomGuy", "GoblinSlayer", "Brock", "Kira", "KillerQueen"};
-	String wepNames[10] = {"Brwn Stick", "Sling", "Pike", "1911", "Cheese Wheel", "TV remote", "Machete", "Plunger", "Fists", "God Finger"};
+	String coolNames[5] = { "DoomGuy", "GoblinSlayer", "Brock", "Kira", "KillerQueen" };
+	String wepNames[10] = { "Brwn Stick", "Sling", "Pike", "1911", "Cheese Wheel", "TV remote", "Machete", "Plunger", "Fists", "God Finger" };
 	bool flag = false;
 	character.SetName(name);
 
@@ -1801,12 +1739,11 @@ bool GameManager::onCreateCharacter(const String & name)
 	{
 		//random character stats
 		//health
-		
+
 		dice_roll = health_distribution(gen);
 		health_distribution.reset();
 		character.SetHealth(dice_roll);
-		m_Gstate.generated_health = dice_roll;
-		
+
 		//strength
 		dice_roll = strength_distribution(gen);
 		strength_distribution.reset();
@@ -1840,7 +1777,7 @@ bool GameManager::onCreateCharacter(const String & name)
 
 
 	flag = false;
-	
+
 	for (int i = 0; i < MAX_CHARACTER_AMOUNT && !flag; i++)
 	{
 		for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1 && !flag; j++)
@@ -1850,12 +1787,16 @@ bool GameManager::onCreateCharacter(const String & name)
 				flag = true;
 				Character_Info[0][i] = character.GetName();
 				Character_Info[1][i] = Health + String::ToString(character.GetHealth()) + "] " + Remaining + RemainingAmount + "]\n" +
-										Strength + String::ToString(character.GetStrength()) + "] " + Armour + String::ToString(character.GetArmour()) + "]";
+					Strength + String::ToString(character.GetStrength()) + "] " + Armour + String::ToString(character.GetArmour()) + "]";
 			}
 		}
 	}
 
-
+	if (flag)
+	{
+		SaveFile(CHARLIST);
+		SaveFile(CHAR);
+	}
 
 	return flag;
 }
