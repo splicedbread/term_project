@@ -118,3 +118,11 @@ void Character::DropObj(const Item & itm)
 {
 	m_inventory.Remove(itm);
 }
+
+/*//////////////////////////////////////
+	Empties both potion and item arrays
+*///////////////////////////////////////
+void Character::DropEverything()
+{
+	this->m_inventory.Clear();
+}

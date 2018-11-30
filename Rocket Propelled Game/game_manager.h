@@ -115,7 +115,7 @@ private:
 		int m_enemiesRemaining;
 		int m_enemiesKilled;
 		int m_currentEnemy;
-		bool inFight;
+		int generated_health;
 	};
 
 	GameState m_Gstate;

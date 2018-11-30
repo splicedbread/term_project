@@ -46,6 +46,7 @@ public:
 	bool Find(const Item & itm);
 	void Display(bool mode) const;
 	int GetAvailable() const;
+	void Clear();
 	const DynamicArray<Potion> & GetPotions() const;
 	const DynamicArray<Item> & GetItems() const;
 

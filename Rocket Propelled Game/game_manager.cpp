@@ -75,8 +75,8 @@ GameManager::GameManager() : e_StartMode(MAIN)
 	//GameState setup for a freshgame
 	m_Gstate.m_enemiesRemaining = 10;
 	m_Gstate.m_enemiesKilled = 0;
-	m_Gstate.m_currentEnemy = 1;
-	m_Gstate.inFight = false;
+	m_Gstate.m_currentEnemy = 0;
+	m_Gstate.generated_health = 150;
 
 	bool charLoad = false;
 	charLoad = LoadFile(CHARLIST);
@@ -162,10 +162,18 @@ void GameManager::GameStart()
 		case GameManager::FIGHT:
 			//fight may be used recursively, calling GameStart() from MAIN switch, after
 			//chaning e_StartMode to fight will bring it here, could be dangerous
-			std::cout << "Fight Screen should display" << std::endl;
-			GameSave();
-			GameLoad();
-			fightRender();
+			if (m_Gstate.m_enemiesRemaining != 0)
+			{
+				std::cout << "Fight Screen should display" << std::endl;
+				GameSave();
+				GameLoad();
+				fightRender();
+			}
+			else
+			{
+				//winning screen?
+				m_menuRender();
+			}
 			break;
 		case GameManager::SHOP:
 			//Shop screen has the same issue as fight, but the idea is to open a shop
@@ -229,6 +237,7 @@ void GameManager::GameLoad()
 	{
 		LoadFile(CHAR);
 		LoadFile(CHAR_GAME);
+		LoadFile(CHARLIST);
 		character.Info(0);
 	}
 }
@@ -633,6 +642,8 @@ void GameManager::n_menuRender()
 									windowControl = false;
 									//character.SetName("NA");
 									//redirect to fight
+									character.DropEverything();
+									GameLoad();
 									e_StartMode = FIGHT;
 								}
 								else
@@ -1099,14 +1110,17 @@ void GameManager::loadLinkedList()
 *////////////////////////////////////////////////////////////////////////////////////
 void GameManager::fightRender()
 {
+	//rnd number generator for enemy action
+	std::uniform_int_distribution<int> enemy_actionDistribution(Entity::NORMAL, Entity::NOTHING); //normal to nothing is the enum range
 	//window control if an exit is needed without closing the window
 	bool windowControl = true;
+	bool enemyKilled = false;
 	//How many options are in the menu?
 	const int MENU_OPTIONS = 4;
 	//used for events
 	sf::Event event;
 	//setup current position in the enemy list
-	if (!enemyList.SetCurrentPos(m_Gstate.m_currentEnemy - 1))
+	if (!enemyList.SetCurrentPos(m_Gstate.m_currentEnemy))
 	{
 		cout << "There was a problem getting the current enemy" << endl;
 	}
@@ -1120,15 +1134,31 @@ void GameManager::fightRender()
 	sf::Font font;
 	font.loadFromFile("./comic.ttf");
 	sf::Text textArray[MENU_OPTIONS];
-	String contextArray[MENU_OPTIONS] = { "Fight", "Items", "Run", "Exit" };
-	String fightArray[MENU_OPTIONS] = { "Attack", "Block", "Guts", "Return" };
+	sf::Text statArray[MENU_OPTIONS + 1];
+	String contextArray[MENU_OPTIONS] = { "Fight", "Items", "Reset Fight", "Exit" };
+	String item_mArray[MENU_OPTIONS];
+	for (int i = 0; i < 3 && i < character.GetInv().GetPotions().GetElements(); i++)
+	{
+		item_mArray[i] = String(character.GetInv().GetPotions()[i].GetPoten()) + String(" ") + character.GetInv().GetPotions()[i].GetName();
+	}
+	item_mArray[MENU_OPTIONS - 1] = "Return";
 
-	//data for managing 
-	int damageD = 0;
+
+	//The string array, should also account the players stats, like displaying numbers next to the actions
+	String fightArray[MENU_OPTIONS] = { String("Attack [") + String::ToString(character.actionMoves(Entity::NORMAL)) + String("]"),
+										String("Block [") + String::ToString(-1*character.actionMoves(Entity::BLOCK)) + String("]"),
+										String("Guts [") + String::ToString(character.actionMoves(Entity::RAGE)) + String("]"), 
+										"Return"};
+	String sArray[MENU_OPTIONS + 1] = {String("Name: ") + character.GetName(),
+										String("Wpn: ") + character.GetWep().GetName(),
+										String("Strg: ") + String::ToString(character.GetStrength()),
+										String("Armour: ") + String::ToString(character.GetArmour()),
+										String("Mana: ") + String::ToString(character.GetMana())};
+
 	//get the health of the enemy
 	Enemy * enemy = enemyList.GetData();
 	float eOriginalHealth = static_cast<float>(enemy->GetHealth());
-	float pOriginalHealth = static_cast<float>(character.GetHealth());
+	float pOriginalHealth = static_cast<float>(m_Gstate.generated_health);
 	//Create all necessary rectangles
 		//margin is for the gap between window and white border.
 		float margin = 15; //Margin in pixels
@@ -1154,33 +1184,60 @@ void GameManager::fightRender()
 		x_coord = margin_border.getOrigin().x - 2*margin;
 		y_coord = margin_border.getOrigin().y - margin_border.getSize().y + context_menu.getSize().y + 2*margin;
 		context_menu.setOrigin(x_coord, y_coord);
+
+		//Stats box
+		sf::RectangleShape stats_box;
+		stats_box = margin_border;
+		//Resize it
+		stats_box.setOutlineThickness(margin*3.0f / 5.0f);
+		stats_box.setSize(sf::Vector2f(margin_border.getSize().x*0.35f, margin_border.getSize().y*0.18f));
+		//Pos is (top right corner)
+		//Get origin from margin_border, y doesnt need to be messed with too much
+		x_coord = margin_border.getOrigin().y - margin_border.getSize().x + stats_box.getSize().x + 2*margin;
+		y_coord = margin_border.getOrigin().y - 2 * margin;
+		stats_box.setOrigin(x_coord, y_coord);
+
 	//End Rectangle creation
 
 
 	
 	//Position where the menu objects should be positioned related to the white border of the context menu
+		//Context menu text
 	x_coord = context_menu.getOrigin().x; 
 	y_coord = context_menu.getOrigin().y - 2*margin; 
 
-	for (int j = 0; j < 2; j++)
+
+	for (int i = 0; i < MENU_OPTIONS; i++)
 	{
-		for (int i = 0; i < MENU_OPTIONS; i++)
+		textArray[i].setFont(font);
+		textArray[i].setFillColor(sf::Color::White);
+		textArray[i].setOutlineColor(sf::Color::White);
+		textArray[i].setStyle(sf::Text::Bold);
+		textArray[i].setString(contextArray[i].GetStr());
+		if (i < 2)
 		{
-			textArray[i].setFont(font);
-			textArray[i].setFillColor(sf::Color::White);
-			textArray[i].setOutlineColor(sf::Color::White);
-			textArray[i].setStyle(sf::Text::Bold);
-			textArray[i].setString(contextArray[i].GetStr());
-			if (i < 2)
-			{
-				textArray[i].setOrigin(x_coord - (context_menu.getSize().x * 0.1f), y_coord - (i * context_menu.getSize().y * 0.25f));
-			}
-			else
-			{
-				textArray[i].setOrigin(textArray[i-2].getOrigin().x - (context_menu.getSize().x * 0.5f), textArray[i-2].getOrigin().y);
-			}
+			textArray[i].setOrigin(x_coord - (context_menu.getSize().x * 0.1f), y_coord - (i * context_menu.getSize().y * 0.25f));
+		}
+		else
+		{
+			textArray[i].setOrigin(textArray[i-2].getOrigin().x - (context_menu.getSize().x * 0.5f), textArray[i-2].getOrigin().y);
 		}
 	}
+	
+		//Stats box text
+	//coords for the text
+	x_coord = stats_box.getOrigin().x - 0.2f*margin;
+	y_coord = stats_box.getOrigin().y - 0.2f*margin;
+	for (int i = 0; i < MENU_OPTIONS + 1; i++)
+	{
+		statArray[i].setFont(font);
+		statArray[i].setFillColor(sf::Color::White);
+		statArray[i].setOutlineColor(sf::Color::White);
+		statArray[i].setStyle(sf::Text::Bold);
+		statArray[i].setString(sArray[i].GetStr());
+		statArray[i].setOrigin(x_coord, y_coord + (i*y_coord*0.5f));
+	}
+
 
 	//BackGround Setup
 		//Load a fancy background for the main menu
@@ -1201,7 +1258,14 @@ void GameManager::fightRender()
 	//Player Sprite Setup
 		m_pathName = RESOURCE_DIRECTORY_PATH_NAME;
 		sf::Texture player_texture;
-		m_pathName = m_pathName + "/RPG_player.png";
+		if (character.GetStrength() == 999)
+		{
+			m_pathName = m_pathName + "/RPG_slayer.png";
+		}
+		else
+		{
+			m_pathName = m_pathName + "/RPG_player.png";
+		}
 		if (!player_texture.loadFromFile(m_pathName.GetStr()))
 		{
 			throw RESOURCE_FILE_DIRECTORY_ERR;
@@ -1268,6 +1332,11 @@ void GameManager::fightRender()
 	//Variables used for menu
 	int selection = 0;
 	int selected = -1;
+	bool inputChange = false;
+	int enemyAction = 0;
+	int contextSelect = -1;
+	int damageDelt = 0;
+	int damageTaken = 0;
 
 	while (window.isOpen() && windowControl)
 	{
@@ -1281,59 +1350,203 @@ void GameManager::fightRender()
 					window.close();
 					break;
 				case sf::Event::KeyPressed:
-					switch (event.key.code)
+					if (!inputChange)
 					{
-					case sf::Keyboard::Up:
-						--selection;
-						if (selection < 0)
+						inputChange = true;
+						switch (event.key.code)
 						{
-							selection = MENU_OPTIONS - 1;
-						}
-						break;
-					case sf::Keyboard::Down:
-						++selection;
-						if (selection > MENU_OPTIONS - 1)
-						{
-							selection = 0;
-						}
-						break;
-					case sf::Keyboard::Right:
-						++selection;
-						++selection;
-						if (selection > MENU_OPTIONS - 1)
-						{
-							selection = 0;
-						}
-						break;
-					case sf::Keyboard::Left:
-						--selection;
-						--selection;
-						if (selection < 0)
-						{
-							selection = MENU_OPTIONS - 1;
-						}
-						break;
-					case sf::Keyboard::Enter:
-						switch (selection)
-						{
-						case 0: //Fight menu
+						case sf::Keyboard::Up:
+							--selection;
+							if (selection < 0)
+							{
+								selection = MENU_OPTIONS - 1;
+							}
 							break;
-						case 1: //Items menu
+						case sf::Keyboard::Down:
+							++selection;
+							if (selection > MENU_OPTIONS - 1)
+							{
+								selection = 0;
+							}
 							break;
-						case 2: //Run (reload fight)
+						case sf::Keyboard::Right:
+							++selection;
+							++selection;
+							if (selection > MENU_OPTIONS - 1)
+							{
+								selection = 0;
+							}
 							break;
-						case 3: //Exit
-							SaveFile(CHAR_GAME);
-							windowControl = false;
-							e_StartMode = MAIN;
+						case sf::Keyboard::Left:
+							--selection;
+							--selection;
+							if (selection < 0)
+							{
+								selection = MENU_OPTIONS - 1;
+							}
+							break;
+						case sf::Keyboard::Enter:
+							switch (selection)
+							{
+							case 0: //Fight menu
+								if (selected == -1)
+								{
+									selected = selection;
+								}
+								else
+								{
+									contextSelect = selection;
+								}
+								break;
+							case 1: //Items menu
+								if (selected == -1)
+								{
+									selected = selection;
+								}
+								else
+								{
+									contextSelect = selection;
+								}
+								break;
+							case 2: //Run (reload fight)
+								if (selected == -1)
+								{
+									windowControl = false;
+									LoadFile(CHAR);
+									e_StartMode = FIGHT;
+								}
+								else if (selected == 0)
+								{
+									contextSelect = selection;
+								}
+								else
+								{
+									selected = selection;
+								}
+								break;
+							case 3: //Exit
+								if (selected == -1)
+								{
+									SaveFile(CHAR_GAME);
+									character.DropEverything();
+									windowControl = false;
+									e_StartMode = MAIN;
+								}
+								else
+								{
+									selection = 0;
+									selected = -1;
+								}
+								break;
+							}
 							break;
 						}
-						break;
 					}
+					break;
+				case sf::Event::KeyReleased:
+					inputChange = false;
 					break;
 				}
 			}
 		}
+
+		//Fight Loop
+		if (contextSelect != -1)
+		{
+			//before we do anything, let the ai make a move (rnd)
+			enemyAction = enemy_actionDistribution(gen);
+			damageTaken = enemy->actionMoves(static_cast<Entity::Moves>(enemyAction));
+
+			switch (selected)
+			{
+			case 0://fight
+				switch (contextSelect)
+				{
+				case 0: //Attack
+					if (damageTaken < 0) //If damageTaken is neg, enemy is blocking
+					{
+						damageDelt = damageDelt + character.actionMoves(Entity::NORMAL) - (-1 * damageTaken);
+						if (damageDelt < 0)
+						{
+							damageDelt = 0;
+						}
+					}
+					else //enemy is attacking
+					{
+						damageDelt = damageDelt + character.actionMoves(Entity::NORMAL);
+					}
+					break;
+				case 1: //Block?
+					if (damageTaken > 0)
+					{
+						damageTaken = damageTaken - character.actionMoves(Entity::BLOCK);
+						if (damageTaken < 0)
+						{
+							damageTaken = 0;
+						}
+					}
+					else //if damageTaken is less than 0, its zero damage taken
+					{
+					 //nothing
+					}
+					break;
+				case 2: //Guts
+					if (damageTaken < 0) //If damageTaken is neg, enemy is blocking
+					{
+						damageDelt = damageDelt + character.actionMoves(Entity::RAGE) - (-1 * damageTaken);
+						if (damageDelt < 0)
+						{
+							damageDelt = 0;
+						}
+					}
+					else //enemy is attacking
+					{
+						damageDelt = damageDelt + character.actionMoves(Entity::RAGE);
+					}
+					break;
+				case 3: //return
+					//does nothing
+					break;
+				}
+				//end fight
+				break;
+			case 1://item
+				//not used yet
+				break;
+			}
+			contextSelect = -1;
+			selected = -1;
+		}
+
+		//damage taken check
+		if (damageTaken > 0)
+		{
+			if (damageTaken < 0)
+			{
+				damageTaken = 0;
+			}
+			//set the health incrementall to achieve a smooth effect
+			character.SetHealth(character.GetHealth() - 1);
+			--damageTaken;
+		}
+
+		//damage delt check
+		if (damageDelt > 0)
+		{
+			if (damageDelt < 0)
+			{
+				damageTaken = 0;
+			}
+			//Set the health of the enemy
+			enemy->SetHealth(enemy->GetHealth() - 1);
+			--damageDelt;
+
+			if (enemy->GetHealth() <= 0)
+			{
+				enemyKilled = true;
+			}
+		}
+
 
 		//Draw Updates
 		window.clear(); //clear the frame buffer and screen
@@ -1349,9 +1562,10 @@ void GameManager::fightRender()
 		window.draw(ehealth_green); //draw the green healthbar after
 		//same for the player
 		healthPercent = static_cast<float>(character.GetHealth()) / pOriginalHealth;
+		phealth_green.setSize(sf::Vector2f(player_Sprite.getGlobalBounds().width * healthPercent, margin));
 		window.draw(phealth_red); //draw the enemy red health bar
 		window.draw(phealth_green); //draw the green healthbar after
-
+		window.draw(stats_box); //draw the stats box
 		window.draw(context_menu); //draw the context menu on top of the sprites
 		
 		//this is where it is complicated
@@ -1363,15 +1577,42 @@ void GameManager::fightRender()
 			{
 				textArray[i].setString(contextArray[i].GetStr()); //If context menu, use context menu strings
 			}
+			selection = 0;
+			//end case -1
 			break;
 		case 0: //Fight Menu (attack, block, guts, return)
 			for (int i = 0; i < MENU_OPTIONS; i++)
 			{
 				textArray[i].setString(fightArray[i].GetStr()); //If fight menu, use fight menu strings
 			}
+			//end case 0
 			break;
 		case 1: //Items Menu
-			//not yet
+			if (character.GetInv().GetPotions().GetElements() != 0)
+			{
+				for (int i = 0; i < character.GetInv().GetPotions().GetElements() - 1; i++)
+				{
+					textArray[i].setString(item_mArray[i].GetStr()); //If items, use item strings
+				}
+			}
+			else
+			{
+				for (int i = 0; i < MENU_OPTIONS - 1; i++)
+				{
+					textArray[i].setString("");
+				}
+			}
+			
+
+			if (character.GetInv().GetPotions().GetElements() == 0)
+			{
+				selection = 3;
+			}
+			else if (selection > character.GetInv().GetPotions().GetElements())
+			{
+				selection = 0;
+			}
+			//end case 1
 			break;
 		}
 
@@ -1389,6 +1630,31 @@ void GameManager::fightRender()
 			}
 			window.draw(textArray[i]); //based on the current selection, hightlight the text yellow
 		}
+
+		for (int i = 0; i < MENU_OPTIONS + 1; i++)
+		{
+			window.draw(statArray[i]);
+		}
+
+		//Last thing, check if the enemy has been killed
+		if (enemyKilled)
+		{
+			if (m_Gstate.m_enemiesRemaining != 0)
+			{
+				m_Gstate.m_currentEnemy++;
+				m_Gstate.m_enemiesKilled++;
+				m_Gstate.m_enemiesRemaining--;
+				e_StartMode = FIGHT;
+			}
+			else
+			{
+				e_StartMode = MAIN;
+			}
+			windowControl = false;
+			GameSave();
+		}
+
+
 		window.display();
 	}
 }
@@ -1409,7 +1675,7 @@ bool GameManager::onCreateCharacter(const String & name)
 	String buff = "";
 
 	String coolNames[5] = {"DoomGuy", "GoblinSlayer", "Brock", "Kira", "KillerQueen"};
-
+	String wepNames[10] = {"Brwn Stick", "Sling", "Pike", "1911", "Cheese Wheel", "TV remote", "Machete", "Plunger", "Fists", "God Finger"};
 	bool flag = false;
 	character.SetName(name);
 
@@ -1425,6 +1691,10 @@ bool GameManager::onCreateCharacter(const String & name)
 			character.SetArmour(999);
 			character.SetMana(999);
 			character.SetHealth(999);
+			character.SetWep(Weapon("Super Shotgun", "Made specifically for killing demons", "9001", "12.10.19.97"));
+			character.PickupObj(Potion("Health PT", "life in a flask", "lesser", "00.10.20.30"));
+			character.PickupObj(Potion("Health PT", "life in a flash", "standard", "00.10.20.30"));
+			character.PickupObj(Potion("Health PT", "life in a flask", "greater", "00.10.20.30"));
 		}
 	}
 
@@ -1452,12 +1722,16 @@ bool GameManager::onCreateCharacter(const String & name)
 		mana_distribution.reset();
 		character.SetMana(dice_roll);
 
-		//Weapon Damage
+		//Weapon Name/Damage
 		int wepDMG = String::ToInt(Entity::STRD_WEP.GetDmg());
 		dice_roll = dmg_distribution(gen);
 		dmg_distribution.reset();
 		buff = String::ToString(dice_roll);
-		Weapon tempWep("RNG Sword", "Sold as is", buff, "00.00.01.50");
+
+		std::uniform_int_distribution<int> wepNamedist(0, 9);
+		dice_roll = wepNamedist(gen);
+
+		Weapon tempWep(wepNames[dice_roll], "Sold as is", buff, "00.00.01.50");
 		character.SetWep(tempWep);
 
 	}
@@ -1655,18 +1929,45 @@ void GameManager::SaveFile(FileType type)
 		case GameManager::CHARLIST:
 		{
 			int length;
+			bool flag;
 			m_pathName = GSAVES_DIRECTORY_PATH_NAME;
 			m_pathName = m_pathName + slash + GAME_NAME + List + extension;
+			if (character.GetName() == "NA")
+			{
+				flag = true;
+			}
+			else
+			{
+				flag = false;
+			}
+
+			for (int i = 0; i < MAX_CHARACTER_AMOUNT && !flag; i++)
+			{
+				for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1 && !flag; j++)
+				{
+					if (Character_Info[0][i] == character.GetName())
+					{
+						flag = true;
+						Character_Info[0][i] = character.GetName();
+						Character_Info[1][i] = String("Health: [") + String::ToString(character.GetHealth()) + "] " + String("Remaining: [") + String(String::ToString(m_Gstate.m_enemiesRemaining)) + "]\n" +
+							String("Strength: [") + String::ToString(character.GetStrength()) + "] " + String("Armour: [") + String::ToString(character.GetArmour()) + "]";
+					}
+				}
+			}
+
 			this->m_FileOut.open(m_pathName.GetStr(), ios::out | ios::binary | ios::trunc | ios::ate);
 			if (m_FileOut.is_open())
 			{
-				for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
+				if (flag)
 				{
-					for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+					for (int i = 0; i < MAX_CHARACTER_AMOUNT; i++)
 					{
-						length = Character_Info[j][i].GetLen();
-						m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
-						m_FileOut << Character_Info[j][i].GetStr();
+						for (int j = 0; j < MAX_CHARACTER_AMOUNT - 1; j++)
+						{
+							length = Character_Info[j][i].GetLen();
+							m_FileOut.write(reinterpret_cast<char *>(&length), sizeof(int));
+							m_FileOut << Character_Info[j][i].GetStr();
+						}
 					}
 				}
 				m_FileOut.close();

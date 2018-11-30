@@ -56,6 +56,7 @@ public:
 	bool PickupObj(const Item & itm);
 	void DropObj(const Potion & pt);
 	void DropObj(const Item & itm);
+	void DropEverything();
 
 private:
 	BackPack m_inventory;

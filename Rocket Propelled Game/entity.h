@@ -66,6 +66,13 @@ public:
 
 	virtual void Info(bool mode) const;
 
+	enum Moves
+	{
+		NORMAL, SPECIAL, RAGE, BLOCK, NOTHING
+	};
+
+	int actionMoves(Moves type);
+
 	static const int STRD_HEALTH = 150;
 	static const int STRD_ARMOUR = 0;
 	static const int STRD_MANA = 20;

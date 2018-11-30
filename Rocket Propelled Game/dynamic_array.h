@@ -59,6 +59,7 @@ public:
 	int GetElements() const;
 	void Insert(const T & to_add);
 	void Delete(const T & to_delete);
+	void Empty();
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -332,6 +333,20 @@ void DynamicArray<T>::Delete(const T & to_delete)
 		}
 
 	}
+}
+
+/*//////////////////////////////////////////////
+	Method Name: Empty
+	Purpose: Clears this array of all elements.
+*//////////////////////////////////////////////
+template<class T>
+void DynamicArray<T>::Empty()
+{
+	//delete this array
+	delete[] m_array;
+	m_array = nullptr;
+	//set the elements to 0
+	m_elements = 0;
 }
 
 /*//////////////////////////////////////////////////////////////////////////////////

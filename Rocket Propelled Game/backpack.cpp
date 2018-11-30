@@ -277,6 +277,15 @@ int BackPack::GetAvailable() const
 	return (this->m_itemLimit - this->m_itemAmount);
 }
 
+/*////////////////////////////////////
+	Clears both item and potion array
+*////////////////////////////////////
+void BackPack::Clear()
+{
+	this->m_items.Empty();
+	this->m_ptbelt.Empty();
+}
+
 /*///////////////////////////////////////////////////////////////////////
 	Purpose: provide a way to access the DynamicArray directly, without
 		being able to change anything

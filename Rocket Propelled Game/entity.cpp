@@ -244,3 +244,37 @@ void Entity::Info(bool mode) const
 	this->m_wallet.DisplayContent();
 	std::cout << std::endl;
 }
+
+/*////////////////////////////////////
+	allows for changing up the attack
+	> 0, is attack
+	< 0, is block
+	= 0, is nothing
+*/////////////////////////////////////
+int Entity::actionMoves(Moves type)
+{
+	int dmg = 0;
+	//If a postive number, then attack, if a negative then block
+	switch (type)
+	{
+	case Entity::NORMAL:
+		dmg = this->m_strength * String::ToInt(this->m_wep.GetDmg());
+		break;
+	case Entity::SPECIAL:
+		dmg = this->m_strength * String::ToInt(this->m_wep.GetDmg()) * 2;
+		break;
+	case Entity::RAGE:
+		dmg = String::ToInt(this->m_wep.GetDmg()) * 10;
+		break;
+	case Entity::BLOCK:
+		dmg = -1 - this->m_armour - (String::ToInt(this->m_wep.GetDmg().GetStr()));
+		break;
+	case Entity::NOTHING:
+		dmg = -1 * this->m_armour;
+		break;
+	default:
+		dmg = 0;
+		break;
+	}
+	return dmg;
+}

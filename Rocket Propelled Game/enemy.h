@@ -28,12 +28,6 @@ public:
 	Enemy(const Enemy & copy);
 	~Enemy();
 
-	enum Moves
-	{
-		NORMAL, SPECIAL, RAGE, BLOCK, NOTHING
-	};
-
-	int enemyMoves(Moves type);
 	Enemy & operator = (const Enemy & right);
 	friend std::ostream& operator << (std::ostream& os, const Enemy& enemy);
 
